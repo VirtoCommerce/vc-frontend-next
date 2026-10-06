@@ -30,6 +30,8 @@ import { isMfFlagEnabled } from "@/core-api/federation.mjs";
 import { createI18n } from "@/i18n";
 import { init as initModuleBackInStock } from "@/modules/back-in-stock";
 import { init as initCustomerReviews } from "@/modules/customer-reviews";
+import { init as initDomAnalytics } from "@/modules/dom-analytics";
+import { rules as domAnalyticsRules } from "@/modules/dom-analytics/rules";
 import { startFederatedModules } from "@/modules/federated/bootstrap";
 import { init as initializeGoogleAnalytics } from "@/modules/google-analytics";
 import { init as initLoyalty } from "@/modules/loyalty";
@@ -261,6 +263,7 @@ export default async () => {
   void initCustomerReviews(i18n);
   void initializePurchaseRequests(router, i18n);
   void initializeGoogleAnalytics();
+  void initDomAnalytics(app, domAnalyticsRules);
   void initializeHotjar();
   void initNews(router, i18n);
   void initLoyalty(router, i18n);
