@@ -86,9 +86,10 @@
               :data-culture-name="language.cultureName"
               @click="selectLanguage(language.cultureName)"
             >
+              <!-- Decorative: the label beside it names the option, and a named flag read it twice. -->
               <VcImage
                 :src="getFlagIconUrl(getCountryCode(language))"
-                :alt="language.nativeName"
+                alt=""
                 class="header-preferences-menu__flag"
                 lazy
               />

@@ -1,0 +1,58 @@
+{
+  "replacements": [
+    {
+      "fork": [
+        "client-app/shared/layout/components/header/_internal/header-plate.vue",
+        "client-app/shared/layout/components/header/_internal/header-account-menu.vue",
+        "client-app/shared/layout/components/header/_internal/header-account-menu-panel.vue"
+      ],
+      "upstream": [
+        "client-app/shared/layout/components/header/_internal/top-header.vue",
+        "client-app/shared/layout/components/header/_internal/bottom-header.vue",
+        "client-app/shared/layout/components/header/_internal/top-header-link.vue"
+      ],
+      "note": "desktop header: one plate with the logo, catalog menu, search, links and an initials-only account button; names and organizations live in the account panel. Upstream's top-bar ship-to selector has no place in it yet"
+    },
+    {
+      "fork": [
+        "client-app/shared/layout/components/header/_internal/header-preferences-menu.vue",
+        "client-app/shared/layout/composables/useLocaleSwitch.ts"
+      ],
+      "upstream": [
+        "client-app/shared/layout/components/language-selector/language-selector.vue",
+        "client-app/shared/layout/components/currency-selector/currency-selector.vue"
+      ],
+      "note": "desktop language, currency and color-mode switching; language-selector.vue itself still renders in the mobile menu"
+    },
+    {
+      "fork": [
+        "client-app/pages/demo-home/demo-home.vue",
+        "client-app/pages/demo-home/hero-section.vue",
+        "client-app/pages/demo-home/categories-section.vue",
+        "client-app/pages/demo-home/popular-section.vue",
+        "client-app/pages/demo-home/brands-section.vue",
+        "client-app/pages/demo-home/suppliers-section.vue",
+        "client-app/pages/demo-home/why-buy-section.vue",
+        "client-app/pages/demo-home/changes-section.vue",
+        "client-app/pages/demo-home/cta-section.vue",
+        "client-app/pages/demo-home/section-link.vue",
+        "client-app/pages/demo-home/use-home-categories.ts"
+      ],
+      "upstream": ["client-app/pages/home.vue"],
+      "note": "the demo home replaces the page wholesale and has no login section; triage every upstream change to home.vue against it"
+    },
+    {
+      "fork": [
+        "client-app/shared/catalog/components/category/category-sort.vue",
+        "client-app/shared/catalog/composables/useCatalogGridColumns.ts",
+        "client-app/shared/catalog/composables/useCatalogGridMotion.ts",
+        "client-app/shared/layout/composables/useStuckPlate.ts",
+        "client-app/core/utilities/color-mode-switch/index.ts",
+        "client-app/ui-kit/components/molecules/tab-switch-group/vc-tab-switch-group.vue",
+        "client-app/shared/account/composables/useAccountMenuSections.ts"
+      ],
+      "upstream": [],
+      "note": "fork-only additions that replace no upstream file"
+    }
+  ]
+}
