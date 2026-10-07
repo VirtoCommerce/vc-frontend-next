@@ -2,6 +2,11 @@
 
 # Virto Commerce Frontend
 
+> [!CAUTION]
+> **This version is not stable yet.** Virto Commerce Frontend Next, with its new, modern design, is under active development. Features, APIs and configuration may change without notice, and it is not recommended for production use yet.
+>
+> **Before switching to it or building on it, please consult the Virto Commerce team: [contact us](https://virtocommerce.com/contact-us).** For the stable frontend, use [vc-frontend](https://github.com/VirtoCommerce/vc-frontend).
+
 <img src="demo.jpg" width="800" alt="catalog view">
 
 **Virto Commerce Frontend** is a single-page web application (SPA) with a fresh look on eCommerce solutions. This is where common B2B and B2C scenarios are combined with the most bleeding-edge technologies to deliver blazing-fast and fully functional solutions. It implements common business use cases needed for a vast majority of projects we build.
