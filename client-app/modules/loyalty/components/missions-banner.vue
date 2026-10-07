@@ -37,7 +37,7 @@ defineProps<IProps>();
 .missions-banner {
   --accent-color: theme("colors.primary.500");
 
-  @apply flex items-center gap-4 rounded-[--vc-radius] border-s-4 border-[--accent-color] bg-additional-50 p-5;
+  @apply flex items-center gap-4 rounded-[--plate-radius,1.75rem] border-s-4 border-[--accent-color] bg-additional-50 p-5;
 
   box-shadow:
     2px 4px 10px -1px rgb(from theme("colors.additional.950") r g b / 0.08),
@@ -48,19 +48,21 @@ defineProps<IProps>();
   }
 
   &__icon {
-    @apply flex size-14 shrink-0 items-center justify-center rounded-full bg-[--accent-color] text-additional-50;
+    @apply flex size-14 shrink-0 items-center justify-center rounded-full bg-[--accent-color];
+
+    --vc-icon-color: theme("colors.additional.50");
   }
 
   &__body {
-    @apply flex min-w-0 flex-col gap-1;
+    @apply flex min-w-0 flex-auto flex-col gap-1;
   }
 
   &__title {
-    @apply text-sm font-extrabold uppercase tracking-wide text-neutral-900;
+    @apply text-sm font-extrabold uppercase leading-[18px] tracking-[0.02em] text-neutral-900;
   }
 
   &__subtitle {
-    @apply text-sm text-neutral-600;
+    @apply text-[13px] leading-[18px] text-neutral-600;
   }
 
   &__action {

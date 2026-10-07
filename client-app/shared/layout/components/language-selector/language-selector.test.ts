@@ -8,26 +8,18 @@ const en = { cultureName: "en-US", twoLetterLanguageName: "en", nativeName: "Eng
 const de = { cultureName: "de-DE", twoLetterLanguageName: "de", nativeName: "Deutsch (Deutschland)" };
 const pl = { cultureName: "pl-PL", twoLetterLanguageName: "pl", nativeName: "polski (Polska)" };
 
-vi.mock("@/core/composables/useLanguages", () => ({
-  useLanguages: () => ({
+// The theme's selector takes its languages from the shared locale switch, not from useLanguages.
+vi.mock("@/shared/layout/composables", () => ({
+  useLocaleSwitch: () => ({
     supportedLanguages: ref([en, de, pl]),
     currentLanguage: ref(en),
-    pinLocale: vi.fn(),
-    removeLocaleFromUrl: vi.fn(),
-    previousCultureSlug: ref({ cultureName: "", slug: "" }),
-    getUrlWithoutLocale: (path: string) => path,
+    selectLanguage: vi.fn(),
+    getCountryCode: (language: { twoLetterLanguageName: string }) => language.twoLetterLanguageName,
   }),
 }));
 
 vi.mock("@/core/composables", () => ({
   useThemeContext: () => ({ themeContext: ref(undefined) }),
-}));
-
-vi.mock("@/core/api/graphql/slugInfo/queries/getSlugInfo", () => ({ getSlugInfo: vi.fn() }));
-
-vi.mock("@/shared/broadcast", () => ({
-  dataChangedEvent: "data-changed",
-  useBroadcast: () => ({ emit: vi.fn() }),
 }));
 
 const VcDropdownMenuStub = defineComponent({
