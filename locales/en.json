@@ -416,6 +416,9 @@
             "navigation": "Navigation",
             "main_navigation": "Main navigation"
           }
+        },
+        "organizations_menu": {
+          "trigger_label": "Organizations: {name}"
         }
       },
       "footer": {

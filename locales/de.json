@@ -416,6 +416,9 @@
             "navigation": "Navigationsleiste",
             "main_navigation": "Hauptnavigation"
           }
+        },
+        "organizations_menu": {
+          "trigger_label": "Organisationen: {name}"
         }
       },
       "footer": {

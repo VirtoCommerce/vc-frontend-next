@@ -416,6 +416,9 @@
             "navigation": "导航",
             "main_navigation": "主导航"
           }
+        },
+        "organizations_menu": {
+          "trigger_label": "组织：{name}"
         }
       },
       "footer": {
