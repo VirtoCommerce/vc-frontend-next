@@ -5026,9 +5026,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vc-frontend/core@portal:./client-app/core-api::locator=vc-theme-b2b-vue%40workspace%3A.":
+"@vc-frontend/core@portal:./client-app/core-api::locator=vc-frontend-next%40workspace%3A.":
   version: 0.0.0-use.local
-  resolution: "@vc-frontend/core@portal:./client-app/core-api::locator=vc-theme-b2b-vue%40workspace%3A."
+  resolution: "@vc-frontend/core@portal:./client-app/core-api::locator=vc-frontend-next%40workspace%3A."
   peerDependencies:
     "@apollo/client": ^3.14.0
     "@floating-ui/vue": ^2.0.1
@@ -14646,9 +14646,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vc-theme-b2b-vue@workspace:.":
+"vc-frontend-next@workspace:.":
   version: 0.0.0-use.local
-  resolution: "vc-theme-b2b-vue@workspace:."
+  resolution: "vc-frontend-next@workspace:."
   dependencies:
     "@apollo/client": "npm:^3.14.1"
     "@builder.io/sdk-vue": "npm:^4.2.4"
