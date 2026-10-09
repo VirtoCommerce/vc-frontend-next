@@ -36,7 +36,11 @@
         <div class="header-plate__end">
           <HeaderPreferencesMenu />
 
-          <HeaderAccountMenu v-if="isAuthenticated" />
+          <template v-if="isAuthenticated">
+            <HeaderAccountMenu />
+
+            <HeaderOrganizationsMenu v-if="isMultiOrganization" />
+          </template>
 
           <VcButton v-else :to="ROUTES.SIGN_IN.PATH" size="sm" data-test-id="sign-in-link">
             {{ $t("shared.layout.header.link_sign_in") }}
@@ -76,6 +80,7 @@ import { useUser } from "@/shared/account/composables/useUser";
 import { useStuckPlate } from "@/shared/layout/composables/useStuckPlate";
 import CatalogMenu from "./catalog-menu.vue";
 import HeaderAccountMenu from "./header-account-menu.vue";
+import HeaderOrganizationsMenu from "./header-organizations-menu.vue";
 import HeaderPreferencesMenu from "./header-preferences-menu.vue";
 import LinkDefault from "./link-components/link-default.vue";
 import MegaMenu from "./mega-menu.vue";
@@ -91,7 +96,7 @@ defineProps<IProps>();
 
 const router = useRouter();
 const route = useRoute();
-const { isAuthenticated } = useUser();
+const { isAuthenticated, isMultiOrganization } = useUser();
 const { themeLogoUrl } = useWhiteLabeling();
 const { catalogMenuItems, desktopMainMenuItems } = useNavigations();
 
@@ -167,6 +172,11 @@ defineExpose({ pinnedHeight });
 
   // A preset whose header colour equals its canvas hands the glass its own fill.
   --glass: var(--header-plate-glass, var(--header-bottom-bg-color));
+
+  // The row plates every header menu draws on (account, organizations), declared once so the menus
+  // cannot drift apart: a neutral hover, the warm secondary plate for "you are here".
+  --header-menu-hover-bg: theme("colors.neutral.100");
+  --header-menu-active-bg: theme("colors.secondary.100");
 
   // One handle for both rows of the plate: the logo row lives here, the category row in
   // mega-menu.vue, and two separate numbers would part company on the first edit.

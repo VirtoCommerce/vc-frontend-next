@@ -416,6 +416,9 @@
             "navigation": "Navigointi",
             "main_navigation": "Päänavigointi"
           }
+        },
+        "organizations_menu": {
+          "trigger_label": "Organisaatiot: {name}"
         }
       },
       "footer": {

@@ -416,6 +416,9 @@
             "navigation": "ナビゲーション",
             "main_navigation": "メインナビゲーション"
           }
+        },
+        "organizations_menu": {
+          "trigger_label": "組織: {name}"
         }
       },
       "footer": {
