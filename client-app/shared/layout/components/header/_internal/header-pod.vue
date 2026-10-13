@@ -18,9 +18,11 @@ defineProps<IProps>();
 .header-pod {
   @apply grid size-[2.125rem] flex-none cursor-pointer place-items-center rounded-full border-0 bg-neutral-200 text-neutral-800;
 
-  transition:
-    background var(--transition-duration, 0.2s) ease,
-    color var(--transition-duration, 0.2s) ease;
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      background var(--transition-duration, 0.2s) ease,
+      color var(--transition-duration, 0.2s) ease;
+  }
 
   &:hover {
     @apply bg-neutral-300;

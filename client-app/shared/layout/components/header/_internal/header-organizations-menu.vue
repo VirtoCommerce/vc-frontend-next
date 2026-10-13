@@ -7,6 +7,7 @@
     :aria-label="$t('common.labels.organizations')"
     lazy
     shadow
+    @toggle="onToggle"
   >
     <template #trigger="{ opened, triggerProps }">
       <HeaderPod
@@ -22,14 +23,18 @@
 
     <template #content="{ close }">
       <div class="header-organizations-menu__panel">
-        <TopHeaderOrganizations class="header-organizations-menu__list" @organization-selected="close" />
+        <TopHeaderOrganizations
+          :key="openCount"
+          class="header-organizations-menu__list"
+          @organization-selected="close"
+        />
       </div>
     </template>
   </VcPopover>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useUser } from "@/shared/account";
 import HeaderPod from "./header-pod.vue";
@@ -37,6 +42,16 @@ import TopHeaderOrganizations from "./top-header-organizations.vue";
 
 const { t } = useI18n();
 const { organization } = useUser();
+
+// The popover only hides its content when closed, so re-mount the list on each open: it refetches
+// and drops a previous switch error instead of showing a stale state.
+const openCount = ref(0);
+
+function onToggle(opened: boolean) {
+  if (opened) {
+    openCount.value++;
+  }
+}
 
 // Icon-only, so the name says what the button opens before whose organization is current.
 const triggerLabel = computed(() =>
