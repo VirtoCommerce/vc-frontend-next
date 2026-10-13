@@ -1,0 +1,10 @@
+.header-plate {
+  // The same move the account sidebar makes: dark reads by brightening, so the hover steps up the
+  // neutral ramp and the active row up the secondary one. Both halves travel together.
+  --header-menu-hover-bg: theme("colors.neutral.200");
+  --header-menu-active-bg: theme("colors.secondary.200");
+
+  // The kit's shadow-lg is drawn in additional-950, which dark keeps at the light end, so the header
+  // menus glowed. Declared here only: in light the menus fall back to the kit's shadow.
+  --header-menu-shadow: 0 18px 48px rgb(from var(--color-neutral-50) r g b / 0.5);
+}
