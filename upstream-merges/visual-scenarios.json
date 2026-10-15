@@ -1,0 +1,155 @@
+{
+  "scenarios": [
+    {
+      "id": "home",
+      "title": "Home",
+      "why": "Fork's demo-home replaces upstream home.vue (fork-map)",
+      "steps": [
+        {
+          "goto": "/"
+        }
+      ]
+    },
+    {
+      "id": "category",
+      "title": "Category listing",
+      "why": "category.vue conflict (isCompact + prepareScope, VCST-5817); product-card analytics roles (VCST-6017)",
+      "steps": [
+        {
+          "goto": "/bolts"
+        }
+      ]
+    },
+    {
+      "id": "search",
+      "title": "Search results",
+      "why": "search-bar scope slot (VCST-5817), both sides changed search-bar.vue",
+      "steps": [
+        {
+          "goto": "/search?q=shirt"
+        }
+      ]
+    },
+    {
+      "id": "pdp-variations",
+      "title": "PDP with a variations list",
+      "why": "product.vue SKU conflict (VCST-6307 dark-mode SKU ink), variations.vue conflict (fork icon-shape + upstream analytics roles)",
+      "schemes": ["light", "dark"],
+      "steps": [
+        {
+          "goto": "/bolts/carriage-bolts/16mm-stainless-steel-carriage-bolt-a2-plain-finish-m5-080-diathread-size-100-pk-fastener-length-16mm-thread-size-m5-080"
+        }
+      ]
+    },
+    {
+      "id": "pdp-options",
+      "title": "PDP with options and recommendations",
+      "why": "recommended-products.vue conflict (fork icon-shape + upstream analytics roles) — the 'Customers bought together' widget",
+      "schemes": ["light"],
+      "steps": [
+        {
+          "goto": "/products-with-options/shirts-jeans-and-more/mens-flannel-shirts-lightweight-cotton-button-down-long-sleeve-shirt-casual-plaid-pocket-shirts-outdoor-work-blue-cotton-l-b2c"
+        }
+      ]
+    },
+    {
+      "id": "pdp-configurable",
+      "title": "Configurable PDP",
+      "why": "Configuration checklist in Price & delivery (VCST-6027); SKU line from the product.vue conflict (VCST-6307 dark-mode ink); product-configuration.vue changed on both sides",
+      "steps": [
+        {
+          "goto": "/products-with-options/configurable-caps-shirts/configurable-hat"
+        }
+      ],
+      "schemes": ["light", "dark"]
+    },
+    {
+      "id": "compare",
+      "title": "Compare page",
+      "why": "compare-table.vue conflict: upstream native table (VCST-5880) + fork tab group / edge radius",
+      "schemes": ["light", "dark"],
+      "seed": {
+        "keys": ["compareProducts"],
+        "steps": [
+          {
+            "goto": "/bolts"
+          },
+          {
+            "click": "button[aria-pressed='false'][aria-label*='compar' i]",
+            "count": 4
+          }
+        ]
+      },
+      "steps": [
+        {
+          "goto": "/compare"
+        }
+      ]
+    },
+    {
+      "id": "compare-stuck",
+      "title": "Compare page, header pinned",
+      "why": "compare-table pinned header row: fork's wedge-backing shadow on upstream's new <thead>",
+      "fullPage": false,
+      "seed": {
+        "keys": ["compareProducts"],
+        "steps": [
+          {
+            "goto": "/bolts"
+          },
+          {
+            "click": "button[aria-pressed='false'][aria-label*='compar' i]",
+            "count": 4
+          }
+        ]
+      },
+      "steps": [
+        {
+          "goto": "/compare"
+        },
+        {
+          "scroll": 700,
+          "wait": 800
+        }
+      ]
+    },
+    {
+      "id": "cart",
+      "title": "Cart",
+      "why": "Out-of-range quantity explanation (VCST-5990) — quantity set to 999999; vc-quantity-stepper changed on both sides",
+      "steps": [
+        {
+          "goto": "/soft-drinks/soda/coca-cola-regular-6x330ml"
+        },
+        {
+          "click": "main button:has-text('Add to cart'):visible, main button[aria-label='Increase quantity']:visible",
+          "count": 1,
+          "wait": 2500
+        },
+        {
+          "goto": "/cart",
+          "wait": 1500
+        },
+        {
+          "fill": "main input[type='number']:visible",
+          "value": 999999
+        },
+        {
+          "press": "Enter",
+          "wait": 2500
+        }
+      ]
+    },
+    {
+      "id": "sign-in",
+      "title": "Sign in",
+      "why": "Baseline page; account/auth surfaces",
+      "viewports": ["desktop"],
+      "steps": [
+        {
+          "goto": "/sign-in"
+        }
+      ]
+    }
+  ]
+}
