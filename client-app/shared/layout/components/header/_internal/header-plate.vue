@@ -36,6 +36,8 @@
         <div class="header-plate__end">
           <HeaderPreferencesMenu />
 
+          <ExtensionPointList category="topHeaderStatus" />
+
           <HeaderAccountMenu v-if="isAuthenticated" />
 
           <VcButton v-else :to="ROUTES.SIGN_IN.PATH" size="sm" data-test-id="sign-in-link">
