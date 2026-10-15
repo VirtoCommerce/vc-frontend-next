@@ -243,7 +243,9 @@
       "logo_changed": "Logotypen har ändrats framgångsrikt.",
       "logo_deleted": "Logotypen har raderats.",
       "pending_operations_leaving_page_confirmation": "Vissa åtgärder pågår fortfarande. Vill du verkligen lämna den här sidan? Ändringar som inte sparats kan gå förlorade.",
-      "content_failed_to_load": "En del av webbplatsen kunde inte laddas. Ladda om sidan för att fortsätta."
+      "content_failed_to_load": "En del av webbplatsen kunde inte laddas. Ladda om sidan för att fortsätta.",
+      "page_loading": "Laddar sidan…",
+      "page_loading_slow": "Det tar längre tid än vanligt att läsa in sidan. Du kan vänta eller läsa in sidan igen."
     },
     "placeholders": {
       "enter_value": "Ange ett värde",
@@ -827,6 +829,17 @@
           "optional": "Valfritt",
           "optional_no_selected": "Anpassa ditt val ytterligare (valfritt)",
           "required_no_selected": "Slutför alla obligatoriska alternativ för att slutföra ditt val",
+          "checklist": {
+            "title": "Checklista för konfiguration",
+            "done": "(klar)",
+            "selected": "{name} — {value}",
+            "required": "{name} — obligatorisk",
+            "optional": "{name} — valfri",
+            "fill_it_in": "Fyll i",
+            "upload_file": "Ladda upp en fil",
+            "check_it_out": "Se alternativ",
+            "review": "Granska"
+          },
           "section-text-fieldset": {
             "custom_option_with_input": "Anpassat alternativ: {0}",
             "custom_option_empty": "Anpassat alternativ: tomt",
@@ -1968,15 +1981,19 @@
     "PRODUCT_QTY_INSUFFICIENT": "Produktens tillgängliga antal {availQty} är otillräckligt för begärt {new_qty}",
     "PRODUCT_MIN_QTY_NOT_AVAILABLE": "Minsta beställning {minQty} artikel(ar) är inte tillgänglig i lager",
     "PRODUCT_EXACT_QTY": "Du kan beställa {minQty} artikel(ar)",
+    "PRODUCT_PACK_SIZE_LIMIT": "Beställ i förpackningar om {packSize}",
+    "LINE_ITEM_LIMIT": "Du kan beställa högst {limit} artikel(ar)",
     "CART_INVALID_PRODUCT": "Ogiltig produkt"
   },
   "file_error": {
     "ALREADY_EXISTS": "Kan inte ladda upp fil med samma namn",
     "INVALID_CONTENT": "Kan inte läsa filen",
+    "INVALID_CONTENT_TYPE": "Kan inte ladda upp filen",
     "EXCEPTION": "Misslyckades vid uppladdning av fil. Vänligen försök igen.",
-    "INVALID_SCOPE": "Okänt omfång '{0}'.",
+    "INVALID_SCOPE": "Filuppladdning är inte tillgänglig.",
     "INVALID_EXTENSION": "Filformatet är inte tillåtet",
     "INVALID_SIZE": "Filstorleken överskrider den tillåtna {0}",
+    "INVALID_MIN_SIZE": "Filstorleken understiger den tillåtna minimistorleken {0}",
     "CANNOT_DELETE": "Misslyckades vid radering av fil"
   }
 }

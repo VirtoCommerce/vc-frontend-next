@@ -7,16 +7,28 @@ import { defineConfig, loadEnv } from "vite";
 import { checker } from "vite-plugin-checker";
 import mkcert from "vite-plugin-mkcert";
 // Module Federation host config lives in vite.federation.ts.
-import { federatedHostPlugin, federatedAlias } from "./vite.federation.js";
+import { federatedHostPlugin, federatedAlias, federatedDefine, isFederatedHost } from "./vite.federation.js";
 import type { ProxyOptions, UserConfig, PluginOption } from "vite";
 
 const graphql = graphqlImport.default ?? graphqlImport;
 
 // Libraries imported only via dynamic import()/defineAsyncComponent; kept out of the eager
 // `vendor` chunk so they stay in their own lazy chunks. `@module-federation/*` is reached
-// only through the flag-gated dynamic import in app-runner, so deferring it keeps the MF
-// runtime out of the default (APP_MODULES_FEDERATION_ENABLED off) eager bundle entirely.
+// only through the switch-gated dynamic import in app-runner, so deferring it keeps the MF
+// runtime out of a `module_federation_enabled: false` eager bundle entirely.
 const DEFERRED_LIBS = ["skyflow-js", "barcode-detector", "marked", "nouislider", "@module-federation"];
+
+// Everything else from node_modules goes to a single shared eager `vendor` chunk.
+function getVendorChunk(id = ""): string | undefined {
+  if (!id.includes("node_modules")) {
+    return;
+  }
+  const isDeferredLib = DEFERRED_LIBS.some((lib) => id.includes(`/node_modules/${lib}/`));
+  if (isDeferredLib) {
+    return;
+  }
+  return "vendor";
+}
 
 function getProxy(target: ProxyOptions["target"], options: Omit<ProxyOptions, "target"> = {}): ProxyOptions {
   const dontTrustSelfSignedCertificate = false;
@@ -82,8 +94,8 @@ export default defineConfig(({ command, mode }): UserConfig => {
           })
         : undefined,
       vue(),
-      // Module Federation host — empty unless APP_MODULES_FEDERATION_ENABLED is set (see vite.federation.ts).
-      ...federatedHostPlugin(process.env.APP_MODULES_FEDERATION_ENABLED),
+      // Module Federation host — empty when the theme's module_federation_enabled is false (see vite.federation.ts).
+      ...federatedHostPlugin(),
       graphql() as PluginOption,
       isServe
         ? checker({
@@ -115,6 +127,7 @@ export default defineConfig(({ command, mode }): UserConfig => {
       // https://vue-i18n.intlify.dev/guide/advanced/optimization.html#reduce-bundle-size-with-feature-build-flags
       __VUE_I18N_FULL_INSTALL__: true,
       __VUE_I18N_LEGACY_API__: false,
+      ...federatedDefine(),
     },
     build: {
       target: browserslistToEsbuild(),
@@ -126,17 +139,10 @@ export default defineConfig(({ command, mode }): UserConfig => {
       assetsInlineLimit: (filePath) => (filePath.includes("/ui-kit/icons/") ? false : undefined),
       rollupOptions: {
         output: {
-          manualChunks(id = "") {
-            if (!id.includes("node_modules")) {
-              return;
-            }
-            const isDeferredLib = DEFERRED_LIBS.some((lib) => id.includes(`/node_modules/${lib}/`));
-            if (isDeferredLib) {
-              return;
-            }
-            // Everything else goes to a single shared eager `vendor` chunk.
-            return "vendor";
-          },
+          // In an MF host the plugin owns chunking of shared packages and their fallbacks; a catch-all
+          // `vendor` chunk would pull them in and create a load cycle. See
+          // https://github.com/module-federation/vite#%EF%B8%8F-codesplitting-is-managed-by-the-plugin
+          manualChunks: isFederatedHost() ? undefined : getVendorChunk,
         },
       },
     },
@@ -156,7 +162,7 @@ export default defineConfig(({ command, mode }): UserConfig => {
     // Mirrors server.proxy so a production build can be smoke-tested against the backend
     // via `yarn preview` — the canonical way to run the MF host locally. (`yarn dev` also
     // works, incl. HMR for plugins that share @apollo/client — see
-    // client-app/modules/federated/HOWTO.md "The dev inner loop".)
+    // client-app/core/federation/scenarios/s2-develop-locally.md, 2.1.)
     preview: {
       port: 3000,
       cors: true,
