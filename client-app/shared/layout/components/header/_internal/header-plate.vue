@@ -36,6 +36,10 @@
         <div class="header-plate__end">
           <HeaderPreferencesMenu />
 
+          <div class="header-plate__status">
+            <ExtensionPointList category="topHeaderStatus" />
+          </div>
+
           <HeaderAccountMenu v-if="isAuthenticated" />
 
           <VcButton v-else :to="ROUTES.SIGN_IN.PATH" size="sm" data-test-id="sign-in-link">
@@ -340,6 +344,22 @@ defineExpose({ pinnedHeight });
     // avatar are a pair apart from the icon links, and at an equal gap they read as two more
     // links. The design spends both numbers on exactly that separation.
     @apply flex flex-none items-center gap-2.5 ms-2;
+  }
+
+  // Status labels from modules (punch-out mode) are drawn for upstream's top bar: 14px on a dark
+  // strip, with an empty span as the rule between items. Here they take the preferences pill's
+  // size and ink, and the end group's gap does the separating, so those rules drop out.
+  &__status {
+    @apply flex items-center gap-2.5 whitespace-nowrap;
+
+    font-size: 0.78125rem;
+    line-height: 1.55;
+    color: theme("colors.neutral.950");
+
+    &:empty,
+    > span:empty {
+      display: none;
+    }
   }
 
   &__mega {
