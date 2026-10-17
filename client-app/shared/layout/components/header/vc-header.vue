@@ -1,6 +1,19 @@
 <template>
+  <div v-if="announcement" class="app-announcement" :style="announcement.style" :data-pb-section="announcement.id">
+    <a v-if="isExternal(announcement.link)" :href="announcement.link" target="_blank" rel="noopener noreferrer">
+      {{ announcement.text }}
+    </a>
+
+    <router-link v-else-if="announcement.link" :to="announcement.link">{{ announcement.text }}</router-link>
+
+    <span v-else>{{ announcement.text }}</span>
+  </div>
+
+  <!-- The header group's Header section hidden in the page designer: no header -->
+  <template v-if="headerTurnedOff" />
+
   <!-- Mobile header -->
-  <MobileHeader v-if="isMobile" />
+  <MobileHeader v-else-if="isMobile" />
 
   <!-- Desktop header -->
   <template v-else>
@@ -25,9 +38,11 @@
 <script setup lang="ts">
 import { useBreakpoints, useCssVar } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import { useWhiteLabeling, useThemeContext } from "@/core/composables";
 import { DESKTOP_MENU_MODES } from "@/core/constants";
 import { useUser } from "@/shared/account";
+import { useSectionGroups } from "@/shared/layout/composables/useSectionGroups";
 import { BREAKPOINTS } from "@/ui-kit/constants";
 import Created from "../print/created.vue";
 import HeaderPlate from "./_internal/header-plate.vue";
@@ -62,6 +77,31 @@ const headerHeight = computed(() => headerPlate.value?.pinnedHeight ?? 0);
 
 const desktopMenuMode = computed(() => themeContext.value?.settings?.desktop_menu_mode);
 
+const route = useRoute();
+const isExternal = (link?: string) => !!link && /^https?:\/\//i.test(link);
+
+const { findSection, isTurnedOff } = useSectionGroups();
+// the header group's Header section hidden (the designer's eye): no header
+const headerTurnedOff = computed(() => isTurnedOff("header", "site-header"));
+const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
+
+// The header group's Announcement bar: its first shown announcement over the header. "Home page only" keeps it off
+// the other pages; the designer's preview shows it whatever page is edited.
+const announcement = computed(() => {
+  const bar = findSection("header", "announcement-bar");
+  const block = bar?.blocks?.find((item) => !item.hidden && text(item.text));
+  const home = route.path === "/" || route.name === "Home" || route.path === "/designer-preview";
+  if (!bar || !block || (bar.home_only && !home)) {
+    return undefined;
+  }
+  return {
+    id: bar.id,
+    text: text(block.text),
+    link: text(block.link) || undefined,
+    style: { backgroundColor: text(bar.background) || undefined, color: text(bar.color) || undefined },
+  };
+});
+
 watch(headerHeight, (value) => {
   headerHeightVar.value = `${value + OFFSET_TOP}px`;
 });
@@ -86,6 +126,25 @@ const isMegaMenuShown = computed(() => {
 </script>
 
 <style lang="scss">
+.app-announcement {
+  @apply flex justify-center px-4 py-2 text-center text-sm;
+
+  background-color: #3a3a3a;
+  color: #fff;
+
+  a {
+    color: inherit;
+
+    &:hover {
+      @apply underline;
+    }
+  }
+
+  @media print {
+    @apply hidden;
+  }
+}
+
 .app-header {
   // Sticky lives on the OUTER element: a sticky box can only travel inside its parent,
   // and the shell is exactly as tall as the header. The negative offset equals the

@@ -1,0 +1,70 @@
+{
+  "name": "Header",
+  "icon": "lucide-panel-top",
+  "groups": ["header"],
+  "settings": [
+    {
+      "id": "logo",
+      "label": "Logo",
+      "type": "images",
+      "info": "Empty: the store's logo"
+    },
+    {
+      "id": "logo_width",
+      "label": "Logo width (px)",
+      "type": "number",
+      "info": "Empty: the theme's size"
+    },
+    {
+      "type": "header",
+      "label": "Category menu"
+    },
+    {
+      "id": "show_catalog_menu",
+      "label": "Show the category menu",
+      "type": "checkbox",
+      "default": true
+    },
+    {
+      "id": "catalog_menu",
+      "label": "Menu",
+      "type": "select",
+      "info": "A menu of the site (Content › Menus). Empty: the catalog's categories",
+      "request": {
+        "url": "/api/cms/{{location.params.storeId}}/menu",
+        "label": "name",
+        "value": "name"
+      }
+    },
+    {
+      "type": "header",
+      "label": "Icons"
+    },
+    {
+      "id": "icons_menu",
+      "label": "Menu",
+      "type": "select",
+      "info": "A menu of the site. Links to Bulk order, Compare, Lists, Orders or Cart keep their icon and count. Empty: those five",
+      "request": {
+        "url": "/api/cms/{{location.params.storeId}}/menu",
+        "label": "name",
+        "value": "name"
+      }
+    },
+    {
+      "type": "header",
+      "label": "Links row"
+    },
+    {
+      "id": "menu",
+      "label": "Menu",
+      "type": "select",
+      "info": "A menu of the site shown as a row of links under the header",
+      "request": {
+        "url": "/api/cms/{{location.params.storeId}}/menu",
+        "label": "name",
+        "value": "name"
+      }
+    }
+  ]
+}

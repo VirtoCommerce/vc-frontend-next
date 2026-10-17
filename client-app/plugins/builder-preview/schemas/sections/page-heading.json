@@ -1,0 +1,14 @@
+{
+  "name": "Page heading",
+  "icon": "lucide-heading-1",
+  "displayField": "text",
+  "excludeShared": ["background"],
+  "settings": [
+    {
+      "id": "text",
+      "label": "Heading",
+      "type": "string",
+      "info": "The page's H1. Empty: nothing is shown"
+    }
+  ]
+}

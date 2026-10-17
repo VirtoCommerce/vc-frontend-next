@@ -1,0 +1,30 @@
+{
+  "name": "Footer",
+  "icon": "lucide-panel-bottom",
+  "groups": ["footer"],
+  "blocks": ["footer-menu"],
+  "settings": [
+    {
+      "id": "logo",
+      "label": "Logo",
+      "type": "images",
+      "info": "Empty: the store's logo"
+    },
+    {
+      "id": "copyright",
+      "label": "Copyright text",
+      "type": "string",
+      "info": "Empty: the platform's version line"
+    },
+    {
+      "id": "show_credit",
+      "label": "Show the Virto Commerce credit",
+      "type": "checkbox",
+      "default": true
+    },
+    {
+      "type": "paragraph",
+      "label": "Add Menu blocks for the link columns. Without any, the footer shows the store's footer links."
+    }
+  ]
+}

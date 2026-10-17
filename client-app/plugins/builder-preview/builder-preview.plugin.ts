@@ -3,12 +3,15 @@ import { useGlobalInterceptors } from "@/core/api/common";
 import { useLanguages } from "@/core/composables/useLanguages";
 import { globals, setGlobals } from "@/core/globals";
 import { Logger } from "@/core/utilities";
+import { useSectionGroups } from "@/shared/layout/composables/useSectionGroups";
 import { useStaticPage } from "@/shared/static-content";
 import { templateBlocks } from "@/shared/static-content/components";
 import { addBuilderMessageListener, createPreviewLoadedNotifier } from "./builder-preview.protocol";
 import PreviewPage from "./components/preview-page.vue";
 import ScrollToElement from "./components/scroll-to-element.vue";
+import { InlineTextEditor, editableTexts } from "./inline-text-editor";
 import { getRegisteredComponents } from "./register-components";
+import { SectionOverlay, markedSection } from "./section-overlay";
 import {
   SHARED_COMPONENT_END_ANCHOR_ID,
   SharedComponentOverlay,
@@ -18,6 +21,7 @@ import { getBuilderOrigin, getPreviewCultureName, getPreviewPageId } from "./uti
 import type { TransferDataType } from "./builder-preview.protocol";
 import type { PageBuilderPluginOptionsType } from "./models/PageBuilderPluginOptionsType";
 import type { IThemeConfig } from "@/core/types";
+import type { GroupSectionType } from "@/shared/layout/composables/useSectionGroups";
 import type { IPageContent, IPageTemplate } from "@/shared/static-content/types";
 import type { App } from "vue";
 import type { Router } from "vue-router";
@@ -52,13 +56,23 @@ async function applyPreviewLocale(rawCultureName?: string): Promise<void> {
 
 function scrollToSection(sectionId: string) {
   requestAnimationFrame(() => {
-    const element = document.getElementById("__scroll__" + sectionId);
+    // a page section's anchor, else a header or footer section's element
+    const element = document.getElementById("__scroll__" + sectionId) ?? markedSection(sectionId);
     if (element) {
       const rect = measureElement(element);
       const targetPosition = (rect.top || 0) - window.innerHeight / 10;
       window.scroll({ top: targetPosition, behavior: "smooth" });
     }
   });
+}
+
+/** A section picked in the designer: outline it and scroll to it (a shared-component placement, else the section) */
+function selectSection(sectionId: string, sharedComponentOverlay: SharedComponentOverlay | null) {
+  sectionOverlay?.select(sectionId);
+  initialSectionId = sectionId;
+  if (!sharedComponentOverlay?.scrollToPlacement(sectionId)) {
+    scrollToSection(sectionId);
+  }
 }
 
 async function updatePreview(
@@ -76,6 +90,7 @@ async function updatePreview(
     ? { ...data.model, id: data.model.id ?? `__preview__${uuidv4()}` }
     : undefined;
   const content = model ? [...template.content, model] : template.content;
+  renderedContent = content;
   const newTemplate = { ...template, content: <IPageContent[]>[] };
 
   content.forEach((block: IPageContent) => {
@@ -97,6 +112,11 @@ async function updatePreview(
     content.map((block) => block.id),
     normalizeSharedComponentBoundaries(data.sharedComponentBoundaries),
   );
+  renderedLabels = data.sectionLabels ?? {};
+  updateSectionOverlay();
+  if (data.sectionId !== undefined) {
+    sectionOverlay?.select(data.sectionId || null);
+  }
 
   // Remember the initially selected section for scroll restoration after auth changes
   if (data.sectionId) {
@@ -164,6 +184,47 @@ let previewToken: string | null | undefined;
 let originalUserId: string | undefined;
 let pendingScrollRestore = false;
 let initialSectionId: string | undefined;
+// outlines the designer's sections (hover, selection, click to select); null outside the designer
+let sectionOverlay: SectionOverlay | null = null;
+// takes the pointer in the designer, so the page can't be used; null outside the designer
+let interactiveBlocker: HTMLElement | null = null;
+// edits a clicked text in place; while it does, renders wait (a re-render would move the caret)
+let inlineEditor: InlineTextEditor | null = null;
+let heldBackRender: TransferDataType | null = null;
+let renderHeldBack: (() => void) | null = null;
+// the page's sections as last rendered (and their names), for the outlines and the texts a click can edit
+let renderedContent: IPageContent[] = [];
+let renderedLabels: Record<string, string> = {};
+
+/** The designer's header and footer groups as it edits them */
+function applyGroups(data: TransferDataType) {
+  useSectionGroups().setSectionGroups({
+    ...(data.header ? { header: data.header as GroupSectionType[] } : {}),
+    ...(data.footer ? { footer: data.footer as GroupSectionType[] } : {}),
+  });
+  updateSectionOverlay();
+}
+
+/** The outlined sections: the header and footer groups', then the page's (in page order) */
+function updateSectionOverlay() {
+  const groupIds = useSectionGroups()
+    .allSections()
+    .map((section) => section.id);
+  sectionOverlay?.update([...groupIds, ...renderedContent.map((block) => block.id)], renderedLabels);
+}
+
+/** The designer's inspector: off, the page takes the pointer again and no outlines show; links still stay on the preview. */
+function setInspector(enabled: boolean, sharedComponentOverlay: SharedComponentOverlay | null) {
+  inlineEditor?.end();
+  if (interactiveBlocker) {
+    interactiveBlocker.style.pointerEvents = enabled ? "auto" : "none";
+  }
+  sectionOverlay?.hover(null);
+  sharedComponentOverlay?.highlight(null);
+  document.querySelectorAll<HTMLElement>("[data-section-overlay], [data-shared-component-overlay]").forEach((layer) => {
+    layer.style.display = enabled ? "" : "none";
+  });
+}
 
 function modifyRequests() {
   const { onRequest } = useGlobalInterceptors();
@@ -223,7 +284,7 @@ function createOverlay(builderOrigin: string): {
 
   bodyEl.style.visibility = "hidden";
   bodyEl.style.position = "relative";
-  const interactiveBlocker = document.createElement("div");
+  interactiveBlocker = document.createElement("div");
   // Cover the whole viewport and sit above every storefront element (sticky header, language
   // selector, etc.) so no in-preview interaction is possible inside the designer. This is what
   // prevents the user from switching the storefront language and hitting the `/fr/designer-preview`
@@ -238,11 +299,50 @@ function createOverlay(builderOrigin: string): {
   const postSectionMessage = (type: "select" | "hover", sectionId: string | null) => {
     window.parent.postMessage({ source: "preview", type, data: { sectionId } }, builderOrigin);
   };
+  // both overlays report the pointer; the designer hears one hover: a placement under it, else a section
+  let hoveredPlacement: string | null = null;
+  let hoveredSection: string | null = null;
+  let reportedHover: string | null = null;
+  const reportHover = () => {
+    const hovered = hoveredPlacement ?? hoveredSection;
+    if (hovered !== reportedHover) {
+      reportedHover = hovered;
+      postSectionMessage("hover", hovered);
+    }
+  };
   const sharedComponentOverlay = new SharedComponentOverlay(
     bodyEl,
     interactiveBlocker,
     (placementId) => postSectionMessage("select", placementId),
-    (placementId) => postSectionMessage("hover", placementId),
+    (placementId) => {
+      hoveredPlacement = placementId;
+      reportHover();
+    },
+  );
+  inlineEditor = new InlineTextEditor(
+    interactiveBlocker,
+    (sectionId) => {
+      const section =
+        renderedContent.find((item) => item.id === sectionId) ??
+        useSectionGroups()
+          .allSections()
+          .find((item) => item.id === sectionId);
+      return section ? editableTexts(section) : [];
+    },
+    (edit) => window.parent.postMessage({ source: "preview", type: "edit", data: edit }, builderOrigin),
+    () => renderHeldBack?.(),
+  );
+  sectionOverlay = new SectionOverlay(
+    bodyEl,
+    interactiveBlocker,
+    (sectionId, event) => {
+      postSectionMessage("select", sectionId);
+      inlineEditor?.start(sectionId, event.clientX, event.clientY);
+    },
+    (sectionId) => {
+      hoveredSection = sectionId;
+      reportHover();
+    },
   );
 
   return { bodyEl, sharedComponentOverlay };
@@ -275,21 +375,32 @@ async function handleMessage(
     case "remove":
     case "add":
     case "reload":
-    case "page":
     case "swap":
     case "preview":
+      if (inlineEditor?.isEditing) {
+        heldBackRender = data;
+        break;
+      }
+      await updatePreview(data, options, sharedComponentOverlay);
+      break;
+
+    case "page":
+      // a whole page from the designer (a section picked in its tree, a version shown) ends inline editing and
+      // replaces what editing held back: the designer's page already has every edit typed here
+      if (inlineEditor?.isEditing) {
+        heldBackRender = null;
+        inlineEditor.end();
+      }
       await updatePreview(data, options, sharedComponentOverlay);
       break;
 
     case "hover":
       sharedComponentOverlay?.highlight(data.sectionId ?? null);
+      sectionOverlay?.hover(data.sectionId ?? null);
       break;
     case "select":
       if (data.sectionId) {
-        initialSectionId = data.sectionId;
-        if (!sharedComponentOverlay?.scrollToPlacement(data.sectionId)) {
-          scrollToSection(data.sectionId);
-        }
+        selectSection(data.sectionId, sharedComponentOverlay);
       }
       break;
     case "navigate": {
@@ -302,6 +413,12 @@ async function handleMessage(
         updateSettings(app, data.settings);
       }
       break;
+    case "inspector":
+      setInspector(data.enabled !== false, sharedComponentOverlay);
+      break;
+    case "groups":
+      applyGroups(data);
+      break;
     case "auth": {
       previewToken = data.token?.access_token || null;
       if (!originalUserId) {
@@ -312,6 +429,7 @@ async function handleMessage(
       pendingScrollRestore = true;
       staticPagePreview.value = undefined;
       sharedComponentOverlay?.update([], []);
+      sectionOverlay?.update([], {});
       break;
     }
     default:
@@ -331,6 +449,19 @@ function handleMessages(
   // navigation), so unqueued handlers would interleave: an older message could apply its template
   // after a newer one. Chaining them keeps preview state in the order the builder sent it.
   let messageQueue: Promise<void> = Promise.resolve();
+
+  // inline editing ended: the last render it held back goes out, in order with the rest
+  renderHeldBack = () => {
+    const data = heldBackRender;
+    heldBackRender = null;
+    if (data) {
+      messageQueue = messageQueue.then(() =>
+        updatePreview(data, options, sharedComponentOverlay).catch((error: unknown) => {
+          Logger.error("Failed to render the builder preview", error);
+        }),
+      );
+    }
+  };
 
   return addBuilderMessageListener(window, builderOrigin, window.parent, (data) => {
     messageQueue = messageQueue.then(() =>
@@ -359,11 +490,15 @@ function modifyRoutes(router: Router, mode: "preview" | "designer") {
   });
   router.addRoute(matcher);
 
+  // the designer's ?ep= stays in the URL: a reload of the frame (Vite's, a currency or cart change) must boot the
+  // designer preview again, not the standalone one, which has no pageId and shows the 404 page
+  const builderOrigin = getBuilderOrigin();
   router.beforeEach((to, from, next) => {
-    if (to.path === "/designer-preview") {
+    const query = builderOrigin && !to.query.ep ? { ...to.query, ep: builderOrigin } : to.query;
+    if (to.path === "/designer-preview" && query === to.query) {
       next();
     } else {
-      next({ path: "/designer-preview", query: to.query, hash: to.hash });
+      next({ path: "/designer-preview", query, hash: to.hash });
     }
   });
 }

@@ -46,6 +46,7 @@ import { getPreviewBootOptions as getPageBuilderPreviewBoot } from "@/plugins/bu
 import { createRouter } from "@/router";
 import { useUser } from "@/shared/account";
 import ProductBlocks from "@/shared/catalog/components/product";
+import { useSectionGroups } from "@/shared/layout/composables/useSectionGroups";
 import { useNotifications } from "@/shared/notification";
 import { templateBlocks } from "@/shared/static-content";
 import { uiKit } from "@/ui-kit";
@@ -102,7 +103,7 @@ export default async () => {
   app.use(authPlugin);
 
   const { setUser, user, isAuthenticated, savedUserId, checkPermissions } = useUser();
-  const { themeContext, addPresetToThemeContext, setThemeContext } = useThemeContext();
+  const { themeContext, addPresetToThemeContext, setThemeContext, applySavedThemeSettings } = useThemeContext();
   const {
     currentLanguage,
     currentMaybeShortLocale,
@@ -181,6 +182,9 @@ export default async () => {
   }
 
   setThemeContext(store);
+  // the theme's settings saved on the platform (the page designer's Theme tab) over the built-in ones
+  // and its header and footer sections (Shopify's section groups)
+  await Promise.all([applySavedThemeSettings(store.storeId), useSectionGroups().loadSectionGroups(store.storeId)]);
   setUser(userResult);
 
   /**

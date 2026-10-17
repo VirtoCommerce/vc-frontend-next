@@ -1,7 +1,8 @@
 <template>
   <header :class="['mobile-header', { 'mobile-header--stuck': stuck }]">
     <div class="mobile-header__shell">
-      <div ref="plate" class="mobile-header__plate">
+      <!-- marked with the header group's Header section, as the desktop plate: the page designer outlines and selects it -->
+      <div ref="plate" class="mobile-header__plate" :data-pb-section="headerSection?.id">
         <!-- region Default slot -->
         <transition :name="isAnimated ? 'slide-fade-top' : ''" mode="out-in">
           <div v-if="customSlots.default" class="mobile-header__bar mobile-header__bar--custom">
@@ -24,7 +25,7 @@
               </button>
 
               <router-link class="mobile-header__brand" :to="$context.settings.default_return_url ?? '/'">
-                <VcImage :src="themeLogoUrl" :alt="$context.storeName" class="mobile-header__logo" lazy />
+                <VcImage :src="logoUrl" :alt="$context.storeName" class="mobile-header__logo" lazy />
               </router-link>
             </div>
             <!-- endregion Left slot -->
@@ -100,6 +101,7 @@ import { ROUTES } from "@/router/routes/constants";
 import { useShortCart } from "@/shared/cart";
 import { useNestedMobileHeader } from "@/shared/layout";
 import { useSearchBar } from "@/shared/layout/composables/useSearchBar";
+import { useSectionGroups } from "@/shared/layout/composables/useSectionGroups";
 import { useStuckPlate } from "@/shared/layout/composables/useStuckPlate";
 import MobileMenu from "./mobile-menu/mobile-menu.vue";
 import MobileSearchBar from "./mobile-search-bar.vue";
@@ -115,6 +117,13 @@ const { searchBarVisible, toggleSearchBar } = useSearchBar();
 const { height } = useElementSize(plate);
 const { cart } = useShortCart();
 const { themeLogoUrl } = useWhiteLabeling();
+// the theme header section's logo (the page designer's Header), else the store's
+const { findSection } = useSectionGroups();
+const headerSection = computed(() => findSection("header", "site-header"));
+const logoUrl = computed(() => {
+  const logo = headerSection.value?.logo;
+  return (typeof logo === "string" && logo.trim()) || themeLogoUrl.value;
+});
 
 // The PLATE, not the header: the shell's air scrolls away and only what the plate paints stays
 // on screen. VcHeader owns this var on desktop.

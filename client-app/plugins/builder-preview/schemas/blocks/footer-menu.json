@@ -1,0 +1,41 @@
+{
+  "name": "Menu",
+  "icon": "lucide-list",
+  "displayField": "heading",
+  "settings": [
+    {
+      "id": "heading",
+      "label": "Heading",
+      "type": "string",
+      "default": "Quick links"
+    },
+    {
+      "id": "menu",
+      "label": "Menu",
+      "type": "select",
+      "info": "A menu of the site (Content › Menus). Empty: the links below",
+      "request": {
+        "url": "/api/cms/{{location.params.storeId}}/menu",
+        "label": "name",
+        "value": "name"
+      }
+    },
+    {
+      "id": "links",
+      "label": "Links",
+      "type": "list",
+      "element": [
+        {
+          "id": "label",
+          "label": "Label",
+          "type": "string"
+        },
+        {
+          "id": "link",
+          "label": "URL",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}

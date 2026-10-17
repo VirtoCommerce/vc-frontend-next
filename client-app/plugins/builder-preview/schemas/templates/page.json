@@ -13,18 +13,6 @@
     }
   ],
   "type": "pages",
-  "settings": [
-    {
-      "id": "header",
-      "label": "Page Header / H1",
-      "type": "string"
-    },
-    {
-      "id": "hideBreadcrumbs",
-      "label": "Hide Breadcrumbs",
-      "type": "checkbox"
-    }
-  ],
   "default": {
     "metadata": {
       "parent": "page",

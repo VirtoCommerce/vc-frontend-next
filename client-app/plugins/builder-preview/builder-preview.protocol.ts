@@ -21,6 +21,13 @@ export type TransferDataType = {
   token?: { access_token?: string } | null;
   cultureName?: string;
   sharedComponentBoundaries?: unknown;
+  /** The names of the sections the preview outlines (section id → name); others aren't outlined. */
+  sectionLabels?: Record<string, string>;
+  /** `inspector` messages: off, the page works as it does live (no outlines, clicks reach the page). */
+  enabled?: boolean;
+  /** `groups` messages: the header and footer group sections as the designer edits them */
+  header?: unknown[];
+  footer?: unknown[];
 } & Partial<NullableBuilderMessageFieldsType>;
 
 const PREVIEW_UPDATE_TYPES = new Set(["changed", "update", "remove", "add", "reload", "page", "swap", "preview"]);
@@ -37,7 +44,8 @@ export function isBuilderMessage(value: unknown): value is TransferDataType {
       isOptionalString(value.templateKey) &&
       isOptionalString(value.cultureName) &&
       isOptionalSelection(value.sectionId) &&
-      (value.sharedComponentBoundaries === undefined || Array.isArray(value.sharedComponentBoundaries))
+      (value.sharedComponentBoundaries === undefined || Array.isArray(value.sharedComponentBoundaries)) &&
+      (value.sectionLabels === undefined || isStringRecord(value.sectionLabels))
     );
   }
 
@@ -52,6 +60,10 @@ export function isBuilderMessage(value: unknown): value is TransferDataType {
       return typeof value.url === "string";
     case "settings":
       return isRecord(value.settings);
+    case "inspector":
+      return typeof value.enabled === "boolean";
+    case "groups":
+      return isOptionalItemList(value.header) && isOptionalItemList(value.footer);
     case "auth":
       return isAuthToken(value.token) && (value.userId === null || isOptionalString(value.userId));
     default:
@@ -141,6 +153,19 @@ function isAuthToken(value: unknown): boolean {
   );
 }
 
+function isStringRecord(value: unknown): value is Record<string, string> {
+  return isRecord(value) && Object.values(value).every((x) => typeof x === "string");
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** A list of sections (each with a string id and type), or nothing */
+function isOptionalItemList(value: unknown): boolean {
+  return (
+    value === undefined ||
+    (Array.isArray(value) &&
+      value.every((item) => isRecord(item) && typeof item.id === "string" && typeof item.type === "string"))
+  );
 }

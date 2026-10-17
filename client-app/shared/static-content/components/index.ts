@@ -6,6 +6,8 @@ import FavoriteProducts from "./favorite-products.vue";
 import Features from "./features.vue";
 import ImageBlock from "./image-block.vue";
 import Login from "./login.vue";
+import PageBreadcrumbs from "./page-breadcrumbs.vue";
+import PageHeading from "./page-heading.vue";
 import ProductInfo from "./product-info.vue";
 import PromoText from "./promo-text.vue";
 import RecommendedProducts from "./recommended-products.vue";
@@ -28,6 +30,8 @@ export const templateBlocks: { [key: string]: Component } = {
   features: Features,
   "image-block": ImageBlock,
   login: Login,
+  breadcrumbs: PageBreadcrumbs,
+  "page-heading": PageHeading,
   "product-info": ProductInfo,
   products: ProductsBlock,
   "products-carousel": ProductsCarousel,

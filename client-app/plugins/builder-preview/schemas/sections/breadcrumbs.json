@@ -1,0 +1,6 @@
+{
+  "name": "Breadcrumbs",
+  "icon": "lucide-chevrons-right",
+  "excludeShared": ["anchor", "background"],
+  "settings": []
+}

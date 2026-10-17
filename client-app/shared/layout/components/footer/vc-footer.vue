@@ -1,14 +1,25 @@
 <template>
-  <footer id="footer" :class="['app-footer', { 'app-footer--compact': compact }]" aria-label="Footer">
+  <!-- the footer group's Footer section hidden in the page designer: no footer -->
+  <footer
+    v-if="!footerTurnedOff"
+    id="footer"
+    :class="['app-footer', { 'app-footer--compact': compact }]"
+    aria-label="Footer"
+    :data-pb-section="footerSection?.id"
+  >
     <div class="app-footer__shell">
       <!-- Top plate -->
       <div v-if="!compact" class="app-footer__top">
         <div class="app-footer__brand">
-          <VcImage :src="themeLogoUrl" :alt="$context.storeName" class="app-footer__logo" lazy />
+          <VcImage :src="logoUrl" :alt="$context.storeName" class="app-footer__logo" lazy />
         </div>
 
         <nav class="app-footer__links">
-          <template v-if="whiteLabelingFooterLinks?.length">
+          <template v-if="themeColumns.length">
+            <FooterLinks v-for="column in themeColumns" :key="column.id" :links-block="column" />
+          </template>
+
+          <template v-else-if="whiteLabelingFooterLinks?.length">
             <FooterLinks
               v-for="(footerLink, index) in whiteLabelingFooterLinks"
               :key="index"
@@ -24,14 +35,16 @@
 
       <!-- Bottom plate -->
       <div class="app-footer__bottom">
-        <span>
+        <span v-if="copyright">{{ copyright }}</span>
+
+        <span v-else>
           {{ $t("shared.layout.footer.version") }} {{ version }}. © {{ new Date().getFullYear() }}
           <strong>{{ $t("shared.layout.footer.company_name") }}</strong
           >.
           {{ $t("shared.layout.footer.all_rights_reserved") }}
         </span>
 
-        <i18n-t keypath="shared.layout.footer.asp_net_e_commerce_platform" tag="span" scope="global">
+        <i18n-t v-if="showCredit" keypath="shared.layout.footer.asp_net_e_commerce_platform" tag="span" scope="global">
           <a class="app-footer__link" href="https://virtocommerce.com" target="_blank" rel="noopener noreferrer">
             {{ $t("shared.layout.footer.by_virto") }}
           </a>
@@ -42,8 +55,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import { useNavigations, useWhiteLabeling } from "@/core/composables";
+import { useMenuLinks } from "@/shared/layout/composables/useMenuLinks";
+import { useSectionGroups } from "@/shared/layout/composables/useSectionGroups";
 import pkg from "../../../../../package.json";
 import FooterLinks from "./_internal/footer-links.vue";
 
@@ -57,6 +72,35 @@ const { themeLogoUrl, footerLinks: whiteLabelingFooterLinks } = useWhiteLabeling
 const { footerLinks, fetchFooterLinks } = useNavigations();
 
 const { version } = pkg;
+
+// the footer group's Footer section (the page designer's Footer): the logo, the credit line, and its Menu blocks as the
+// link columns, each a heading over a menu of the site or over its own links; none: white labeling's, else the store's
+// "footer-links" menu
+const { findSection, isTurnedOff } = useSectionGroups();
+const footerTurnedOff = computed(() => isTurnedOff("footer", "site-footer"));
+const footerSection = computed(() => findSection("footer", "site-footer"));
+const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
+// a column's own links (when it picks no menu), as the footer's links show them
+const ownLinks = (block: Record<string, unknown>) =>
+  (Array.isArray(block.links) ? (block.links as Record<string, unknown>[]) : [])
+    .map((link) => ({ title: text(link.label), route: text(link.link) }))
+    .filter((link) => link.title && link.route);
+const columns = computed(() =>
+  (footerSection.value?.blocks ?? []).filter(
+    (block) => block.type === "footer-menu" && !block.hidden && (text(block.menu) || ownLinks(block).length),
+  ),
+);
+const menuLinks = useMenuLinks(() => columns.value.map((column) => text(column.menu)));
+const themeColumns = computed(() =>
+  columns.value.map((column) => ({
+    id: column.id,
+    title: text(column.heading) || text(column.menu),
+    children: text(column.menu) ? (menuLinks.value[text(column.menu)] ?? []) : ownLinks(column),
+  })),
+);
+const logoUrl = computed(() => text(footerSection.value?.logo) || themeLogoUrl.value);
+const showCredit = computed(() => footerSection.value?.show_credit !== false);
+const copyright = computed(() => text(footerSection.value?.copyright));
 
 onMounted(() => {
   if (!props.compact) {

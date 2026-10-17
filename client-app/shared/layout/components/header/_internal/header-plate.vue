@@ -1,13 +1,13 @@
 <template>
-  <div :class="['header-plate', { 'header-plate--stuck': stuck }]">
+  <div :class="['header-plate', { 'header-plate--stuck': stuck }]" :data-pb-section="headerSection?.id">
     <div ref="plate" class="header-plate__surface">
       <nav class="header-plate__row" :aria-label="$t('shared.layout.header.bottom_header.main_menu')">
         <router-link class="header-plate__brand" :to="$context.settings.default_return_url ?? '/'">
-          <VcImage :src="themeLogoUrl" :alt="$context.storeName" class="header-plate__logo" lazy />
+          <VcImage :src="logoUrl" :alt="$context.storeName" class="header-plate__logo" :style="logoStyle" lazy />
         </router-link>
 
         <a
-          v-if="isCatalogButtonShown"
+          v-if="isCatalogButtonShown && showCatalogMenu"
           ref="catalogButton"
           class="header-plate__catalog"
           :href="catalogLink"
@@ -26,7 +26,7 @@
         <SearchBar class="header-plate__search" />
 
         <ul class="header-plate__links">
-          <li v-for="item in desktopMainMenuItems" :key="item.id" :data-test-id="item.dataTestId">
+          <li v-for="item in mainMenuItems" :key="item.id" :data-test-id="item.dataTestId">
             <ExtensionPoint category="headerMenu" :name="item.id" :item="item">
               <LinkDefault :item="item" />
             </ExtensionPoint>
@@ -44,13 +44,26 @@
         </div>
       </nav>
 
+      <!-- The theme's header menu (Theme › Header › Menu): a row of the link list's links -->
+      <nav v-if="headerMenuLinks.length" class="header-plate__menu" :aria-label="headerMenuName">
+        <template v-for="(link, index) in headerMenuLinks" :key="index">
+          <a v-if="isExternal(link.route)" :href="link.route as string" target="_blank" rel="noopener noreferrer">
+            {{ link.title }}
+          </a>
+
+          <router-link v-else :to="link.route || '/'" active-class="header-plate__menu-link--active">
+            {{ link.title }}
+          </router-link>
+        </template>
+      </nav>
+
       <!-- Second row of the same plate. It collapses to zero height once the plate sticks,
            so a scrolled page keeps a single-row header. -->
-      <MegaMenu v-if="isMegaMenuShown" ref="mega" class="header-plate__mega" />
+      <MegaMenu v-if="isMegaMenuShown && showCatalogMenu" ref="mega" class="header-plate__mega" />
     </div>
 
     <transition
-      v-if="isCatalogButtonShown && catalogMenuItems.length"
+      v-if="isCatalogButtonShown && showCatalogMenu && catalogMenuItems.length"
       enter-from-class="header-plate__dropdown--hidden"
       leave-to-class="header-plate__dropdown--hidden"
     >
@@ -73,6 +86,8 @@ import { useRoute, useRouter } from "vue-router";
 import { useNavigations, useWhiteLabeling } from "@/core/composables";
 import { ROUTES } from "@/router/routes/constants";
 import { useUser } from "@/shared/account/composables/useUser";
+import { useMenuLinks } from "@/shared/layout/composables/useMenuLinks";
+import { useSectionGroups } from "@/shared/layout/composables/useSectionGroups";
 import { useStuckPlate } from "@/shared/layout/composables/useStuckPlate";
 import CatalogMenu from "./catalog-menu.vue";
 import HeaderAccountMenu from "./header-account-menu.vue";
@@ -80,6 +95,7 @@ import HeaderPreferencesMenu from "./header-preferences-menu.vue";
 import LinkDefault from "./link-components/link-default.vue";
 import MegaMenu from "./mega-menu.vue";
 import SearchBar from "./search-bar/search-bar.vue";
+import type { ExtendedMenuLinkType } from "@/core/types";
 import type { StyleValue } from "vue";
 
 interface IProps {
@@ -93,7 +109,63 @@ const router = useRouter();
 const route = useRoute();
 const { isAuthenticated } = useUser();
 const { themeLogoUrl } = useWhiteLabeling();
-const { catalogMenuItems, desktopMainMenuItems } = useNavigations();
+const { catalogMenuItems, desktopMainMenuItems, fetchCatalogMenu } = useNavigations();
+const { findSection } = useSectionGroups();
+
+// the header group's Header section (the page designer's Header): the logo, the category menu (on/off, which menu),
+// which icons show, a menu as a row of links. Without the section, or a setting, the header is as it always was.
+const headerSection = computed(() => findSection("header", "site-header"));
+const sectionText = (key: string) => {
+  const value = headerSection.value?.[key];
+  return typeof value === "string" ? value.trim() : "";
+};
+const logoUrl = computed(() => sectionText("logo") || themeLogoUrl.value);
+const showCatalogMenu = computed(() => headerSection.value?.show_catalog_menu !== false);
+// the icons: a menu of the site (the section's icons menu), else the built-in five. A link to a built-in page (by the
+// route its URL resolves to, so a language prefix doesn't matter) shows as that built-in: its icon, its count, its
+// extension point; any other link with a link icon.
+const iconsMenuName = computed(() => sectionText("icons_menu"));
+const iconsMenuLinks = useMenuLinks(() => [iconsMenuName.value]);
+const routeName = (to: ExtendedMenuLinkType["route"]) => {
+  try {
+    return to ? router.resolve(to).name : undefined;
+  } catch {
+    return undefined;
+  }
+};
+const mainMenuItems = computed<ExtendedMenuLinkType[]>(() => {
+  if (!iconsMenuName.value) {
+    return desktopMainMenuItems.value;
+  }
+  return (iconsMenuLinks.value[iconsMenuName.value] ?? []).map((link, index) => {
+    const name = routeName(link.route);
+    const builtIn = name ? desktopMainMenuItems.value.find((item) => routeName(item.route) === name) : undefined;
+    return builtIn
+      ? { ...builtIn, title: link.title || builtIn.title }
+      : { id: `icons-menu-${index}`, title: link.title, route: link.route, icon: "link" };
+  });
+});
+// a menu picked for the category menu replaces the catalog's own (and back when it's cleared)
+watch(
+  () => sectionText("catalog_menu"),
+  (name, previous) => {
+    if (name || previous) {
+      void fetchCatalogMenu(name || undefined);
+    }
+  },
+  { immediate: true },
+);
+const logoStyle = computed<StyleValue | undefined>(() => {
+  const width = Number(headerSection.value?.logo_width);
+  return width > 0 ? { width: `${width}px`, height: "auto" } : undefined;
+});
+const headerMenuName = computed(() => {
+  const menu = headerSection.value?.menu;
+  return typeof menu === "string" ? menu.trim() : "";
+});
+const menuLinks = useMenuLinks(() => [headerMenuName.value]);
+const headerMenuLinks = computed(() => (headerMenuName.value ? (menuLinks.value[headerMenuName.value] ?? []) : []));
+const isExternal = (to: unknown) => typeof to === "string" && /^https?:\/\//i.test(to);
 
 const plate = ref<HTMLElement | null>(null);
 const catalogMenuElement = shallowRef<HTMLElement | null>(null);
@@ -340,6 +412,21 @@ defineExpose({ pinnedHeight });
     // avatar are a pair apart from the icon links, and at an equal gap they read as two more
     // links. The design spends both numbers on exactly that separation.
     @apply flex flex-none items-center gap-2.5 ms-2;
+  }
+
+  &__menu {
+    @apply flex flex-wrap items-center gap-x-6 gap-y-1 text-sm font-medium;
+
+    padding: 0 var(--header-row-pad-x) 0.75rem;
+
+    a {
+      color: var(--header-bottom-link-color, inherit);
+
+      &:hover,
+      &.header-plate__menu-link--active {
+        @apply underline underline-offset-4;
+      }
+    }
   }
 
   &__mega {

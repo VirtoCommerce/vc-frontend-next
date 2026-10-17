@@ -232,7 +232,11 @@ export function _useNavigations() {
     }
   }
 
-  async function fetchCatalogMenu() {
+  let catalogMenuRequest = 0;
+
+  /** The category menu: `linkListName` (the theme header's menu) if given, else white labeling, XAPI, the categories */
+  async function fetchCatalogMenu(linkListName?: string) {
+    const request = ++catalogMenuRequest;
     const { zero_price_product_enabled } = themeContext.value.settings;
 
     const catalog_menu_link_list_name = getSettingValue(MODULE_XAPI_KEYS.CATALOG_MENU_LINK_LIST_NAME);
@@ -242,7 +246,14 @@ export function _useNavigations() {
       // Get white labeling main menu links
       const { mainMenuLinks: whiteLabelingMainMenuLinks } = useWhiteLabeling();
 
-      if (whiteLabelingMainMenuLinks.value?.length) {
+      if (linkListName) {
+        const items = (await getMenu(linkListName)).map((item) =>
+          convertToExtendedMenuLink(item as MenuLinkType, true),
+        );
+        if (request === catalogMenuRequest) {
+          catalogMenuItems.value = items;
+        }
+      } else if (whiteLabelingMainMenuLinks.value?.length) {
         // First priority: use white labeling main menu if available
         catalogMenuItems.value = whiteLabelingMainMenuLinks.value;
       } else if (catalog_menu_link_list_name && typeof catalog_menu_link_list_name === "string") {
