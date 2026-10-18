@@ -24,6 +24,14 @@
       </template>
     </VcCarousel>
   </VcWidget>
+
+  <!-- in the designer, a product without related products still shows where they go -->
+  <SectionPlaceholder
+    v-else-if="inDesigner"
+    :title="$t('pages.product.related_product_section_title')"
+    icon="cube"
+    layout="grid"
+  />
 </template>
 
 <script setup lang="ts">
@@ -32,8 +40,10 @@ import { computed, toRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useAnalytics } from "@/core/composables";
 import { extractNumberFromString } from "@/core/utilities";
+import { isDesignerPreview } from "@/plugins/builder-preview/utils";
 import { ProductCardRelated } from "@/shared/catalog";
 import { BREAKPOINTS } from "@/ui-kit/constants";
+import SectionPlaceholder from "./section-placeholder.vue";
 import type { Product } from "@/core/api/graphql/types";
 
 interface IProps {
@@ -43,6 +53,8 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
+
+const inDesigner = isDesignerPreview();
 
 const relatedProducts = toRef(props, "relatedProducts");
 

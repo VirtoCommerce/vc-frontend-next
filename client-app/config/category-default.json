@@ -1,0 +1,11 @@
+{
+  "settings": {
+    "name": "Category template default"
+  },
+  "content": [
+    {
+      "id": "category-listing",
+      "type": "category-listing"
+    }
+  ]
+}

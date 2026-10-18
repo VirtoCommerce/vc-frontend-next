@@ -8,13 +8,12 @@
 import { computed } from "vue";
 import { useBreadcrumbs } from "@/core/composables";
 import { humanizeName } from "@/core/utilities/common";
-import { useStaticPage } from "../composables/useStaticPage";
 
 // The page's trail (Home / the page), as the page settings' "Hide Breadcrumbs" used to draw it above the sections.
-// The live page name is injected into `settings.name` upstream (useSlugInfo), so it follows renames.
-const { staticPage } = useStaticPage();
+// Both page renderers hand every section the page's settings with its live name, so the leaf follows renames.
+const props = defineProps<{ settings?: Record<string, unknown> }>();
 const breadcrumbs = useBreadcrumbs(
-  computed(() => [{ title: humanizeName(staticPage.value?.settings?.name || "") }] as IBreadcrumb[]),
+  computed(() => [{ title: humanizeName(String(props.settings?.name ?? "")) }] as IBreadcrumb[]),
 );
 </script>
 

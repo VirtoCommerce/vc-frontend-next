@@ -28,7 +28,9 @@ import { useSearchBar } from "@/shared/layout/composables/useSearchBar";
 import { ModalHost } from "@/shared/modal";
 import { NotificationsHost } from "@/shared/notification";
 import { useOrganizationSchema, useStoreSocialMeta, useWhiteLabeling } from "./core/composables";
-import { SecureLayout } from "./shared/layout";
+import { BlankLayout, MinimalLayout, SecureLayout } from "./shared/layout";
+import { useThemeTemplates } from "./shared/static-content/templates";
+import type { PageLayoutType } from "./shared/static-content/templates";
 import type { Component } from "vue";
 import EnvironmentBadge from "@/shared/layout/components/environmentBadge/environment-badge.vue";
 import MainLayout from "@/shared/layout/components/main-layout/main-layout.vue";
@@ -82,11 +84,30 @@ useStoreSocialMeta();
 const layouts: Record<NonNullable<typeof route.meta.layout>, Component> = {
   Main: markRaw(MainLayout),
   Secure: markRaw(SecureLayout),
+  Minimal: markRaw(MinimalLayout),
+  Blank: markRaw(BlankLayout),
 };
 
-const layout = computed(() => layouts[route.meta?.layout ?? "Main"]);
+/** A content page's own layout (its setting, else its template's) */
+const PAGE_LAYOUTS: Record<PageLayoutType, NonNullable<typeof route.meta.layout>> = {
+  full: "Main",
+  minimal: "Minimal",
+  blank: "Blank",
+};
+const { pageLayout, loadTemplateRules } = useThemeTemplates();
+// the store's template rules load at start: pages, products and categories pick their template without waiting
+void loadTemplateRules();
 
-router.beforeEach((to) => {
+const layout = computed(
+  () => layouts[(pageLayout.value && PAGE_LAYOUTS[pageLayout.value]) ?? route.meta?.layout ?? "Main"],
+);
+
+router.beforeEach((to, from) => {
+  // another page: back to the route's layout until that page asks for its own
+  if (to.path !== from.path) {
+    pageLayout.value = undefined;
+  }
+
   // Hiding the drop-down list of search results
   hideSearchDropdown();
 

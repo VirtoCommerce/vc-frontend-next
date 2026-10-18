@@ -55,6 +55,20 @@ async function withDiscoveryBudget(
   }
 }
 
+let markSettled: () => void = () => {};
+const settled = new Promise<void>((resolve) => {
+  markSettled = resolve;
+});
+
+/**
+ * Resolves once startFederatedModules has: every plugin loaded, failed or was cut off by the boot
+ * backstop. The builder preview waits for it, so the schemas it announces include the sections
+ * plugins registered. Resolves at once when federation is off, as no plugin can load then.
+ */
+export function whenFederatedModulesSettled(): Promise<void> {
+  return isMfFlagEnabled(import.meta.env.APP_MODULES_FEDERATION_ENABLED) ? settled : Promise.resolve();
+}
+
 export async function startFederatedModules(options?: IStartOptions): Promise<void> {
   if (!isMfFlagEnabled(import.meta.env.APP_MODULES_FEDERATION_ENABLED)) {
     return;
@@ -94,5 +108,6 @@ export async function startFederatedModules(options?: IStartOptions): Promise<vo
     await Promise.race([work, backstop]);
   } finally {
     clearTimeout(timer);
+    markSettled();
   }
 }

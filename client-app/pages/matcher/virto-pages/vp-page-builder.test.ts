@@ -1,6 +1,6 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { nextTick, ref } from "vue";
+import { computed, nextTick, ref, unref } from "vue";
 import VPPageBuilder from "./vp-page-builder.vue";
 
 const routePath = ref("/page-a");
@@ -19,6 +19,14 @@ vi.mock("vue-router", () => ({
 
 vi.mock("@/core/composables", () => ({
   useBreadcrumbs: () => [],
+}));
+
+const { seoMeta } = vi.hoisted(() => ({ seoMeta: vi.fn() }));
+
+vi.mock("@unhead/vue", () => ({ useSeoMeta: seoMeta, useHead: vi.fn() }));
+
+vi.mock("@/core/composables/usePageTitle", () => ({
+  usePageTitle: (title: unknown) => ({ title: computed(() => unref(title)) }),
 }));
 
 vi.mock("@/plugins/builder-preview/block-mapping", () => ({
@@ -116,6 +124,19 @@ describe("VPPageBuilder", () => {
       expect(wrapper.html()).not.toContain("section");
     },
   );
+
+  it("applies the page's search engine listing, else the page's name", async () => {
+    const wrapper = mountPageBuilder(
+      pageContent("text1", { name: "About us", seoInfo: { pageTitle: "About Acme", metaDescription: "Who we are" } }),
+    );
+    const meta = seoMeta.mock.calls[0][0] as Record<string, () => unknown>;
+    expect(meta.title()).toBe("About Acme");
+    expect(meta.description()).toBe("Who we are");
+
+    await wrapper.setProps({ content: pageContent("text1", { name: "About us" }) });
+    expect(meta.title()).toBe("About us");
+    expect(meta.description()).toBeUndefined();
+  });
 
   it("recovers when a valid document follows an invalid update", async () => {
     const wrapper = mountPageBuilder("invalid-json");

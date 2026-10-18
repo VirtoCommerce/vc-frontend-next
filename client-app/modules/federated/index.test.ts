@@ -1,5 +1,6 @@
 import { flushPromises } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { getRegisteredPageBuilderSections, registerPageBuilderSection } from "./page-builder-sections";
 import { initFederatedModules } from "./index";
 
 interface IRouterStub {
@@ -199,6 +200,27 @@ describe("initFederatedModules", () => {
     // for extension-point-only plugins), and no failure noise.
     expect(loggerInfoMock).toHaveBeenCalledWith("[MF] plugins loaded=[news]");
     expect(loggerWarnMock).not.toHaveBeenCalled();
+  });
+
+  it("holds the Page Builder sections a plugin registers in init() to its own namespace", async () => {
+    stubManifestFetch();
+    stubRemotesEnv({ news: REMOTE_URL });
+    const component = { render: () => null };
+    const registered: boolean[] = [];
+    loadRemoteMock.mockResolvedValue({
+      init: () => {
+        registered.push(registerPageBuilderSection({ type: "news-teaser", component, schema: { name: "Teaser" } }));
+        registered.push(registerPageBuilderSection({ type: "promo-teaser", component, schema: { name: "Teaser" } }));
+      },
+    });
+
+    await initFederatedModules();
+
+    expect(registered).toEqual([true, false]);
+    expect(getRegisteredPageBuilderSections().map((section) => section.type)).toContain("news-teaser");
+    expect(loggerErrorMock).toHaveBeenCalledWith(expect.stringMatching(/"promo-teaser" by "news".*"news-"/));
+    // the scope ends with init()'s synchronous span: a later call is not attributed to the plugin
+    expect(registerPageBuilderSection({ type: "promo-banner", component, schema: {} })).toBe(true);
   });
 
   it("counts a plugin without init() as loaded (init is optional)", async () => {

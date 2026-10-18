@@ -145,6 +145,7 @@ vi.mock("@/core/composables", () => ({
     }),
     addPresetToThemeContext: vi.fn(),
     setThemeContext: record("setThemeContext"),
+    applySavedThemeSettings: vi.fn(async () => undefined),
   }),
   useCurrency: () => ({ currentCurrency: ref({ code: "USD" }) }),
   useNavigations: () => ({ fetchCatalogMenu: vi.fn() }),
@@ -154,6 +155,9 @@ vi.mock("@/core/composables", () => ({
 }));
 
 vi.mock("@/core/composables/useHotjar", () => ({ useHotjar: () => ({ init: vi.fn() }) }));
+vi.mock("@/shared/layout/composables/useSectionGroups", () => ({
+  useSectionGroups: () => ({ loadSectionGroups: vi.fn(async () => undefined) }),
+}));
 
 vi.mock("@/shared/notification", () => ({ useNotifications: () => ({ error: vi.fn(), success: vi.fn() }) }));
 

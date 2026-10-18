@@ -9,12 +9,17 @@
       />
     </VcProductsGrid>
   </VcWidget>
+
+  <!-- in the designer, an empty recommendation list still shows where it goes -->
+  <SectionPlaceholder v-else-if="inDesigner" :title="title" icon="cube" layout="grid" />
 </template>
 
 <script setup lang="ts">
 import { toRef, watch, computed } from "vue";
 import { useAnalytics } from "@/core/composables/useAnalytics";
+import { isDesignerPreview } from "@/plugins/builder-preview/utils";
 import { ProductCardRecommended } from "@/shared/catalog";
+import SectionPlaceholder from "./section-placeholder.vue";
 import type { Product } from "@/core/api/graphql/types";
 
 const props = defineProps<IProps>();
@@ -27,6 +32,8 @@ interface IProps {
   productName: string;
 }
 const recommendedProducts = toRef(props, "recommendedProducts");
+
+const inDesigner = isDesignerPreview();
 
 const { analytics } = useAnalytics();
 

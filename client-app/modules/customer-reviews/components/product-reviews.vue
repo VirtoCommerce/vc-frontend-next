@@ -180,11 +180,20 @@
       </form>
     </div>
   </VcWidget>
+
+  <!-- in the designer, a product without reviews still shows where they go -->
+  <SectionPlaceholder
+    v-else-if="inDesigner"
+    :title="$t('common.labels.feedback')"
+    icon="chat"
+    :note="$t('common.labels.reviews_count', 0)"
+  />
 </template>
 
 <script setup lang="ts">
 import { onActivated, ref, toRef } from "vue";
 import { useI18n } from "vue-i18n";
+import { isDesignerPreview } from "@/plugins/builder-preview/utils";
 import { useUser } from "@/shared/account";
 import { useFiles } from "@/shared/files";
 import { useModal } from "@/shared/modal";
@@ -194,10 +203,13 @@ import ProductRating from "./product-rating.vue";
 import ReviewImagesModal from "./review-images-modal.vue";
 import type { CustomerReview, CustomerReviewImage } from "../api/graphql/types";
 import type { Rating } from "@/core/api/graphql/types";
+import SectionPlaceholder from "@/shared/static-content/components/section-placeholder.vue";
 
 const props = defineProps<IProps>();
 
 const ENTITY_TYPE = "Product";
+
+const inDesigner = isDesignerPreview();
 
 const { t, d } = useI18n();
 const { openModal } = useModal();

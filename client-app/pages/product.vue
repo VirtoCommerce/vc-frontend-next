@@ -17,6 +17,17 @@
         @apply-filters="applyFilters"
       />
 
+      <!-- the template's sections above the product -->
+      <ProductTemplateSection
+        v-for="entry in templateParts.before"
+        :key="entry.item.id"
+        :entry="entry"
+        :product="product"
+        :related-products="relatedProducts"
+        :recommended-products="recommendedProducts"
+        :settings="productTemplate.settings"
+      />
+
       <!-- Breadcrumbs -->
       <VcBreadcrumbs class="mb-3" :items="breadcrumbs" />
 
@@ -44,6 +55,13 @@
       <VcLayout sidebar-position="right" sticky class="mt-5">
         <div class="space-y-5 xl:space-y-6">
           <component
+            :is="getBlockType(templateParts.main.anchor.type)"
+            v-if="templateParts.main?.anchor"
+            v-bind="templateParts.main.anchor"
+            :model="templateParts.main.anchor"
+          />
+
+          <component
             :is="productInfoSection?.type"
             v-if="productInfoSection && !productInfoSection.hidden"
             :product="product"
@@ -52,24 +70,61 @@
             :fetching-variations="fetchingVariations"
           />
 
-          <component
-            :is="productDescriptionSection?.type"
-            v-if="productDescriptionSection && !productDescriptionSection.hidden"
-            :product="product"
-            :model="productDescriptionSection"
-            :is-collapsible="false"
-          />
-
           <ProductConfiguration
-            v-if="product.isConfigurable && configuration?.length"
+            v-if="showConfiguration && !productDescriptionSection"
             :product-id="productId"
-            :configuration="configuration"
+            :configuration="configuration ?? []"
             :initial-configuration="initialConfiguration"
           />
 
+          <!-- the main column's own sections (description, reviews), in the template's order -->
+          <template v-for="entry in templateParts.column" :key="entry.item.id">
+            <component
+              :is="getBlockType(entry.anchor.type)"
+              v-if="entry.anchor"
+              v-bind="entry.anchor"
+              :model="entry.anchor"
+            />
+
+            <template v-if="entry.item.type === 'product-description'">
+              <component
+                :is="entry.item.type"
+                v-if="!entry.item.hidden"
+                :product="product"
+                :model="entry.item"
+                :is-collapsible="false"
+              />
+
+              <ProductConfiguration
+                v-if="showConfiguration"
+                :product-id="productId"
+                :configuration="configuration ?? []"
+                :initial-configuration="initialConfiguration"
+              />
+            </template>
+
+            <template v-else>
+              <KeepAlive>
+                <ProductReviews
+                  v-if="productReviewsEnabled && !entry.item.hidden"
+                  :product-id="productId"
+                  :product-rating="product.rating"
+                />
+              </KeepAlive>
+
+              <!-- in the designer, the section shows even while the customer reviews module is off -->
+              <SectionPlaceholder
+                v-if="!productReviewsEnabled && !entry.item.hidden && inDesigner"
+                :title="$t('common.labels.product_reviews')"
+                icon="chat"
+              />
+            </template>
+          </template>
+
+          <!-- reviews show unless a template hides them -->
           <KeepAlive>
             <ProductReviews
-              v-if="productReviewsEnabled && !productReviewsSection?.hidden"
+              v-if="productReviewsEnabled && !productReviewsSection"
               :product-id="productId"
               :product-rating="product.rating"
             />
@@ -116,28 +171,24 @@
         </template>
       </VcLayout>
 
-      <component
-        :is="relatedProductsSection?.type"
-        v-if="relatedProductsSection && !relatedProductsSection.hidden"
+      <!-- the template's sections below the product (related and recommended products, and any other) -->
+      <ProductTemplateSection
+        v-for="entry in templateParts.after"
+        :key="entry.item.id"
+        :entry="entry"
+        :product="product"
         :related-products="relatedProducts"
-        :product-id="productId"
-        :product-name="product.name"
-        class="mt-5 xl:mt-6"
+        :recommended-products="recommendedProducts"
+        :settings="productTemplate.settings"
       />
 
-      <template v-if="recommendedProductsSection && !recommendedProductsSection.hidden">
-        <component
-          :is="recommendedProductsSection?.type"
-          v-for="{ model, id } in recommendedProductsSection.blocks"
-          :key="id"
-          :recommended-products="recommendedProducts[model as string]"
-          :title="$t(`pages.product.recommended_products.${model}_section_title`)"
-          :model="model"
-          :product-id="productId"
-          :product-name="product.name"
-          class="mt-5 xl:mt-6"
-        />
-      </template>
+      <!-- the designer preview's marker after the last section -->
+      <component
+        :is="getBlockType(templateParts.end.type)"
+        v-if="templateParts.end"
+        v-bind="templateParts.end"
+        :model="templateParts.end"
+      />
     </VcContainer>
 
     <FloatingBar v-if="isMobile">
@@ -153,8 +204,6 @@ import { useSeoMeta } from "@unhead/vue";
 import { useBreakpoints, useElementVisibility, useLocalStorage } from "@vueuse/core";
 import { computed, defineAsyncComponent, ref, shallowRef, toRef, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import productTemplateDefault from "@/config/product-default.json";
-import productTemplateB2c from "@/config/product_b2c.json";
 import { useBreadcrumbs, useAnalytics, usePageTitle, useSeoKeywords } from "@/core/composables";
 import { useHistoricalEvents } from "@/core/composables/useHistoricalEvents";
 import { useLanguages } from "@/core/composables/useLanguages";
@@ -180,6 +229,8 @@ import {
   MODULE_ID as CUSTOMER_REVIEWS_MODULE_ID,
   ENABLED_KEY as CUSTOMER_REVIEWS_ENABLED_KEY,
 } from "@/modules/customer-reviews/constants";
+import { getBlockType } from "@/plugins/builder-preview/block-mapping";
+import { isDesignerPreview } from "@/plugins/builder-preview/utils";
 import { useShortCart } from "@/shared/cart";
 import {
   useProduct,
@@ -200,7 +251,7 @@ import {
   PRODUCT_VARIATIONS_LAYOUT_PROPERTY_VALUES,
 } from "@/shared/catalog/constants/product";
 import { FloatingBar } from "@/shared/common";
-import { useAnchorScroll } from "@/shared/static-content";
+import { BUILT_IN_TEMPLATES, splitTemplate, useAnchorScroll, useThemeTemplates } from "@/shared/static-content";
 import { useXPickup } from "@/shared/x-pickup/composables/useXPickup";
 import { BREAKPOINTS } from "@/ui-kit/constants";
 import type { ISortInfo } from "@/core/types";
@@ -208,8 +259,10 @@ import type { FiltersDisplayOrderType, LocalConfigurationType, ProductsFiltersTy
 import type { IPageTemplate } from "@/shared/static-content";
 import ProductRating from "@/modules/customer-reviews/components/product-rating.vue";
 import FiltersPopupSidebar from "@/shared/catalog/components/category/filters-popup-sidebar.vue";
+import ProductTemplateSection from "@/shared/catalog/components/product/product-template-section.vue";
 import ProductPickupLocations from "@/shared/catalog/components/product-pickup-locations.vue";
 import ProductPriceBlock from "@/shared/catalog/components/product-price-block.vue";
+import SectionPlaceholder from "@/shared/static-content/components/section-placeholder.vue";
 
 const props = withDefaults(defineProps<IProps>(), {
   productId: "",
@@ -271,6 +324,7 @@ const { pickupLocations, fetchPickupLocations, pickupLocationsLoading } = usePro
 
 const { isEnabled } = useModuleSettings(CUSTOMER_REVIEWS_MODULE_ID);
 const productReviewsEnabled = isEnabled(CUSTOMER_REVIEWS_ENABLED_KEY);
+const inDesigner = isDesignerPreview();
 const { xPickupEnabled } = useXPickup();
 
 const { analytics } = useAnalytics();
@@ -298,24 +352,89 @@ const selectedVariationName = computed(() => {
   return applicableVariations.value.length === 1 ? applicableVariations.value[0].name : undefined;
 });
 
-const templateLayout = computed(() => {
-  const layoutProperty = product.value?.properties?.find(
+const { templateFor, previewFor, loadTemplateRules } = useThemeTemplates();
+// the rules load alongside the product
+void loadTemplateRules();
+/** The template the store's rules picked for this product (once it has loaded) */
+const ruledTemplate = shallowRef<IPageTemplate>();
+/** The page designer's product template while it edits one, else the one the rules picked */
+const productTemplate = computed(() => previewFor("product") ?? ruledTemplate.value);
+
+async function resolveProductTemplate(): Promise<void> {
+  const current = product.value;
+  ruledTemplate.value = await templateFor(
+    "product",
+    {
+      // its outline, and the breadcrumb's path too (a virtual catalog's own categories)
+      outlines: [current?.outline, current?.breadcrumbs?.map((crumb) => crumb.itemId).join("/")].filter(
+        (outline): outline is string => !!outline,
+      ),
+      productType: current?.productType ?? undefined,
+      properties: current?.properties ?? [],
+    },
+    BUILT_IN_TEMPLATES,
+  );
+}
+
+const productInfoSection = computed(() =>
+  productTemplate.value?.content?.find((item) => item?.type === "product-info"),
+);
+
+const productDescriptionSection = computed(() =>
+  productTemplate.value?.content?.find((item) => item?.type === "product-description"),
+);
+
+const productReviewsSection = computed(() =>
+  productTemplate.value?.content?.find((item) => item?.type === "product-reviews"),
+);
+
+const productVariationsBlock = computed(() =>
+  productInfoSection.value?.blocks?.find((block) => block?.type === "product-variations"),
+);
+
+const relatedProductsSection = computed(() =>
+  productTemplate.value?.content?.find((item) => item?.type === "related-products"),
+);
+
+const recommendedProductsSection = computed(() =>
+  productTemplate.value?.content?.find((item) => item?.type === "recommended-products"),
+);
+
+/** Sections shown in the product's main column, beside the price, rather than across the page */
+const MAIN_COLUMN_SECTIONS = new Set(["product-description", "product-reviews"]);
+
+/** The template's sections around the product (its `product-info` section): above it, its column's, below it */
+const templateParts = computed(() =>
+  splitTemplate(productTemplate.value?.content ?? [], "product-info", MAIN_COLUMN_SECTIONS),
+);
+
+/** The product's VirtoFrontend_UI_Layout property: B2B or B2C */
+const layoutProperty = computed(() => {
+  const value = product.value?.properties?.find(
     (property) => property.name === PRODUCT_VARIATIONS_LAYOUT_PROPERTY_NAME,
   )?.value;
-
-  if (typeof layoutProperty === "string") {
-    return layoutProperty;
-  }
-
-  return undefined;
+  return typeof value === "string" ? value : undefined;
 });
+
+/** B2C variations (more per page, unsorted, in stock only): the template's product info says so, else the product */
+const isB2cLayout = computed(() => {
+  const variationsLayout = productInfoSection.value?.variationsLayout;
+  return typeof variationsLayout === "string"
+    ? variationsLayout === "b2c"
+    : layoutProperty.value === PRODUCT_VARIATIONS_LAYOUT_PROPERTY_VALUES.b2c;
+});
+
+/** The layout the price shows variations for */
+const templateLayout = computed(() =>
+  isB2cLayout.value ? PRODUCT_VARIATIONS_LAYOUT_PROPERTY_VALUES.b2c : layoutProperty.value,
+);
+
+const showConfiguration = computed(() => !!product.value?.isConfigurable && !!configuration.value?.length);
 
 const variationSortInfo = ref<ISortInfo>({
   column: "name",
   direction: SortDirection.Ascending,
 });
-
-const isB2cLayout = computed(() => templateLayout.value === PRODUCT_VARIATIONS_LAYOUT_PROPERTY_VALUES.b2c);
 
 const variationsItemsPerPage = computed(() => (isB2cLayout.value ? B2C_VARIATIONS_ITEMS_PER_PAGE : 50));
 
@@ -369,37 +488,6 @@ const seoUrl = computed(() =>
     : window.location.toString(),
 );
 const canSetMeta = computed(() => props.allowSetMeta && productComponentAnchorIsVisible.value);
-
-const productTemplate = computed(() => {
-  if (isB2cLayout.value) {
-    return productTemplateB2c as IPageTemplate;
-  }
-  return productTemplateDefault as IPageTemplate;
-});
-
-const productInfoSection = computed(() =>
-  productTemplate.value?.content?.find((item) => item?.type === "product-info"),
-);
-
-const productDescriptionSection = computed(() =>
-  productTemplate.value?.content?.find((item) => item?.type === "product-description"),
-);
-
-const productReviewsSection = computed(() =>
-  productTemplate.value?.content?.find((item) => item?.type === "product-reviews"),
-);
-
-const productVariationsBlock = computed(() =>
-  productInfoSection.value?.blocks?.find((block) => block?.type === "product-variations"),
-);
-
-const relatedProductsSection = computed(() =>
-  productTemplate.value?.content?.find((item) => item?.type === "related-products"),
-);
-
-const recommendedProductsSection = computed(() =>
-  productTemplate.value?.content?.find((item) => item?.type === "recommended-products"),
-);
 
 const breadcrumbs = useBreadcrumbs(() => buildBreadcrumbs(product.value?.breadcrumbs));
 
@@ -473,6 +561,8 @@ watch(
   productId,
   async () => {
     await fetchProduct(productId.value);
+    // the template decides which sections show, so which data is fetched below
+    await resolveProductTemplate();
     if (product.value?.isConfigurable) {
       await fetchProductConfiguration();
     }

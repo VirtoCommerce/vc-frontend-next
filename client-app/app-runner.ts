@@ -31,6 +31,7 @@ import { createI18n } from "@/i18n";
 import { init as initModuleBackInStock } from "@/modules/back-in-stock";
 import { init as initCustomerReviews } from "@/modules/customer-reviews";
 import { startFederatedModules } from "@/modules/federated/bootstrap";
+import { onPageBuilderSectionRegistered, setCorePageBuilderTypes } from "@/modules/federated/page-builder-sections";
 import { init as initializeGoogleAnalytics } from "@/modules/google-analytics";
 import { init as initLoyalty } from "@/modules/loyalty";
 import { init as initNews } from "@/modules/news";
@@ -307,6 +308,9 @@ export default async () => {
     }
   }
 
+  // Plugins add Page Builder sections during their init(); the host's own types are not theirs to take.
+  setCorePageBuilderTypes([...Object.keys(templateBlocks), ...Object.keys(ProductBlocks)]);
+
   // Started once no host plugin can still touch the router: the loader guards it against route
   // takeover for the whole phase and cannot tell a host call from a plugin's, so builder-preview's
   // remove-then-add would be refused. Outside preview mode nothing above awaits, so this costs no
@@ -327,6 +331,15 @@ export default async () => {
 
   // Register Page builder product components globally
   Object.entries(ProductBlocks).forEach(([name, component]) => app.component(name, component));
+
+  // Register Page builder sections of federated plugins globally, a late plugin's (past the boot backstop) as it comes
+  onPageBuilderSectionRegistered(({ type, component }) => {
+    if (app.component(type)) {
+      Logger.error(`[MF] Page Builder type "${type}" not registered: a component of that name exists`);
+      return;
+    }
+    app.component(type, component);
+  });
 
   await router.isReady();
 

@@ -2,6 +2,7 @@ import { loadRemote, registerRemotes } from "@module-federation/enhanced/runtime
 import { globals } from "@/core/globals";
 import { Logger } from "@/core/utilities";
 import { version as CORE_VERSION } from "@/core-api/package.json";
+import { setRegisteringPlugin } from "./page-builder-sections";
 import { checkHostCompatibility } from "./version-gate";
 import type { RouteRecordRaw, Router } from "vue-router";
 
@@ -605,10 +606,12 @@ function installRouteGuard(): () => void {
 async function runInit(name: string, plugin: IFederatedPlugin, budgetMs: number): Promise<void> {
   let started: void | Promise<void>;
   initingPlugin = name;
+  setRegisteringPlugin(name);
   try {
     started = plugin.init?.();
   } finally {
     initingPlugin = undefined;
+    setRegisteringPlugin(undefined);
   }
   await raceWithLateLogging(Promise.resolve(started), budgetMs, `plugin "${name}" init`, "state is indeterminate");
 }

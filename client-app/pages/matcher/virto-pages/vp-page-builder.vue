@@ -1,38 +1,44 @@
 <template>
   <div v-if="pageBuilderContent">
-    <div
-      v-if="!pageBuilderContent.settings?.hideBreadcrumbs || pageBuilderContent.settings?.header"
-      class="mx-auto mt-7 w-full max-w-screen-2xl px-5 pb-5 md:px-12 lg:pb-10"
-    >
-      <VcBreadcrumbs v-if="!pageBuilderContent.settings?.hideBreadcrumbs" class="mb-3" :items="breadcrumbs">
-      </VcBreadcrumbs>
+    <!-- the page within its page template (sections around it, its layout) -->
+    <PageTemplateFrame v-slot="{ settings }" :page-settings="pageBuilderContent.settings">
+      <div
+        v-if="!settings.hideBreadcrumbs || settings.header"
+        class="mx-auto mt-7 w-full max-w-screen-2xl px-5 pb-5 md:px-12 lg:pb-10"
+      >
+        <VcBreadcrumbs v-if="!settings.hideBreadcrumbs" class="mb-3" :items="breadcrumbs"> </VcBreadcrumbs>
 
-      <VcTypography v-if="pageBuilderContent.settings?.header" tag="h1">
-        {{ pageBuilderContent.settings.header }}
-      </VcTypography>
-    </div>
+        <VcTypography v-if="settings.header" tag="h1">
+          {{ settings.header }}
+        </VcTypography>
+      </div>
 
-    <template v-for="item in pageBuilderContent.content">
-      <component
-        :is="getBlockType(item.type)"
-        v-if="!item.hidden"
-        :key="item.id"
-        v-bind="item"
-        :id="getAnchorId(item)"
-        :model="item"
-        :settings="pageBuilderContent.settings"
-      />
-    </template>
+      <template v-for="item in pageBuilderContent.content">
+        <component
+          :is="getBlockType(item.type)"
+          v-if="!item.hidden"
+          :key="item.id"
+          v-bind="item"
+          :id="getAnchorId(item)"
+          :model="item"
+          :settings="sectionSettings"
+        />
+      </template>
+    </PageTemplateFrame>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useSeoMeta } from "@unhead/vue";
 import { computed, shallowRef, unref, watch } from "vue";
 import { useBreadcrumbs } from "@/core/composables";
+import { usePageTitle } from "@/core/composables/usePageTitle";
+import { useSeoKeywords } from "@/core/composables/useSeoKeywords";
 import { Logger } from "@/core/utilities";
 import { humanizeName } from "@/core/utilities/common";
 import { getBlockType } from "@/plugins/builder-preview/block-mapping";
 import { getAnchorId, useAnchorScroll } from "@/shared/static-content";
+import PageTemplateFrame from "@/shared/static-content/components/page-template-frame.vue";
 
 interface IProps {
   content?: string;
@@ -63,6 +69,29 @@ const templateName = computed(() =>
 );
 const breadcrumbs = useBreadcrumbs(() => [{ title: templateName.value }] as IBreadcrumb[]);
 const pageBuilderContent = shallowRef<IPageBuilderContent | null>(null);
+
+// the sections get the page's settings with its live name: a Breadcrumbs section's leaf follows renames too
+const sectionSettings = computed(() => ({
+  ...pageBuilderContent.value?.settings,
+  name: props.name || pageBuilderContent.value?.settings?.name,
+}));
+
+// the page's search engine listing (its details blade's, stored as the document's settings.seoInfo)
+const seoInfo = computed(
+  () =>
+    pageBuilderContent.value?.settings?.seoInfo as
+      { pageTitle?: string; metaDescription?: string; metaKeywords?: string } | undefined,
+);
+const { title: pageTitle } = usePageTitle(computed(() => seoInfo.value?.pageTitle || templateName.value));
+useSeoMeta({
+  title: () => pageTitle.value,
+  description: () => seoInfo.value?.metaDescription,
+  ogUrl: () => window.location.toString(),
+  ogTitle: () => pageTitle.value,
+  ogDescription: () => seoInfo.value?.metaDescription,
+  ogType: "website",
+});
+useSeoKeywords(() => seoInfo.value?.metaKeywords);
 
 watch(
   () => props.content,

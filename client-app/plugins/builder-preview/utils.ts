@@ -38,6 +38,14 @@ export function isPreviewMode(): boolean {
   return globalThis.location.pathname === "/designer-preview";
 }
 
+// read when the app boots: a template preview then navigates on to the product or category it shows
+const bootedAsPreview = isPreviewMode();
+
+/** The designer's preview frame (its edit view): not the standalone preview, not the live site. */
+export function isDesignerPreview(): boolean {
+  return bootedAsPreview && getBuilderOrigin() !== undefined;
+}
+
 export type PreviewBootOptionsType = {
   /** Whether this document is the Page Builder designer / standalone preview. */
   isActive: boolean;

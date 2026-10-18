@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import { watch } from "vue";
 import { useGlobalInterceptors } from "@/core/api/common";
 import { useLanguages } from "@/core/composables/useLanguages";
 import { globals, setGlobals } from "@/core/globals";
@@ -6,6 +7,7 @@ import { Logger } from "@/core/utilities";
 import { useSectionGroups } from "@/shared/layout/composables/useSectionGroups";
 import { useStaticPage } from "@/shared/static-content";
 import { templateBlocks } from "@/shared/static-content/components";
+import { useThemeTemplates } from "@/shared/static-content/templates";
 import { addBuilderMessageListener, createPreviewLoadedNotifier } from "./builder-preview.protocol";
 import PreviewPage from "./components/preview-page.vue";
 import ScrollToElement from "./components/scroll-to-element.vue";
@@ -75,6 +77,29 @@ function selectSection(sectionId: string, sharedComponentOverlay: SharedComponen
   }
 }
 
+/**
+ * The designer's page on the preview page; or, while it edits a template (`templateKey`), its version of the template on
+ * the product, category or page it previews it with (the last `navigate` named it).
+ */
+async function showPageOrTemplate(templateKey: string | undefined, template: IPageTemplate, router: Router) {
+  if (templateKey) {
+    useThemeTemplates().setPreview(templateKey, template);
+    if (templateUrl) {
+      templatePath = new URL(templateUrl, window.location.origin).pathname;
+      await router.push(templateUrl);
+    }
+  } else {
+    // back from a template's page, if the designer was editing one
+    useThemeTemplates().setPreview(undefined);
+    if (templateUrl || templatePath) {
+      templatePath = undefined;
+      await router.push("/designer-preview");
+    }
+    staticPagePreview.value = template;
+  }
+  templateUrl = undefined;
+}
+
 async function updatePreview(
   data: TransferDataType,
   options: { router: Router },
@@ -98,15 +123,7 @@ async function updatePreview(
   });
   newTemplate.content.push({ type: "scroll-to", id: `__scroll__${SHARED_COMPONENT_END_ANCHOR_ID}` });
 
-  if (!data.templateKey) {
-    if (templateUrl) {
-      await options.router.push("/designer-preview");
-    }
-    staticPagePreview.value = newTemplate;
-  } else if (templateUrl) {
-    await options.router.push(templateUrl);
-  }
-  templateUrl = undefined;
+  await showPageOrTemplate(data.templateKey, newTemplate, options.router);
 
   sharedComponentOverlay?.update(
     content.map((block) => block.id),
@@ -180,6 +197,8 @@ export function measureElement(element: HTMLElement): {
 }
 
 let templateUrl: string | undefined;
+// the product, category or page a template is previewed on: the designer stays there while it edits the template
+let templatePath: string | undefined;
 let previewToken: string | null | undefined;
 let originalUserId: string | undefined;
 let pendingScrollRestore = false;
@@ -493,12 +512,14 @@ function modifyRoutes(router: Router, mode: "preview" | "designer") {
   // the designer's ?ep= stays in the URL: a reload of the frame (Vite's, a currency or cart change) must boot the
   // designer preview again, not the standalone one, which has no pageId and shows the 404 page
   const builderOrigin = getBuilderOrigin();
+  // the preview stays on its page: the designer's page, or the product, category or page a template is shown on
   router.beforeEach((to, from, next) => {
     const query = builderOrigin && !to.query.ep ? { ...to.query, ep: builderOrigin } : to.query;
-    if (to.path === "/designer-preview" && query === to.query) {
+    const allowed = to.path === "/designer-preview" || (!!templatePath && to.path === templatePath);
+    if (allowed && query === to.query) {
       next();
     } else {
-      next({ path: "/designer-preview", query, hash: to.hash });
+      next({ path: allowed ? to.path : (templatePath ?? "/designer-preview"), query, hash: to.hash });
     }
   });
 }
@@ -516,6 +537,13 @@ export default {
       const loadedNotifier = createPreviewLoadedNotifier(window.parent, builderOrigin);
       const { bodyEl, sharedComponentOverlay } = createOverlay(builderOrigin);
       handleMessages(app, options, builderOrigin, bodyEl, sharedComponentOverlay, loadedNotifier);
+
+      // which template a page got, and by which rule: the designer shows it ("template in effect", its Test box)
+      watch(
+        () => useThemeTemplates().resolved.value,
+        (resolved) =>
+          resolved && window.parent.postMessage({ source: "preview", type: "resolved", data: resolved }, builderOrigin),
+      );
 
       const customComponents = await getRegisteredComponents();
       loadedNotifier.setData(customComponents);

@@ -92,6 +92,25 @@ describe("section preview overlay", () => {
     expect(boxes()[1].style.display).toBe("none");
   });
 
+  it("ends a section at the next anchor on the page, not the next section of the template", () => {
+    // a product page: reviews come last in the template but show in the main column, above related products
+    anchors({ info: 0, reviews: 200, related: 300, "shared-components-end": 500 });
+    const { overlay, boxes } = setup();
+    overlay.update(["info", "related", "reviews"], { info: "Product", related: "Related", reviews: "Reviews" });
+    overlay.select("reviews");
+    flushFrames();
+
+    const selected = boxes()[1];
+    expect(selected.style.top).toBe("200px");
+    expect(selected.style.height).toBe("100px");
+    expect(selected.textContent).toBe("Reviews");
+
+    overlay.select("related");
+    flushFrames();
+    expect(selected.style.top).toBe("300px");
+    expect(selected.style.height).toBe("200px");
+  });
+
   it("accepts section names on render messages, only as strings", () => {
     const message = { source: "builder", type: "changed", template: { settings: {}, content: [] } };
     expect(isBuilderMessage({ ...message, sectionLabels: { a: "Hero" } })).toBe(true);

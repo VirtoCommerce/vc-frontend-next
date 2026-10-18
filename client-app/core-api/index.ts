@@ -64,6 +64,16 @@ export { useExtensionRegistry } from "@/shared/common/composables/extensionRegis
 // The registration keys the host matches against.
 export { EXTENSION_NAMES } from "@/shared/common/constants/extensionPointsNames";
 
+// Page Builder sections and blocks: a plugin's component plus the schema the designer edits it with.
+// The type is saved in page content, so it is permanent; it must be "<plugin>-<name>".
+export { registerPageBuilderSection } from "@/modules/federated/page-builder-sections";
+export type {
+  PageBuilderSectionKindType,
+  PageBuilderSectionRegistrationType,
+  PageBuilderSectionSchemaType,
+  PageBuilderSectionSettingType,
+} from "@/modules/federated/page-builder-sections";
+
 // GraphQL / Apollo — same client, cache and auth link as the host.
 export { apolloClient, graphqlClient } from "@/core/api/graphql/client";
 export { registerCacheTypePolicies } from "@/core/api/graphql/config/registerCacheTypePolicies";

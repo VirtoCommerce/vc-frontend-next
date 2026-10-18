@@ -10,7 +10,7 @@ import "vue-router";
 declare module "vue-router" {
   interface RouteMeta {
     /** The type of layout used for the route. */
-    layout?: "Main" | "Secure";
+    layout?: "Main" | "Secure" | "Minimal" | "Blank";
 
     /**
      * Allows anonymous access when the "Allow anonymous users

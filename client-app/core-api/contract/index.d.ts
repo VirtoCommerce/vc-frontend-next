@@ -36,8 +36,8 @@ type __VLS_Slots$d = {} & {
 };
 declare const __VLS_base$d: vue.DefineComponent<IProps$k, {}, {}, {}, {}, vue.ComponentOptionsMixin, vue.ComponentOptionsMixin, {}, string, vue.PublicProps, Readonly<IProps$k> & Readonly<{}>, {
     size: VcBadgeSizeType;
-    variant: VcBadgeVariantType;
     color: VcBadgeColorType;
+    variant: VcBadgeVariantType;
 }, {}, {}, {}, string, vue.ComponentProvideOptions, false, {}, any>;
 declare const __VLS_export$m: __VLS_WithSlots$d<typeof __VLS_base$d, __VLS_Slots$d>;
 declare const _default$m: typeof __VLS_export$m;
@@ -2262,8 +2262,8 @@ declare const __VLS_base$9: vue.DefineComponent<IProps$c, {}, {}, {}, {}, vue.Co
     onClose?: (() => any) | undefined;
 }>, {
     size: VcAlertSizeType;
-    variant: VcAlertVariantType;
     color: VcAlertColorType;
+    variant: VcAlertVariantType;
 }, {}, {}, {}, string, vue.ComponentProvideOptions, false, {}, any>;
 declare const __VLS_export$e: __VLS_WithSlots$9<typeof __VLS_base$9, __VLS_Slots$9>;
 declare const _default$e: typeof __VLS_export$e;
@@ -2325,12 +2325,12 @@ declare const __VLS_base$8: vue.DefineComponent<IProps$b, {
 }>, {
     type: VcButtonTypeType;
     to: RouteLocationRaw | null;
+    color: VcButtonColorType;
     variant: VcButtonVariantType;
     tabindex: string | number;
     loading: boolean;
     tag: string;
     truncate: boolean;
-    color: VcButtonColorType;
     disabled: boolean;
     noWrap: boolean;
     fullWidth: boolean;
@@ -3257,6 +3257,56 @@ declare const CUSTOM_EXTENSION_NAMES: {
 };
 declare const EXTENSION_NAMES: typeof CUSTOM_EXTENSION_NAMES;
 
+/** "section": listed in the designer's Add section list. "block": placed inside a section whose schema lists it under `blocks`. */
+type PageBuilderSectionKindType = "section" | "block";
+/** One field of the designer's settings panel, as the core schema files write it. */
+type PageBuilderSectionSettingType = {
+    id: string;
+    type: string;
+    label?: string;
+    tab?: string;
+    [key: string]: unknown;
+};
+/**
+ * What the designer shows for the section: its name and icon in the Add section list, its settings
+ * panel. The same shape as the core files in `plugins/builder-preview/schemas/sections/*.json`, and
+ * plain data: it is posted to the designer, so anything `structuredClone` refuses is rejected.
+ */
+type PageBuilderSectionSchemaType = {
+    name?: string;
+    icon?: string;
+    /** the setting the designer's section tree uses as the item's label */
+    displayField?: string;
+    settings?: PageBuilderSectionSettingType[];
+    /** block types this section accepts */
+    blocks?: string[];
+    /** templates the section can be added to (e.g. "product"); none means pages */
+    targetTemplates?: string[];
+    /** shared setting groups from `schemas/shared` (e.g. "buttons") */
+    includeShared?: string[];
+    [key: string]: unknown;
+};
+type PageBuilderSectionRegistrationType = {
+    /**
+     * `<plugin>-<name>`, lowercase kebab case (`acme-hero`). Saved in page content as the item's
+     * `type`, so it is permanent: renaming it orphans every placed copy. While a plugin's `init()`
+     * runs, the prefix must be that plugin's remote name.
+     */
+    type: string;
+    /** Rendered with the item's settings bound as props (`v-bind="item"`): a `title` setting arrives as a `title` prop. */
+    component: Component;
+    schema: PageBuilderSectionSchemaType;
+    /** Defaults to "section". */
+    kind?: PageBuilderSectionKindType;
+};
+/**
+ * Adds a section (or block) to the storefront and the Page Builder designer. Call it from the
+ * plugin's `init()`: the host registers the component globally, and the builder preview waits for
+ * plugins to settle before it announces its schemas. Returns false, and logs why, when refused:
+ * a type that is not `<plugin>-<name>`, is the host's own, or was registered already (first wins).
+ */
+declare function registerPageBuilderSection(registration: PageBuilderSectionRegistrationType): boolean;
+
 /**
  * Non-cached version of Apollo Client
  */
@@ -3338,7 +3388,7 @@ declare function _useNavigations(): {
     mobileRegisteredAccountSections: vue.ComputedRef<ExtendedMenuLinkType[]>;
     mobilePreSelectedMenuItem: vue.ComputedRef<ExtendedMenuLinkType | undefined>;
     matchingRouteName: Readonly<vue.Ref<string, string>>;
-    fetchCatalogMenu: () => Promise<void>;
+    fetchCatalogMenu: (linkListName?: string) => Promise<void>;
     catalogMenuItems: vue.ComputedRef<ExtendedMenuLinkType[]>;
     fetchFooterLinks: () => Promise<void>;
     footerLinks: vue.ComputedRef<ExtendedMenuLinkType[]>;
@@ -4007,8 +4057,8 @@ declare const globals: Readonly<Required<GlobalVariablesType>>;
 /** Contract version, single-sourced from core-api/package.json (managed by build:core-types / bump:core). */
 declare const CORE_VERSION: string;
 
-export { CORE_VERSION, EXTENSION_NAMES, Logger, _default as OrderStatus, ROUTES, SUPPRESS_ERROR_NOTIFICATIONS_CONTEXT, _default$e as VcAlert, _default$m as VcBadge, _default$l as VcBreadcrumbs, _default$d as VcButton, _default$k as VcCheckbox, _default$c as VcEmptyView, _default$j as VcIcon, _default$i as VcImage, _default$b as VcInput, _default$h as VcLabel, _default$g as VcLink, _default$a as VcLoaderOverlay, _default$f as VcMarkdownRender, _default$9 as VcMenuItem, _default$5 as VcModal, _default$8 as VcSelect, _default$4 as VcTable, _default$3 as VcTableColumn, _default$7 as VcTextarea, _default$6 as VcTypography, _default$2 as VcWidget, _default$1 as VcWidgetSkeleton, apolloClient, getProductRoute, globals, graphqlClient, registerCacheTypePolicies, registerLocaleLoader, toEndDateFilterValue, toStartDateFilterValue, uiKit, useBreadcrumbs, useExtensionRegistry, useModal, useModuleSettings, useNavigations, useNotifications, usePageHead, useUser, useWishlistSharingScopes };
-export type { ExtendedMenuLinkType, I18n, ILanguage, IWishlistSharingScopeControlsType, IWishlistSharingScopeExposeType, LocaleLoaderType, MenuType, WishlistSharingScopePayloadType, WishlistSharingScopeSavedContextType };
+export { CORE_VERSION, EXTENSION_NAMES, Logger, _default as OrderStatus, ROUTES, SUPPRESS_ERROR_NOTIFICATIONS_CONTEXT, _default$e as VcAlert, _default$m as VcBadge, _default$l as VcBreadcrumbs, _default$d as VcButton, _default$k as VcCheckbox, _default$c as VcEmptyView, _default$j as VcIcon, _default$i as VcImage, _default$b as VcInput, _default$h as VcLabel, _default$g as VcLink, _default$a as VcLoaderOverlay, _default$f as VcMarkdownRender, _default$9 as VcMenuItem, _default$5 as VcModal, _default$8 as VcSelect, _default$4 as VcTable, _default$3 as VcTableColumn, _default$7 as VcTextarea, _default$6 as VcTypography, _default$2 as VcWidget, _default$1 as VcWidgetSkeleton, apolloClient, getProductRoute, globals, graphqlClient, registerCacheTypePolicies, registerLocaleLoader, registerPageBuilderSection, toEndDateFilterValue, toStartDateFilterValue, uiKit, useBreadcrumbs, useExtensionRegistry, useModal, useModuleSettings, useNavigations, useNotifications, usePageHead, useUser, useWishlistSharingScopes };
+export type { ExtendedMenuLinkType, I18n, ILanguage, IWishlistSharingScopeControlsType, IWishlistSharingScopeExposeType, LocaleLoaderType, MenuType, PageBuilderSectionKindType, PageBuilderSectionRegistrationType, PageBuilderSectionSchemaType, PageBuilderSectionSettingType, WishlistSharingScopePayloadType, WishlistSharingScopeSavedContextType };
 
 // ── host ui-kit ambient types, inlined so this contract stands alone ──
 type VcBadgeColorType = VcMainColorType;

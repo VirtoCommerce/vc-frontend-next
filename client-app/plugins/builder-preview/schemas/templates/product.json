@@ -1,9 +1,7 @@
 {
   "name": "Product template",
-  "previewUrl": "/printers/inkjet-color/epson-workforce-wf-2750-all-in-one-wireless-color-printercopierscannerfax-machine-color-black",
-  "path": "default/content/templates/product.json",
+  "path": "default/templates/product.json",
   "type": "themes",
-  "sections": ["image", "text", "product-info", "related-products", "recommended-products"],
   "previewMessage": {
     "templateKey": "product"
   },

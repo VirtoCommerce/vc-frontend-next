@@ -19,5 +19,28 @@
       "template": "page",
       "contentType": "pages"
     }
-  }
+  },
+  "settings": [
+    {
+      "id": "layout",
+      "label": "Layout",
+      "type": "select",
+      "default": null,
+      "info": "Empty: as the page's template says (Full by default).",
+      "options": [
+        {
+          "label": "Full",
+          "value": "full"
+        },
+        {
+          "label": "Minimal",
+          "value": "minimal"
+        },
+        {
+          "label": "Blank",
+          "value": "blank"
+        }
+      ]
+    }
+  ]
 }

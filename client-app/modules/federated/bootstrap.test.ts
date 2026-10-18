@@ -210,4 +210,66 @@ describe("startFederatedModules", () => {
     expect(initFederatedModulesMock).toHaveBeenCalledWith(expect.objectContaining({ plugins: undefined }));
     expect(loggerWarnMock).toHaveBeenCalledWith(expect.stringContaining("did not answer within"));
   });
+
+  describe("whenFederatedModulesSettled", () => {
+    async function isSettled(promise: Promise<void>): Promise<boolean> {
+      let settled = false;
+      void promise.then(() => (settled = true));
+      await Promise.resolve();
+      await Promise.resolve();
+      return settled;
+    }
+
+    it("resolves at once when the flag is off: no plugin can register a section", async () => {
+      const { whenFederatedModulesSettled } = await loadBootstrap();
+
+      await expect(whenFederatedModulesSettled()).resolves.toBeUndefined();
+    });
+
+    it("waits for the plugins' init(), so the builder preview announces what they registered", async () => {
+      vi.stubEnv("APP_MODULES_FEDERATION_ENABLED", "true");
+      let finishLoading: (value: unknown) => void = () => {};
+      initFederatedModulesMock.mockImplementation(() => new Promise((resolve) => (finishLoading = resolve)));
+      const { startFederatedModules, whenFederatedModulesSettled } = await loadBootstrap();
+
+      const settled = whenFederatedModulesSettled();
+      const boot = startFederatedModules();
+      await vi.waitFor(() => expect(initFederatedModulesMock).toHaveBeenCalled());
+
+      expect(await isSettled(settled)).toBe(false);
+
+      finishLoading({ loaded: ["demo"], failed: [], skipped: [] });
+      await boot;
+      expect(await isSettled(settled)).toBe(true);
+    });
+
+    it("resolves when the loader fails, so a broken plugin never blanks the designer", async () => {
+      vi.stubEnv("APP_MODULES_FEDERATION_ENABLED", "true");
+      initFederatedModulesMock.mockRejectedValue(new Error("unexpected"));
+      const { startFederatedModules, whenFederatedModulesSettled } = await loadBootstrap();
+
+      await startFederatedModules();
+
+      await expect(whenFederatedModulesSettled()).resolves.toBeUndefined();
+    });
+
+    it("resolves at the boot backstop when the loader hangs", async () => {
+      vi.useFakeTimers();
+      try {
+        vi.stubEnv("APP_MODULES_FEDERATION_ENABLED", "true");
+        initFederatedModulesMock.mockImplementation(() => new Promise(() => {}));
+        const { startFederatedModules, whenFederatedModulesSettled, BOOT_BACKSTOP_MS } = await loadBootstrap();
+
+        const settled = whenFederatedModulesSettled();
+        void startFederatedModules();
+        await vi.advanceTimersByTimeAsync(BOOT_BACKSTOP_MS - 1);
+        expect(await isSettled(settled)).toBe(false);
+
+        await vi.advanceTimersByTimeAsync(1);
+        expect(await isSettled(settled)).toBe(true);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+  });
 });

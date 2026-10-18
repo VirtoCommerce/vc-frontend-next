@@ -3,6 +3,31 @@
   "targetTemplates": ["product"],
   "icon": "smartphone",
   "displayField": "name",
-  "blocks": ["image", "text", "product-properties", "product-description", "product-variations", "product-assets"],
-  "settings": []
+  "blocks": [
+    "image",
+    "text",
+    "product-properties",
+    "product-description",
+    "product-variations",
+    "product-assets",
+    "product-options"
+  ],
+  "settings": [
+    {
+      "id": "variationsLayout",
+      "label": "Variations",
+      "type": "select",
+      "info": "Grid: B2C ordering (more per page, in stock only). Empty: as the product's B2C property says.",
+      "options": [
+        {
+          "label": "List (sortable, with filters)",
+          "value": "list"
+        },
+        {
+          "label": "Grid (B2C)",
+          "value": "b2c"
+        }
+      ]
+    }
+  ]
 }

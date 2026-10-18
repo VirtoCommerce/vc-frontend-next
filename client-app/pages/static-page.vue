@@ -1,28 +1,31 @@
 <template>
   <div v-if="template" ref="staticPageAnchor">
-    <div
-      v-if="!template.settings?.hideBreadcrumbs || template.settings?.header"
-      class="mx-auto mt-7 w-full max-w-screen-2xl px-5 pb-5 md:px-12 lg:pb-10"
-    >
-      <VcBreadcrumbs v-if="!template.settings?.hideBreadcrumbs" class="mb-3" :items="breadcrumbs"></VcBreadcrumbs>
+    <!-- the page within its page template (sections around it, its layout) -->
+    <PageTemplateFrame v-slot="{ settings }" :page-settings="template.settings">
+      <div
+        v-if="!settings.hideBreadcrumbs || settings.header"
+        class="mx-auto mt-7 w-full max-w-screen-2xl px-5 pb-5 md:px-12 lg:pb-10"
+      >
+        <VcBreadcrumbs v-if="!settings.hideBreadcrumbs" class="mb-3" :items="breadcrumbs"></VcBreadcrumbs>
 
-      <VcTypography v-if="template.settings?.header" tag="h1">
-        {{ template.settings.header }}
-      </VcTypography>
-    </div>
+        <VcTypography v-if="settings.header" tag="h1">
+          {{ settings.header }}
+        </VcTypography>
+      </div>
 
-    <template v-for="item in template.content">
-      <!-- @deprecated. TODO Keep only v-bind="item". Remove settings and model from all components -->
-      <component
-        :is="getBlockType(item.type)"
-        v-if="!item.hidden"
-        :key="item.id"
-        v-bind="item"
-        :id="getAnchorId(item)"
-        :model="item"
-        :settings="template.settings"
-      />
-    </template>
+      <template v-for="item in template.content">
+        <!-- @deprecated. TODO Keep only v-bind="item". Remove settings and model from all components -->
+        <component
+          :is="getBlockType(item.type)"
+          v-if="!item.hidden"
+          :key="item.id"
+          v-bind="item"
+          :id="getAnchorId(item)"
+          :model="item"
+          :settings="settings"
+        />
+      </template>
+    </PageTemplateFrame>
   </div>
 </template>
 
@@ -36,6 +39,7 @@ import { useSeoKeywords } from "@/core/composables/useSeoKeywords";
 import { humanizeName } from "@/core/utilities/common";
 import { getBlockType } from "@/plugins/builder-preview/block-mapping";
 import { getAnchorId, useAnchorScroll, useStaticPage } from "@/shared/static-content";
+import PageTemplateFrame from "@/shared/static-content/components/page-template-frame.vue";
 
 const { staticPage: template } = useStaticPage();
 

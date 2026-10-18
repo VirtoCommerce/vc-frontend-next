@@ -7,7 +7,9 @@ const ACCENT = "#2563eb";
  * thin outline and its name, the selected one a solid outline. A click selects a section. Only sections the designer
  * named (`sectionLabels`) take part, so shared-component placements keep their own overlay.
  *
- * A section spans from its scroll anchor to the next section's anchor (the anchors precede every rendered item).
+ * A section spans from its scroll anchor to the next section's anchor on the page (the anchors precede every rendered
+ * item). On the page, not in the template: a product page shows its column sections (description, reviews) above the
+ * sections that follow the product, whatever their order in the template.
  */
 /** The element a header or footer section (a section group's) marks with its id */
 export function markedSection(sectionId: string): HTMLElement | undefined {
@@ -127,12 +129,20 @@ export class SectionOverlay {
       const box = marked.getBoundingClientRect();
       return { top: box.top + window.scrollY, height: box.height };
     }
-    const index = this.sectionIds.indexOf(sectionId);
-    const start = index >= 0 ? document.getElementById(SCROLL_ANCHOR_PREFIX + sectionId) : null;
-    const end = document.getElementById(SCROLL_ANCHOR_PREFIX + (this.sectionIds[index + 1] ?? END_ANCHOR_ID));
+    const start = this.sectionIds.includes(sectionId)
+      ? document.getElementById(SCROLL_ANCHOR_PREFIX + sectionId)
+      : null;
+    const end = start ? this.nextAnchor(start) : undefined;
     const top = start ? start.getBoundingClientRect().top + window.scrollY : 0;
     const bottom = start && end ? end.getBoundingClientRect().top + window.scrollY : top;
     return { top, height: bottom - top > 1 ? bottom - top : 0 };
+  }
+
+  /** The anchor after `start` in the document that opens one of the page's items, or the end marker */
+  private nextAnchor(start: HTMLElement): HTMLElement | undefined {
+    const ids = new Set([...this.sectionIds, END_ANCHOR_ID].map((id) => SCROLL_ANCHOR_PREFIX + id));
+    const anchors = [...document.querySelectorAll<HTMLElement>(`[id^="${SCROLL_ANCHOR_PREFIX}"]`)];
+    return anchors.slice(anchors.indexOf(start) + 1).find((anchor) => ids.has(anchor.id));
   }
 
   private place(box: HTMLDivElement, sectionId: string | null): void {
