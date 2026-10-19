@@ -66,9 +66,6 @@ async function onBackToOperator(close: () => void): Promise<void> {
 
 <style lang="scss">
 .header-account-menu {
-  // Unset in light, so the kit's shadow stays; dark swaps in the header's (header-plate).
-  --vc-popover-shadow: var(--header-menu-shadow);
-
   // The header's smallest step, the same 12.5 the locale pill takes, so the pod and the pill sit
   // as a pair rather than as a pill beside a button.
   &__initials {

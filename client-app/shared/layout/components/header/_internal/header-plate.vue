@@ -177,7 +177,7 @@ defineExpose({ pinnedHeight });
   // A preset whose header colour equals its canvas hands the glass its own fill.
   --glass: var(--header-plate-glass, var(--header-bottom-bg-color));
 
-  // The row plates every header menu draws on (account, organizations), declared once so the menus
+  // The row plates the account and organizations menus draw on, declared once so they
   // cannot drift apart: a neutral hover, the warm secondary plate for "you are here".
   --header-menu-hover-bg: theme("colors.neutral.100");
   --header-menu-active-bg: theme("colors.secondary.100");

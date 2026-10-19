@@ -13,6 +13,10 @@
   // value as a fallback so a fork that drops the file keeps round plates.
   --plate-radius: 1.75rem;
 
+  // The design's control step (8): fields and rows inside a panel. Not --vc-radius, which is the
+  // card step the panel itself keeps. Consumers outside this file repeat it as a fallback.
+  --control-radius: 0.5rem;
+
   // A widget is a plate: the design gives it the canvas radius and no outline, and lets the
   // lightest rung of the shadow scale be the whole edge. --vc-widget-divide-color has to be
   // named, because it defaults to the border colour just cleared — and that would take the

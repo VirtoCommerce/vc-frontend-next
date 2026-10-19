@@ -14,7 +14,7 @@ defineProps<IProps>();
 
 <style lang="scss">
 // The round trigger the header's identity menus share (account, organizations), so the pair cannot
-// drift apart. 34, not 42: it is the quietest control in the row.
+// drift apart. 34: it is the quietest control in the row.
 .header-pod {
   @apply grid size-[2.125rem] flex-none cursor-pointer place-items-center rounded-full border-0 bg-neutral-200 text-neutral-800;
 
