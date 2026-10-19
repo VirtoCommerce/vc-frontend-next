@@ -28,11 +28,11 @@ function _useUserOrganizations() {
     searchPhrase.value ? `"${escapeFilterSyntaxValue(searchPhrase.value)}"` : "",
   );
 
-  async function loadOrganizations(): Promise<void> {
-    if (loading.value || !hasNextPage.value) {
-      return;
-    }
+  // Bumped by every search/reset: a page that lands after a newer search must not append to its list.
+  let requestId = 0;
 
+  async function fetchPage(): Promise<void> {
+    const id = ++requestId;
     loading.value = true;
 
     try {
@@ -43,6 +43,10 @@ function _useUserOrganizations() {
         searchPhrase: formattedSearchPhrase.value,
         statuses: [ContactStatus.Approved],
       });
+
+      if (id !== requestId) {
+        return;
+      }
 
       organizations.value.push(...result.items);
 
@@ -56,23 +60,38 @@ function _useUserOrganizations() {
 
       initialized.value = true;
     } catch (error) {
+      if (id !== requestId) {
+        return;
+      }
       Logger.error(`${_useUserOrganizations.name}.${loadOrganizations.name}`, error);
       throw error;
     } finally {
-      loading.value = false;
+      if (id === requestId) {
+        loading.value = false;
+      }
     }
   }
 
+  async function loadOrganizations(): Promise<void> {
+    if (loading.value || !hasNextPage.value) {
+      return;
+    }
+
+    await fetchPage();
+  }
+
+  // Starts its own request rather than waiting on one in flight, which belongs to the old list.
   async function search(): Promise<void> {
     organizations.value = [];
     endCursor.value = undefined;
     hasNextPage.value = true;
     totalCount.value = 0;
 
-    await loadOrganizations();
+    await fetchPage();
   }
 
   function reset(): void {
+    requestId++;
     organizations.value = [];
     endCursor.value = undefined;
     hasNextPage.value = true;

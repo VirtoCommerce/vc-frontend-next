@@ -65,9 +65,7 @@ const triggerLabel = computed(() =>
 .header-organizations-menu {
   // The design's popover surface is the plate cream, which VcMenuItem rows already rest on
   // (_paprika.scss); on white the rows read as tinted stripes.
-  --vc-popover-bg-color: var(--plate-bg);
-  // Unset in light, so the kit's shadow stays; dark swaps in the header's (header-plate).
-  --vc-popover-shadow: var(--header-menu-shadow);
+  --vc-popover-bg-color: var(--plate-bg, var(--color-additional-50));
 
   // One column, at most half the screen: the title and search stay put and only the list scrolls.
   &__panel {

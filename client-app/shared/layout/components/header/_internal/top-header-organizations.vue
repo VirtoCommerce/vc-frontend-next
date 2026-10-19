@@ -133,7 +133,6 @@ const {
   currentPage,
   loadOrganizations,
   search,
-  reset,
   isShowSearch,
 } = useUserOrganizations();
 const { switchError, trySwitch } = useOrganizationSwitcher();
@@ -257,8 +256,9 @@ async function onSearchInput(): Promise<void> {
   }
 }
 
+// Not reset(): it zeroes the total, which hides the search block and drops focus out of the dialog.
 async function onSearchClear(): Promise<void> {
-  reset();
+  searchPhrase.value = "";
   await search();
 }
 </script>
@@ -267,10 +267,6 @@ async function onSearchClear(): Promise<void> {
 // Drawn as one column of the header's organizations popover (header-organizations-menu.vue): the
 // title and search stay put and only the list scrolls.
 .top-header-organizations {
-  // The design's control step (8). Not --vc-radius: in this theme that is the card step (12),
-  // which the list tile keeps.
-  --control-radius: 0.5rem;
-
   @apply flex flex-col;
 
   &__error {
@@ -281,7 +277,7 @@ async function onSearchClear(): Promise<void> {
     @apply pb-2.5;
 
     // A field, not a pill; the in-field button follows (VcInput takes the field radius less 2px).
-    --vc-input-radius: var(--control-radius);
+    --vc-input-radius: var(--control-radius, 0.5rem);
   }
 
   &__label {
@@ -300,7 +296,7 @@ async function onSearchClear(): Promise<void> {
 
   // Rows draw on the header's shared menu plates (header-plate.vue); bold marks the current one.
   &__item {
-    --vc-menu-item-radius: var(--control-radius);
+    --vc-menu-item-radius: var(--control-radius, 0.5rem);
     --vc-menu-item-padding-x: theme("spacing[2.5]");
     --vc-menu-item-hover-bg: var(--header-menu-hover-bg);
     --vc-menu-item-active-bg: var(--header-menu-active-bg);
