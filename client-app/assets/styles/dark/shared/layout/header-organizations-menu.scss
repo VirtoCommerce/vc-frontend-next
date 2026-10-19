@@ -1,0 +1,5 @@
+.header-organizations-menu {
+  // Dark --plate-bg is 72% glass meant for a blur, and the popover has none: the design's solid
+  // surface step instead.
+  --vc-popover-bg-color: theme("colors.neutral.100");
+}
