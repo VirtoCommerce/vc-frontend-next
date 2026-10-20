@@ -42,6 +42,7 @@
     },
     "hub": {
       "title": "営業担当ハブ",
+      "header_link": "Sales Rep Hub",
       "dashboard": {
         "navigation": {
           "link": "ダッシュボード"

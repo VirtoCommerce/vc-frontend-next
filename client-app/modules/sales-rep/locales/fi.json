@@ -42,6 +42,7 @@
     },
     "hub": {
       "title": "Myyntiedustajan keskus",
+      "header_link": "Sales Rep Hub",
       "dashboard": {
         "navigation": {
           "link": "Hallintapaneeli"
