@@ -12,11 +12,13 @@
       <template v-for="(section, index) in configuration" :key="section.id">
         <VcWidget
           v-if="isSectionVisible(section.id)"
+          :id="getConfigurationSectionElementId(section.id)"
           data-test-id="section"
           class="product-configuration__section"
           collapsible
           size="xs"
-          :collapsed="index !== 0"
+          :collapsed="collapsedSections[section.id] ?? index !== 0"
+          @toggle-collapse="collapsedSections[section.id] = $event"
         >
           <template #title>
             <!-- The design names an optional group with a badge at the end of its header rather than
@@ -168,7 +170,12 @@
 import { nextTick, ref, toRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { onBeforeRouteLeave, onBeforeRouteUpdate } from "vue-router";
-import { useConfigurableLineItemId, useConfigurableProduct } from "@/shared/catalog/composables";
+import {
+  getConfigurationSectionElementId,
+  useConfigurableLineItemId,
+  useConfigurableProduct,
+  useConfigurationSectionNavigation,
+} from "@/shared/catalog/composables";
 import { CONFIGURABLE_SECTION_TYPES } from "@/shared/catalog/constants/configurableProducts";
 import { SaveChangesModal } from "@/shared/common";
 import { useModal } from "@/shared/modal";
@@ -214,8 +221,23 @@ const {
 
 const { openModal } = useModal();
 const notifications = useNotifications();
+const { onNavigateToSection } = useConfigurationSectionNavigation();
 
 const isMouseInteraction = ref(false);
+const collapsedSections = ref<Record<string, boolean>>({});
+
+onNavigateToSection(async (sectionId) => {
+  collapsedSections.value[sectionId] = false;
+  await nextTick();
+
+  const sectionElement = document.getElementById(getConfigurationSectionElementId(sectionId));
+  if (!sectionElement) {
+    return;
+  }
+
+  sectionElement.scrollIntoView({ behavior: "smooth", block: "start" });
+  sectionElement.querySelector<HTMLElement>(".vc-widget__header-container")?.focus({ preventScroll: true });
+});
 
 function handleItemsFocusIn(event: FocusEvent) {
   if (isMouseInteraction.value) {

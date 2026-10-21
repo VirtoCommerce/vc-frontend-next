@@ -243,7 +243,9 @@
       "logo_changed": "Logo was successfully changed.",
       "logo_deleted": "Logo was deleted.",
       "pending_operations_leaving_page_confirmation": "Some operations are still in progress. Are you sure you want to leave this page? Unsaved changes may be lost.",
-      "content_failed_to_load": "Part of the site could not be loaded. Please reload the page to continue."
+      "content_failed_to_load": "Part of the site could not be loaded. Please reload the page to continue.",
+      "page_loading": "Loading page…",
+      "page_loading_slow": "This page is taking longer than usual to load. You can keep waiting or reload the page."
     },
     "placeholders": {
       "enter_value": "Enter a value",
@@ -827,6 +829,17 @@
           "optional": "Optional",
           "optional_no_selected": "Personalize your selection further (optional)",
           "required_no_selected": "Complete all required options to finalize your selection",
+          "checklist": {
+            "title": "Configuration checklist",
+            "done": "(completed)",
+            "selected": "{name} — {value}",
+            "required": "{name} — required",
+            "optional": "{name} — optional",
+            "fill_it_in": "Fill it in",
+            "upload_file": "Upload a file",
+            "check_it_out": "Check it out",
+            "review": "Review"
+          },
           "section-text-fieldset": {
             "custom_option_with_input": "Custom option: {0}",
             "custom_option_empty": "Custom option: empty",
@@ -1968,15 +1981,19 @@
     "PRODUCT_QTY_INSUFFICIENT": "The product available quantity {availQty} is insufficient for requested {new_qty}",
     "PRODUCT_MIN_QTY_NOT_AVAILABLE": "Min order {minQty} item(s) is not available in stock",
     "PRODUCT_EXACT_QTY": "You can order {minQty} item(s)",
+    "PRODUCT_PACK_SIZE_LIMIT": "Order in packs of {packSize}",
+    "LINE_ITEM_LIMIT": "You can order maximum {limit} item(s)",
     "CART_INVALID_PRODUCT": "Invalid product"
   },
   "file_error": {
     "ALREADY_EXISTS": "Cannot upload file with the same name",
     "INVALID_CONTENT": "Cannot read file",
+    "INVALID_CONTENT_TYPE": "Cannot upload file",
     "EXCEPTION": "Failure while uploading file. Please try again.",
-    "INVALID_SCOPE": "Unknown scope '{0}'.",
+    "INVALID_SCOPE": "File upload is not available.",
     "INVALID_EXTENSION": "File format is not allowed",
     "INVALID_SIZE": "File size exceeds the allowed {0}",
+    "INVALID_MIN_SIZE": "File size is below the allowed minimum {0}",
     "CANNOT_DELETE": "Failure while deleting file"
   }
 }

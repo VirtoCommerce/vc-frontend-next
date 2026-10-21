@@ -243,7 +243,9 @@
       "logo_changed": "Logo on vaihdettu onnistuneesti.",
       "logo_deleted": "Logo on poistettu.",
       "pending_operations_leaving_page_confirmation": "Osa toimintoja on vielä käynnissä. Haluatko varmasti poistua tältä sivulta? Tallentamattomat muutokset saattavat kadota.",
-      "content_failed_to_load": "Osaa sivustosta ei voitu ladata. Lataa sivu uudelleen jatkaaksesi."
+      "content_failed_to_load": "Osaa sivustosta ei voitu ladata. Lataa sivu uudelleen jatkaaksesi.",
+      "page_loading": "Sivua ladataan…",
+      "page_loading_slow": "Sivun lataaminen kestää tavallista kauemmin. Voit odottaa tai ladata sivun uudelleen."
     },
     "placeholders": {
       "enter_value": "Syötä arvo",
@@ -827,6 +829,17 @@
           "optional": "Valinnainen",
           "optional_no_selected": "Mukauta valintaasi lisää (valinnainen)",
           "required_no_selected": "Täytä kaikki pakolliset vaihtoehdot viimeistelläksesi valintasi",
+          "checklist": {
+            "title": "Määritysten tarkistuslista",
+            "done": "(valmis)",
+            "selected": "{name} — {value}",
+            "required": "{name} — pakollinen",
+            "optional": "{name} — valinnainen",
+            "fill_it_in": "Täytä",
+            "upload_file": "Lataa tiedosto",
+            "check_it_out": "Tutustu",
+            "review": "Tarkista"
+          },
           "section-text-fieldset": {
             "custom_option_with_input": "Mukautettu vaihtoehto: {0}",
             "custom_option_empty": "Mukautettu vaihtoehto: tyhjä",
@@ -1968,15 +1981,19 @@
     "PRODUCT_QTY_INSUFFICIENT": "Tuotteen saatavilla oleva määrä {availQty} ei riitä pyydettyyn {new_qty}",
     "PRODUCT_MIN_QTY_NOT_AVAILABLE": "Vähimmäistilaus {minQty} tuotetta ei ole saatavilla varastossa",
     "PRODUCT_EXACT_QTY": "Voit tilata {minQty} tuotetta",
+    "PRODUCT_PACK_SIZE_LIMIT": "Tilaa {packSize} kpl:n pakkauksissa",
+    "LINE_ITEM_LIMIT": "Voit tilata enintään {limit} tuotetta",
     "CART_INVALID_PRODUCT": "Virheellinen tuote"
   },
   "file_error": {
     "ALREADY_EXISTS": "Samannimistä tiedostoa ei voi ladata",
     "INVALID_CONTENT": "Tiedostoa ei voi lukea",
+    "INVALID_CONTENT_TYPE": "Tiedostoa ei voi ladata",
     "EXCEPTION": "Virhe tiedoston latauksessa. Yritä uudelleen.",
-    "INVALID_SCOPE": "Tuntematon laajuus '{0}'.",
+    "INVALID_SCOPE": "Tiedostojen lataaminen ei ole käytettävissä.",
     "INVALID_EXTENSION": "Tiedostomuoto ei ole sallittu",
     "INVALID_SIZE": "Tiedoston koko ylittää sallitun {0}",
+    "INVALID_MIN_SIZE": "Tiedoston koko alittaa sallitun vähimmäiskoon {0}",
     "CANNOT_DELETE": "Virhe tiedoston poistossa"
   }
 }

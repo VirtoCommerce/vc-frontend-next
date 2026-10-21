@@ -46,7 +46,13 @@
 
       <template v-else>
         <div class="missions__cards">
-          <MissionCard v-for="mission in missions" :key="mission.missionId!" :mission="mission" />
+          <template v-if="missionsLoading">
+            <MissionCardSkeleton v-for="item in DEFAULT_MISSIONS_PER_PAGE" :key="item" />
+          </template>
+
+          <template v-else>
+            <MissionCard v-for="mission in missions" :key="mission.missionId!" :mission="mission" />
+          </template>
         </div>
 
         <VcPagination
@@ -65,11 +71,13 @@
 import { onMounted, ref } from "vue";
 import { ROUTES } from "@/router/routes/constants";
 import { useLoyaltySettings } from "@/shared/loyalty/composables/useLoyaltySettings";
+import MissionCardSkeleton from "../components/mission-card-skeleton.vue";
 import MissionCard from "../components/mission-card.vue";
 import MissionsBanner from "../components/missions-banner.vue";
 import PointsBalance from "../components/points-balance.vue";
 import { useLoyaltyBalance } from "../composables/useLoyaltyBalance";
 import { useMissions } from "../composables/useMissions";
+import { DEFAULT_MISSIONS_PER_PAGE } from "../constants";
 
 const { isLoyaltyCatalogAvailable } = useLoyaltySettings();
 const { fetchLoyaltyBalance, loading: balanceLoading, currentBalance } = useLoyaltyBalance();
