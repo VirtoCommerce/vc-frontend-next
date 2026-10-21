@@ -42,6 +42,7 @@
     },
     "hub": {
       "title": "Salgsrepresentant-hub",
+      "header_link": "Sales Rep Hub",
       "dashboard": {
         "navigation": {
           "link": "Dashbord"

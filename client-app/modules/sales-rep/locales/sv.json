@@ -42,6 +42,7 @@
     },
     "hub": {
       "title": "Säljrepresentant-hub",
+      "header_link": "Sales Rep Hub",
       "dashboard": {
         "navigation": {
           "link": "Instrumentpanel"

@@ -57,6 +57,9 @@ export const ORDERS_DEFAULT_LIMIT = 7;
 export const DASHBOARD_ROUTE_NAME = "SalesRepDashboard";
 export const DASHBOARD_ROUTE_SEGMENT = "dashboard";
 export const DASHBOARD_NAV_LINK_ID = "sales-rep-dashboard";
+// Header icon row link to the hub dashboard; first in the row, ahead of Bulk order (0).
+export const HUB_HEADER_LINK_ID = "sales-rep-hub-header";
+export const HUB_HEADER_LINK_PRIORITY = -10;
 
 // Document library (VCST-5730). Read permission gates the widget, the page and the nav link;
 // write implies read and administrators pass — both are resolved server-side, the client only
