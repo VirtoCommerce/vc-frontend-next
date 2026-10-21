@@ -14,4 +14,6 @@ declare const __MF_HOST__: boolean;
 interface ImportMetaEnv {
   /** JSON map of remote name -> mf-manifest.json URL. Inlined at BUILD time (see core/federation/README.md). */
   readonly APP_MODULES_FEDERATION_REMOTES?: string;
+  /** `"true"` shows example figures on the Sales Rep Reporting page instead of the backend's (local demos only). */
+  readonly APP_SALES_REP_REPORTING_MOCK?: string;
 }
