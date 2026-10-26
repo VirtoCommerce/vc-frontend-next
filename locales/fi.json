@@ -468,6 +468,42 @@
             "no_file": "Ei ladattua tiedostoa"
           }
         },
+        "image_search": {
+          "title": "Kuvahaku",
+          "open_button": "Hae kuvalla",
+          "description": "Lataa kuva tuotteesta tai ota uusi. Tunnistamme sen laitteellasi ja etsimme vastaavat tuotteet.",
+          "dropzone": "Vedä kuva tähän, liitä se tai valitse tiedosto napsauttamalla",
+          "dropzone_mobile": "Valitse kuva galleriasta napauttamalla",
+          "take_photo": "Ota kuva",
+          "upload_photo": "Lataa kuva",
+          "change_photo": "Vaihda kuva",
+          "crop_hint": "Vedä kehystä, sen reunoja tai kulmia, jotta vain etsimäsi tuote jää näkyviin.",
+          "preview_alt": "Hakukuva",
+          "loading_photo": "Ladataan kuvaa…",
+          "recognizing": "Tunnistetaan tuotetta…",
+          "loading_model": "Ladataan tunnistusmallia… {percent}%",
+          "refining": "Verrataan luettelon tuotteisiin…",
+          "weak_match": "Emme ole varmoja, mikä tämä on. Valitse lähin kategoria tai kirjoita merkki tai malli yllä olevaan kenttään.",
+          "no_match": {
+            "title": "Luettelossa ei ole mitään samankaltaista",
+            "text": "Emme löytäneet kuvan kaltaisia tuotteita. Rajaa kuva tiiviimmin tuotteeseen, kokeile toista kuvaa tai kirjoita merkki tai malli yllä olevaan kenttään."
+          },
+          "detected_category": "Tunnistettu kategoria",
+          "possible_categories": "Mahdolliset kategoriat",
+          "browse_departments": "Tai selaa osastoa",
+          "all_categories": "Kaikki kategoriat",
+          "similar_products": "Samankaltaiset tuotteet",
+          "closest_products": "Lähimmät tuotteet luettelossa",
+          "photo_text": "Kuvasta luettu: {text}",
+          "keyword_label": "Merkki, malli tai myyjä (valinnainen)",
+          "keyword_placeholder": "Esimerkiksi UGREEN Nexode",
+          "search": "Hae",
+          "errors": {
+            "not_recognized": "Tuotetta ei tunnistettu. Valitse kategoria tai kirjoita, mitä etsit.",
+            "wrong_format": "Tiedostomuotoa ei tueta",
+            "unreadable": "Kuvaa ei voitu avata. Kokeile toista kuvaa."
+          }
+        },
         "suggestions_label": "Ehdotukset",
         "search_label": "Hae"
       },

@@ -468,6 +468,42 @@
             "no_file": "Aucun fichier n'a été téléchargé"
           }
         },
+        "image_search": {
+          "title": "Recherche par image",
+          "open_button": "Rechercher par image",
+          "description": "Importez une photo de l'article ou prenez-en une nouvelle. Nous la reconnaissons sur votre appareil et trouvons des produits correspondants.",
+          "dropzone": "Glissez une photo ici, collez-la ou cliquez pour choisir un fichier",
+          "dropzone_mobile": "Touchez pour choisir une photo dans la galerie",
+          "take_photo": "Prendre une photo",
+          "upload_photo": "Importer une photo",
+          "change_photo": "Changer de photo",
+          "crop_hint": "Faites glisser le cadre, ses bords ou ses coins pour ne garder que l'article recherché.",
+          "preview_alt": "Photo pour la recherche",
+          "loading_photo": "Chargement de la photo…",
+          "recognizing": "Reconnaissance de l'article…",
+          "loading_model": "Chargement du modèle de reconnaissance… {percent} %",
+          "refining": "Comparaison avec les produits du catalogue…",
+          "weak_match": "Nous ne savons pas exactement ce que c'est. Choisissez la catégorie la plus proche ou saisissez la marque ou le modèle ci-dessus.",
+          "no_match": {
+            "title": "Rien de similaire dans notre catalogue",
+            "text": "Nous n'avons trouvé aucun produit comme celui de la photo. Recadrez au plus près de l'article, essayez une autre photo ou saisissez sa marque ou son modèle ci-dessus."
+          },
+          "detected_category": "Catégorie détectée",
+          "possible_categories": "Catégories possibles",
+          "browse_departments": "Ou parcourez un rayon",
+          "all_categories": "Toutes les catégories",
+          "similar_products": "Produits similaires",
+          "closest_products": "Produits les plus proches du catalogue",
+          "photo_text": "Lu sur la photo : {text}",
+          "keyword_label": "Marque, modèle ou vendeur (facultatif)",
+          "keyword_placeholder": "Par exemple, UGREEN Nexode",
+          "search": "Rechercher",
+          "errors": {
+            "not_recognized": "L'article n'a pas été reconnu. Choisissez une catégorie ou saisissez ce que vous cherchez.",
+            "wrong_format": "Format de fichier non pris en charge",
+            "unreadable": "Impossible d'ouvrir l'image. Essayez une autre photo."
+          }
+        },
         "suggestions_label": "Suggestions",
         "search_label": "Rechercher"
       },

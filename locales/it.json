@@ -468,6 +468,42 @@
             "no_file": "Nessun file caricato"
           }
         },
+        "image_search": {
+          "title": "Ricerca per immagine",
+          "open_button": "Cerca per immagine",
+          "description": "Carica una foto dell'articolo o scattane una nuova. La riconosceremo sul tuo dispositivo e troveremo prodotti simili.",
+          "dropzone": "Trascina qui una foto, incollala o fai clic per scegliere un file",
+          "dropzone_mobile": "Tocca per scegliere una foto dalla galleria",
+          "take_photo": "Scatta foto",
+          "upload_photo": "Carica foto",
+          "change_photo": "Cambia foto",
+          "crop_hint": "Trascina la cornice, i suoi bordi o gli angoli per mantenere solo l'articolo che cerchi.",
+          "preview_alt": "Foto da cercare",
+          "loading_photo": "Caricamento della foto…",
+          "recognizing": "Riconoscimento dell'articolo…",
+          "loading_model": "Caricamento del modello di riconoscimento… {percent}%",
+          "refining": "Confronto con i prodotti del catalogo…",
+          "weak_match": "Non siamo sicuri di cosa sia. Scegli la categoria più vicina o inserisci marca o modello qui sopra.",
+          "no_match": {
+            "title": "Niente di simile nel nostro catalogo",
+            "text": "Non abbiamo trovato prodotti come quello nella foto. Ritaglia più vicino all'articolo, prova un'altra foto o inserisci marca o modello qui sopra."
+          },
+          "detected_category": "Categoria rilevata",
+          "possible_categories": "Categorie possibili",
+          "browse_departments": "Oppure sfoglia un reparto",
+          "all_categories": "Tutte le categorie",
+          "similar_products": "Prodotti simili",
+          "closest_products": "Prodotti più simili nel catalogo",
+          "photo_text": "Letto sulla foto: {text}",
+          "keyword_label": "Marca, modello o venditore (facoltativo)",
+          "keyword_placeholder": "Ad esempio, UGREEN Nexode",
+          "search": "Cerca",
+          "errors": {
+            "not_recognized": "Non è stato possibile riconoscere l'articolo. Scegli una categoria o inserisci cosa stai cercando.",
+            "wrong_format": "Formato file non supportato",
+            "unreadable": "Impossibile aprire l'immagine. Prova un'altra foto."
+          }
+        },
         "suggestions_label": "Suggerimenti",
         "search_label": "Cerca"
       },
