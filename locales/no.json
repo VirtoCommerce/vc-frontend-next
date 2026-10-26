@@ -468,6 +468,42 @@
             "no_file": "Ingen opplastet fil"
           }
         },
+        "image_search": {
+          "title": "Bildesøk",
+          "open_button": "Søk med bilde",
+          "description": "Last opp et bilde av varen eller ta et nytt. Vi gjenkjenner det på enheten din og finner matchende produkter.",
+          "dropzone": "Dra et bilde hit, lim det inn eller klikk for å velge en fil",
+          "dropzone_mobile": "Trykk for å velge et bilde fra galleriet",
+          "take_photo": "Ta bilde",
+          "upload_photo": "Last opp bilde",
+          "change_photo": "Bytt bilde",
+          "crop_hint": "Dra rammen, kantene eller hjørnene for å beholde bare varen du ser etter.",
+          "preview_alt": "Bilde å søke med",
+          "loading_photo": "Laster inn bildet…",
+          "recognizing": "Gjenkjenner varen…",
+          "loading_model": "Laster inn gjenkjenningsmodellen… {percent} %",
+          "refining": "Sammenligner med produkter i katalogen…",
+          "weak_match": "Vi er ikke sikre på hva dette er. Velg den nærmeste kategorien, eller skriv inn merke eller modell ovenfor.",
+          "no_match": {
+            "title": "Ingenting lignende i katalogen",
+            "text": "Vi fant ingen produkter som det på bildet. Beskjær nærmere varen, prøv et annet bilde, eller skriv inn merke eller modell ovenfor."
+          },
+          "detected_category": "Gjenkjent kategori",
+          "possible_categories": "Mulige kategorier",
+          "browse_departments": "Eller bla i en avdeling",
+          "all_categories": "Alle kategorier",
+          "similar_products": "Lignende produkter",
+          "closest_products": "Mest like produkter i katalogen",
+          "photo_text": "Lest på bildet: {text}",
+          "keyword_label": "Merke, modell eller selger (valgfritt)",
+          "keyword_placeholder": "For eksempel UGREEN Nexode",
+          "search": "Søk",
+          "errors": {
+            "not_recognized": "Vi kunne ikke gjenkjenne varen. Velg en kategori eller skriv inn hva du ser etter.",
+            "wrong_format": "Filformatet støttes ikke",
+            "unreadable": "Bildet kunne ikke åpnes. Prøv et annet bilde."
+          }
+        },
         "suggestions_label": "Forslag",
         "search_label": "Søk"
       },

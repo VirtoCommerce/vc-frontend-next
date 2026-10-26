@@ -468,6 +468,42 @@
             "no_file": "Ingen fil uppladdad"
           }
         },
+        "image_search": {
+          "title": "Bildsökning",
+          "open_button": "Sök med bild",
+          "description": "Ladda upp ett foto av varan eller ta ett nytt. Vi känner igen det på din enhet och hittar matchande produkter.",
+          "dropzone": "Dra ett foto hit, klistra in det eller klicka för att välja en fil",
+          "dropzone_mobile": "Tryck för att välja ett foto från galleriet",
+          "take_photo": "Ta foto",
+          "upload_photo": "Ladda upp foto",
+          "change_photo": "Byt foto",
+          "crop_hint": "Dra ramen, dess kanter eller hörn för att bara behålla varan du letar efter.",
+          "preview_alt": "Foto att söka med",
+          "loading_photo": "Läser in fotot…",
+          "recognizing": "Känner igen varan…",
+          "loading_model": "Läser in igenkänningsmodellen… {percent} %",
+          "refining": "Jämför med produkter i katalogen…",
+          "weak_match": "Vi är inte säkra på vad det här är. Välj den närmaste kategorin eller skriv märke eller modell ovan.",
+          "no_match": {
+            "title": "Inget liknande i katalogen",
+            "text": "Vi hittade inga produkter som den på fotot. Beskär närmare varan, prova ett annat foto eller skriv märke eller modell ovan."
+          },
+          "detected_category": "Identifierad kategori",
+          "possible_categories": "Möjliga kategorier",
+          "browse_departments": "Eller bläddra i en avdelning",
+          "all_categories": "Alla kategorier",
+          "similar_products": "Liknande produkter",
+          "closest_products": "Mest lika produkter i katalogen",
+          "photo_text": "Läst på fotot: {text}",
+          "keyword_label": "Märke, modell eller säljare (valfritt)",
+          "keyword_placeholder": "Till exempel UGREEN Nexode",
+          "search": "Sök",
+          "errors": {
+            "not_recognized": "Vi kunde inte känna igen varan. Välj en kategori eller skriv vad du letar efter.",
+            "wrong_format": "Filformatet stöds inte",
+            "unreadable": "Bilden kunde inte öppnas. Prova ett annat foto."
+          }
+        },
         "suggestions_label": "Förslag",
         "search_label": "Sök"
       },

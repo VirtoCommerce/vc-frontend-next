@@ -468,6 +468,42 @@
             "no_file": "ファイルはアップロードされていません"
           }
         },
+        "image_search": {
+          "title": "画像で検索",
+          "open_button": "画像で検索",
+          "description": "商品の写真をアップロードするか、新しく撮影してください。端末上で認識し、一致する商品を探します。",
+          "dropzone": "写真をここにドラッグ、貼り付け、またはクリックしてファイルを選択",
+          "dropzone_mobile": "タップしてギャラリーから写真を選択",
+          "take_photo": "写真を撮る",
+          "upload_photo": "写真をアップロード",
+          "change_photo": "写真を変更",
+          "crop_hint": "枠、その辺または角をドラッグして、探している商品だけを残してください。",
+          "preview_alt": "検索用の写真",
+          "loading_photo": "写真を読み込んでいます…",
+          "recognizing": "商品を認識しています…",
+          "loading_model": "認識モデルを読み込んでいます… {percent}%",
+          "refining": "カタログの商品と比較しています…",
+          "weak_match": "何であるか特定できませんでした。最も近いカテゴリを選ぶか、上の欄にブランドやモデルを入力してください。",
+          "no_match": {
+            "title": "カタログに似た商品がありません",
+            "text": "写真のような商品は見つかりませんでした。商品に近づけて切り抜くか、別の写真を試すか、上の欄にブランドやモデルを入力してください。"
+          },
+          "detected_category": "検出されたカテゴリ",
+          "possible_categories": "候補のカテゴリ",
+          "browse_departments": "または売り場から探す",
+          "all_categories": "すべてのカテゴリ",
+          "similar_products": "類似商品",
+          "closest_products": "カタログ内で最も近い商品",
+          "photo_text": "写真から読み取った文字：{text}",
+          "keyword_label": "ブランド、モデル、販売者（任意）",
+          "keyword_placeholder": "例：UGREEN Nexode",
+          "search": "検索",
+          "errors": {
+            "not_recognized": "商品を認識できませんでした。カテゴリを選択するか、探しているものを入力してください。",
+            "wrong_format": "サポートされていないファイル形式です",
+            "unreadable": "画像を開けませんでした。別の写真をお試しください。"
+          }
+        },
         "suggestions_label": "おすすめ",
         "search_label": "検索"
       },

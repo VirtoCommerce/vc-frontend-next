@@ -29,6 +29,8 @@
             @keydown.enter="searchDropdownRef?.handleSearch()"
           >
             <template #append>
+              <ImageSearchButton v-if="!searchPhrase" />
+
               <BarcodeScanner
                 v-if="!searchPhrase && isScannerEnabled"
                 :aria-label="$t('shared.layout.search_bar.barcode_detector.title')"
@@ -83,6 +85,7 @@ import { useBarcodeSearch, useSearchPhraseInUrl } from "@/shared/layout/composab
 import { useSearchBar } from "@/shared/layout/composables/useSearchBar";
 import { BREAKPOINTS } from "@/ui-kit/constants";
 import BarcodeScanner from "./search-bar/barcode-scanner.vue";
+import ImageSearchButton from "./search-bar/image-search-button.vue";
 import SearchDropdown from "./search-dropdown.vue";
 
 interface IProps {

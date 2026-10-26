@@ -468,6 +468,42 @@
             "no_file": "未上传文件"
           }
         },
+        "image_search": {
+          "title": "以图搜索",
+          "open_button": "以图搜索",
+          "description": "上传商品照片或拍摄新照片。我们会在您的设备上识别并查找匹配的商品。",
+          "dropzone": "将照片拖到此处、粘贴，或点击选择文件",
+          "dropzone_mobile": "点击从相册中选择照片",
+          "take_photo": "拍照",
+          "upload_photo": "上传照片",
+          "change_photo": "更换照片",
+          "crop_hint": "拖动边框、其边缘或角，只保留您要找的商品。",
+          "preview_alt": "用于搜索的照片",
+          "loading_photo": "正在加载照片…",
+          "recognizing": "正在识别商品…",
+          "loading_model": "正在加载识别模型… {percent}%",
+          "refining": "正在与目录商品比较…",
+          "weak_match": "我们不确定这是什么。请选择最接近的类别，或在上方输入品牌或型号。",
+          "no_match": {
+            "title": "目录中没有相似商品",
+            "text": "未找到与照片中相似的商品。请更贴近商品裁剪、换一张照片，或在上方输入品牌或型号。"
+          },
+          "detected_category": "识别出的类别",
+          "possible_categories": "可能的类别",
+          "browse_departments": "或浏览某个部门",
+          "all_categories": "所有类别",
+          "similar_products": "相似商品",
+          "closest_products": "目录中最接近的商品",
+          "photo_text": "从照片中识别：{text}",
+          "keyword_label": "品牌、型号或卖家（可选）",
+          "keyword_placeholder": "例如 UGREEN Nexode",
+          "search": "搜索",
+          "errors": {
+            "not_recognized": "无法识别该商品。请选择类别或输入您要找的内容。",
+            "wrong_format": "不支持的文件格式",
+            "unreadable": "无法打开图片。请尝试其他照片。"
+          }
+        },
         "suggestions_label": "建议",
         "search_label": "搜索"
       },

@@ -1,0 +1,5 @@
+.image-cropper__area {
+  // The veil is neutral-900, which dark presets invert to near-white: it would light the photo up instead
+  // of dimming what the crop leaves out. Black, as the modal scrim does.
+  box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.6);
+}

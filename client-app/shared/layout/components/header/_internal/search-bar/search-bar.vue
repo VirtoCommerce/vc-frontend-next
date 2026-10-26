@@ -52,6 +52,8 @@
       </template>
 
       <template #append>
+        <ImageSearchButton v-if="!searchPhrase" />
+
         <BarcodeScanner
           v-if="!searchPhrase && isScannerEnabled"
           :aria-label="$t('shared.layout.search_bar.barcode_detector.title')"
@@ -113,6 +115,7 @@ import { useSearchBar } from "@/shared/layout/composables/useSearchBar";
 import { useSearchScore } from "@/shared/layout/composables/useSearchScore";
 import SearchDropdown from "../search-dropdown.vue";
 import BarcodeScanner from "./barcode-scanner.vue";
+import ImageSearchButton from "./image-search-button.vue";
 import type { StyleValue } from "vue";
 
 const searchBarElement = useTemplateRef("searchBarElement");

@@ -468,6 +468,42 @@
             "no_file": "No file uploaded"
           }
         },
+        "image_search": {
+          "title": "Search by image",
+          "open_button": "Search by image",
+          "description": "Upload a photo of the item or take a new one. We'll recognize it on your device and find matching products.",
+          "dropzone": "Drag a photo here, paste it, or click to choose a file",
+          "dropzone_mobile": "Tap to choose a photo from your gallery",
+          "take_photo": "Take photo",
+          "upload_photo": "Upload photo",
+          "change_photo": "Change photo",
+          "crop_hint": "Drag the frame, its edges or corners to keep only the item you are looking for.",
+          "preview_alt": "Photo to search by",
+          "loading_photo": "Loading the photo…",
+          "recognizing": "Recognizing the item…",
+          "loading_model": "Loading the recognition model… {percent}%",
+          "refining": "Comparing with catalog products…",
+          "weak_match": "We're not sure what this is. Choose the closest category, or add the brand or model above.",
+          "no_match": {
+            "title": "Nothing similar in our catalog",
+            "text": "We couldn't find products like the one in the photo. Try cropping closer to the item or another photo, or type its brand or model above."
+          },
+          "detected_category": "Detected category",
+          "possible_categories": "Possible categories",
+          "browse_departments": "Or browse a department",
+          "all_categories": "All categories",
+          "similar_products": "Similar products",
+          "closest_products": "Closest products in our catalog",
+          "photo_text": "Read on the photo: {text}",
+          "keyword_label": "Brand, model or seller (optional)",
+          "keyword_placeholder": "For example, UGREEN Nexode",
+          "search": "Search",
+          "errors": {
+            "not_recognized": "We couldn't recognize the item. Choose a category or enter what you are looking for.",
+            "wrong_format": "Unsupported file format",
+            "unreadable": "The image could not be opened. Try another photo."
+          }
+        },
         "suggestions_label": "Suggestion",
         "search_label": "Search"
       },

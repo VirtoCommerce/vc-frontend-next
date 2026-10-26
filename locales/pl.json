@@ -468,6 +468,42 @@
             "no_file": "Nie przesłano pliku"
           }
         },
+        "image_search": {
+          "title": "Wyszukiwanie obrazem",
+          "open_button": "Szukaj obrazem",
+          "description": "Prześlij zdjęcie produktu lub zrób nowe. Rozpoznamy je na Twoim urządzeniu i znajdziemy pasujące produkty.",
+          "dropzone": "Przeciągnij zdjęcie tutaj, wklej je lub kliknij, aby wybrać plik",
+          "dropzone_mobile": "Dotknij, aby wybrać zdjęcie z galerii",
+          "take_photo": "Zrób zdjęcie",
+          "upload_photo": "Prześlij zdjęcie",
+          "change_photo": "Zmień zdjęcie",
+          "crop_hint": "Przeciągnij ramkę, jej krawędzie lub narożniki, aby zostawić tylko szukany produkt.",
+          "preview_alt": "Zdjęcie do wyszukiwania",
+          "loading_photo": "Wczytywanie zdjęcia…",
+          "recognizing": "Rozpoznawanie produktu…",
+          "loading_model": "Ładowanie modelu rozpoznawania… {percent}%",
+          "refining": "Porównywanie z produktami z katalogu…",
+          "weak_match": "Nie mamy pewności, co to jest. Wybierz najbliższą kategorię lub wpisz powyżej markę albo model.",
+          "no_match": {
+            "title": "Brak podobnych produktów w katalogu",
+            "text": "Nie znaleźliśmy produktów podobnych do tego na zdjęciu. Przytnij zdjęcie bliżej produktu, spróbuj innego zdjęcia lub wpisz powyżej markę albo model."
+          },
+          "detected_category": "Rozpoznana kategoria",
+          "possible_categories": "Możliwe kategorie",
+          "browse_departments": "Lub przeglądaj dział",
+          "all_categories": "Wszystkie kategorie",
+          "similar_products": "Podobne produkty",
+          "closest_products": "Najbardziej podobne produkty w katalogu",
+          "photo_text": "Odczytano ze zdjęcia: {text}",
+          "keyword_label": "Marka, model lub sprzedawca (opcjonalnie)",
+          "keyword_placeholder": "Na przykład UGREEN Nexode",
+          "search": "Szukaj",
+          "errors": {
+            "not_recognized": "Nie udało się rozpoznać produktu. Wybierz kategorię lub wpisz, czego szukasz.",
+            "wrong_format": "Nieobsługiwany format pliku",
+            "unreadable": "Nie udało się otworzyć obrazu. Spróbuj innego zdjęcia."
+          }
+        },
         "suggestions_label": "Sugestie",
         "search_label": "Szukaj"
       },

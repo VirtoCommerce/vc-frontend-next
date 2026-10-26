@@ -16,7 +16,19 @@ const graphql = graphqlImport.default ?? graphqlImport;
 // `vendor` chunk so they stay in their own lazy chunks. `@module-federation/*` is reached
 // only through the switch-gated dynamic import in app-runner, so deferring it keeps the MF
 // runtime out of a `module_federation_enabled: false` eager bundle entirely.
-const DEFERRED_LIBS = ["skyflow-js", "barcode-detector", "marked", "nouislider", "@module-federation"];
+const DEFERRED_LIBS = [
+  "skyflow-js",
+  "barcode-detector",
+  "marked",
+  "nouislider",
+  "@module-federation",
+  // The image search runtimes (~1 MB): loaded only when the image search dialog opens.
+  "@huggingface",
+  "onnxruntime-web",
+  "onnxruntime-common",
+  "tesseract.js",
+  "regenerator-runtime",
+];
 
 // Everything else from node_modules goes to a single shared eager `vendor` chunk.
 function getVendorChunk(id = ""): string | undefined {
@@ -143,6 +155,11 @@ export default defineConfig(({ command, mode }): UserConfig => {
           // `vendor` chunk would pull them in and create a load cycle. See
           // https://github.com/module-federation/vite#%EF%B8%8F-codesplitting-is-managed-by-the-plugin
           manualChunks: isFederatedHost() ? undefined : getVendorChunk,
+          // tesseract.js loads its language data as `<folder>/<lang>.traineddata.gz`, so that file keeps its name.
+          assetFileNames: (assetInfo) =>
+            assetInfo.names.some((name) => name.endsWith(".traineddata.gz"))
+              ? "assets/tessdata/[name][extname]"
+              : "assets/[name]-[hash][extname]",
         },
       },
     },
