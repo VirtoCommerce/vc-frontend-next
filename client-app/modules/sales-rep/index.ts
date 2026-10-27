@@ -153,7 +153,7 @@ export function init(router: Router, i18n: I18n) {
       ]
     : [];
 
-  // "Sales Rep hub" left-rail widget — visible only when the user is a Sales Rep (VCST-5469).
+  // "Sales Rep Hub" left-rail widget — visible only when the user is a Sales Rep (VCST-5469).
   registerAccountSection({
     id: HUB_SECTION_ID,
     title: "sales_rep.hub.title",
