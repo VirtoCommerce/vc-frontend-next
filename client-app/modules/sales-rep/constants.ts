@@ -14,7 +14,7 @@ export const MY_CUSTOMERS_ROUTE_NAME = "SalesRepMyCustomers";
 export const MY_CUSTOMERS_ROUTE_SEGMENT = "my-customers";
 export const MY_CUSTOMERS_NAV_LINK_ID = "sales-rep-my-customers";
 
-// "Sales Rep hub" left-rail widget section, registered via useNavigations for reps only.
+// "Sales Rep Hub" left-rail widget section, registered via useNavigations for reps only.
 export const HUB_SECTION_ID = "sales-rep-hub";
 // Low priority so the hub leads the account rail, ahead of Purchasing (10).
 export const HUB_NAV_PRIORITY = 5;
@@ -26,7 +26,7 @@ export const SALES_REP_ACCESS_PERMISSION = "sales-rep:access";
 export const CUSTOMER_SHARING_SCOPE = "Customer";
 
 // Customer profile page: /company/my-customers/:organizationId, a sibling of the My customers list
-// under "Company" (the "Sales Rep hub" title comes from the left-rail section, not a URL segment).
+// under "Company" (the "Sales Rep Hub" title comes from the left-rail section, not a URL segment).
 export const CUSTOMER_PROFILE_ROUTE_NAME = "SalesRepCustomerProfile";
 export const CUSTOMER_PROFILE_ROUTE_SEGMENT = `${MY_CUSTOMERS_ROUTE_SEGMENT}/:organizationId`;
 
@@ -57,6 +57,9 @@ export const ORDERS_DEFAULT_LIMIT = 7;
 export const DASHBOARD_ROUTE_NAME = "SalesRepDashboard";
 export const DASHBOARD_ROUTE_SEGMENT = "dashboard";
 export const DASHBOARD_NAV_LINK_ID = "sales-rep-dashboard";
+// Header icon row link to the hub dashboard; first in the row, ahead of Bulk order (0).
+export const HUB_HEADER_LINK_ID = "sales-rep-hub-header";
+export const HUB_HEADER_LINK_PRIORITY = -10;
 
 // Document library (VCST-5730). Read permission gates the widget, the page and the nav link;
 // write implies read and administrators pass — both are resolved server-side, the client only

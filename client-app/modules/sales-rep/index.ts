@@ -31,7 +31,7 @@ import { layoutTypePolicies } from "./layout/cache-policies";
 import { documentsBlock } from "./layout/documents-block";
 import { registerBlock } from "./layout/registry";
 import { tasksBlock } from "./layout/tasks-block";
-import { salesRepMenuSchema } from "./menu";
+import { salesRepHubHeaderMenuSchema, salesRepMenuSchema } from "./menu";
 import {
   tasksRoute,
   allCustomerOrdersRoute,
@@ -106,6 +106,10 @@ export function init(router: Router, i18n: I18n) {
   // "Sales reps" contact-info link for buyers (VCST-5409) — stays in the Corporate widget.
   mergeMenuSchema(salesRepMenuSchema);
 
+  if (isSalesRepUser()) {
+    mergeMenuSchema(salesRepHubHeaderMenuSchema);
+  }
+
   // Publishing a list to a customer (VCST-5332): core only learns that another sharing option exists.
   useWishlistSharingScopes().registerSharingScope({
     scope: CUSTOMER_SHARING_SCOPE,
@@ -153,7 +157,7 @@ export function init(router: Router, i18n: I18n) {
       ]
     : [];
 
-  // "Sales Rep hub" left-rail widget — visible only when the user is a Sales Rep (VCST-5469).
+  // "Sales Rep Hub" left-rail widget — visible only when the user is a Sales Rep (VCST-5469).
   registerAccountSection({
     id: HUB_SECTION_ID,
     title: "sales_rep.hub.title",
