@@ -42,7 +42,7 @@
     },
     "hub": {
       "title": "Hub rappresentante vendite",
-      "header_link": "Sales Rep Hub",
+      "header_link": "Hub rappresentante vendite",
       "dashboard": {
         "navigation": {
           "link": "Dashboard"

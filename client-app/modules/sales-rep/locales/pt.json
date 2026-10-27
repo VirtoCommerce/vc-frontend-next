@@ -42,7 +42,7 @@
     },
     "hub": {
       "title": "Central do representante de vendas",
-      "header_link": "Sales Rep Hub",
+      "header_link": "Central do representante de vendas",
       "dashboard": {
         "navigation": {
           "link": "Painel"
