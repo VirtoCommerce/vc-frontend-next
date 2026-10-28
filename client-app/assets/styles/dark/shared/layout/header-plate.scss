@@ -4,9 +4,15 @@
   --header-menu-hover-bg: theme("colors.neutral.200");
   --header-menu-active-bg: theme("colors.secondary.200");
 
-  // The kit's shadow-lg is drawn in additional-950, which dark keeps at the light end, so the header
-  // menus glowed. Black, as _paprika.scss draws dark shadows: neutral-50 is the canvas here. Set on
-  // the plate so every header popover inherits it; light keeps the kit's (or a theme's) shadow.
+  // The design's deeper lift for the header menus, over _dark.scss's 0 6px 15px popover default.
+  // Black, as _paprika.scss draws dark shadows: neutral-50 is the canvas here.
   --header-menu-shadow: 0 18px 48px rgb(0 0 0 / 0.5);
-  --vc-popover-shadow: var(--header-menu-shadow);
+
+  // Only the three header menus: the plate also wraps the mega-menu and push-messages popovers,
+  // which keep the dark default (or a theme's). Light keeps the kit's (or a theme's) shadow.
+  .header-account-menu,
+  .header-preferences-menu,
+  .header-organizations-menu {
+    --vc-popover-shadow: var(--header-menu-shadow);
+  }
 }

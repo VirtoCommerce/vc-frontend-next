@@ -152,8 +152,8 @@ const componentId = useComponentId("organizations");
 const listboxId = componentId + "-listbox";
 const focusedOptionIndex = ref(-1);
 
-// useUserOrganizations fetches only once per session, so a lock applied while this menu was
-// closed would otherwise leave a stale, clickable row. Refresh on every mount to catch that.
+// The list is shared session state, so a lock applied while this menu was closed would otherwise
+// leave a stale, clickable row. Refresh on every mount to catch that.
 onMounted(() => {
   void search();
 });

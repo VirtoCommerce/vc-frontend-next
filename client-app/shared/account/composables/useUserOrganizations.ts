@@ -1,5 +1,5 @@
 import { createGlobalState } from "@vueuse/core";
-import { computed, ref, readonly, onMounted } from "vue";
+import { computed, ref, readonly } from "vue";
 import { getOrganizations } from "@/core/api/graphql/account";
 import { Logger, escapeFilterSyntaxValue } from "@/core/utilities";
 import { ContactStatus } from "@/shared/company/types";
@@ -63,7 +63,7 @@ function _useUserOrganizations() {
       if (id !== requestId) {
         return;
       }
-      Logger.error(`${_useUserOrganizations.name}.${loadOrganizations.name}`, error);
+      Logger.error(`${_useUserOrganizations.name}.${fetchPage.name}`, error);
       throw error;
     } finally {
       if (id === requestId) {
@@ -101,12 +101,6 @@ function _useUserOrganizations() {
     loading.value = false;
     searchPhrase.value = "";
   }
-
-  onMounted(() => {
-    if (!initialized.value) {
-      void loadOrganizations();
-    }
-  });
 
   return {
     searchPhrase,

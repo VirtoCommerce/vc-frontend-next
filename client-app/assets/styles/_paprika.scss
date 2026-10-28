@@ -13,8 +13,9 @@
   // value as a fallback so a fork that drops the file keeps round plates.
   --plate-radius: 1.75rem;
 
-  // The design's control step (8): fields and rows inside a panel. Not --vc-radius, which is the
-  // card step the panel itself keeps. Consumers outside this file repeat it as a fallback.
+  // The design's control step (8): the rows of the header organizations list, the only reader so
+  // far. Not --vc-radius, which is the card step the panel itself keeps. Consumers outside this
+  // file repeat it as a fallback.
   --control-radius: 0.5rem;
 
   // A widget is a plate: the design gives it the canvas radius and no outline, and lets the
