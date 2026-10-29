@@ -64,7 +64,7 @@
             </td>
 
             <th
-              v-for="item in products"
+              v-for="(item, index) in products"
               :key="item.entry.localId ?? item.product.id"
               class="compare-table__product"
               :class="{ 'compare-table__product--compact': isCompact }"
@@ -86,7 +86,7 @@
                     :to="getProductRoute(item.product.id, item.product.slug)"
                     :title="item.product.name"
                     :lines-number="1"
-                    @click="emit('selectItem', item.product)"
+                    @click="emit('selectItem', item.product, index)"
                   >
                     {{ item.product.name }}
                   </VcProductTitle>
@@ -155,7 +155,7 @@
                     :to="getProductRoute(item.product.id, item.product.slug)"
                     :title="item.product.name"
                     :lines-number="2"
-                    @click="emit('selectItem', item.product)"
+                    @click="emit('selectItem', item.product, index)"
                   >
                     {{ item.product.name }}
                   </VcProductTitle>
@@ -339,7 +339,7 @@ import InStock from "@/shared/catalog/components/in-stock.vue";
 interface IEmits {
   (e: "clearCategory"): void;
   (e: "removeProduct", item: ICompareDisplayProduct): void;
-  (e: "selectItem", product: Product): void;
+  (e: "selectItem", product: Product, index: number): void;
 }
 
 interface IProps {

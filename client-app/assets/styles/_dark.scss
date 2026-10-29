@@ -29,6 +29,7 @@ html.dark {
   @include meta.load-css("dark/molecules/vc-menu-item");
   @include meta.load-css("dark/molecules/vc-range-calendar");
   @include meta.load-css("dark/molecules/vc-tab-switch-group");
+  @include meta.load-css("dark/molecules/vc-tile-button");
   @include meta.load-css("dark/organisms/vc-pagination");
   @include meta.load-css("dark/organisms/vc-modal");
   @include meta.load-css("dark/organisms/vc-table");
@@ -36,5 +37,4 @@ html.dark {
   @include meta.load-css("dark/shared/catalog/product-pickup-locations");
   @include meta.load-css("dark/shared/checkout/select-address-map-view");
   @include meta.load-css("dark/shared/layout/header-account-menu-panel");
-  @include meta.load-css("dark/modules/sales-rep/stat-widget");
 }

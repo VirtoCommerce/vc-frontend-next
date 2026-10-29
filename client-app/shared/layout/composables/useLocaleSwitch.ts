@@ -5,6 +5,7 @@ import { useCurrency } from "@/core/composables";
 import { useLanguages } from "@/core/composables/useLanguages";
 import { languageToCountryMap } from "@/core/constants";
 import { globals } from "@/core/globals";
+import { safeDecode } from "@/core/utilities/common";
 import { dataChangedEvent, useBroadcast } from "@/shared/broadcast";
 import { useShortCart } from "@/shared/cart";
 import type { ILanguage } from "@/core/types";
@@ -69,7 +70,8 @@ export function useLocaleSwitch() {
       return;
     }
 
-    const permalink = location.pathname.slice(1);
+    // Without the current locale prefix: slug resolvers match the permalink itself (e.g. "veelgestelde-vragen", not "nl/veelgestelde-vragen").
+    const permalink = getUrlWithoutLocale(location.pathname).slice(1);
     const slugInfo = await getSlugInfo({ permalink, cultureName });
 
     if (slugInfo?.entityInfo) {
@@ -78,9 +80,16 @@ export function useLocaleSwitch() {
         slug: "",
       };
     } else {
+      // The current page may itself be shown through this fallback; keep the culture that owns the slug.
+      const isShownThroughFallback =
+        !!previousCultureSlug.value?.cultureName &&
+        safeDecode(previousCultureSlug.value.slug) === safeDecode(permalink);
+
       previousCultureSlug.value = {
-        cultureName: currentLanguage.value?.cultureName,
-        slug: getUrlWithoutLocale(location.pathname).slice(1),
+        cultureName: isShownThroughFallback
+          ? previousCultureSlug.value.cultureName
+          : currentLanguage.value?.cultureName,
+        slug: permalink,
       };
     }
 
