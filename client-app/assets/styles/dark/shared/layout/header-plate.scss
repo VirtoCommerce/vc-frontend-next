@@ -7,12 +7,4 @@
   // The design's deeper lift for the header menus, over _dark.scss's 0 6px 15px popover default.
   // Black, as _paprika.scss draws dark shadows: neutral-50 is the canvas here.
   --header-menu-shadow: 0 18px 48px rgb(0 0 0 / 0.5);
-
-  // Only the three header menus: the plate also wraps the mega-menu and push-messages popovers,
-  // which keep the dark default (or a theme's). Light keeps the kit's (or a theme's) shadow.
-  .header-account-menu,
-  .header-preferences-menu,
-  .header-organizations-menu {
-    --vc-popover-shadow: var(--header-menu-shadow);
-  }
 }

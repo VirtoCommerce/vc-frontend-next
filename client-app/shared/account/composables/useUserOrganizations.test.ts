@@ -1,4 +1,6 @@
+import { flushPromises, mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { defineComponent } from "vue";
 
 vi.mock("@/core/api/graphql/account", () => ({ getOrganizations: vi.fn() }));
 
@@ -21,6 +23,17 @@ async function setup() {
 describe("useUserOrganizations", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("does not load on mount: callers call search() themselves", async () => {
+    vi.resetModules();
+    const { getOrganizations } = await import("@/core/api/graphql/account");
+    const { useUserOrganizations } = await import("./useUserOrganizations");
+
+    mount(defineComponent({ setup: () => useUserOrganizations(), render: () => null }));
+    await flushPromises();
+
+    expect(getOrganizations).not.toHaveBeenCalled();
   });
 
   it("drops a page that lands after a newer search", async () => {
