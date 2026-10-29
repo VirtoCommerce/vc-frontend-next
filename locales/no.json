@@ -418,6 +418,9 @@
             "navigation": "Navigasjon",
             "main_navigation": "Hovednavigasjon"
           }
+        },
+        "organizations_menu": {
+          "trigger_label": "Organisasjoner: {name}"
         }
       },
       "footer": {

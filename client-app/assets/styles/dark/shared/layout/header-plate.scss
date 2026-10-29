@@ -1,0 +1,10 @@
+.header-plate {
+  // The same move the account sidebar makes: dark reads by brightening, so the hover steps up the
+  // neutral ramp and the active row up the secondary one. Both halves travel together.
+  --header-menu-hover-bg: theme("colors.neutral.200");
+  --header-menu-active-bg: theme("colors.secondary.200");
+
+  // The design's deeper lift for the header menus, over _dark.scss's 0 6px 15px popover default.
+  // Black, as _paprika.scss draws dark shadows: neutral-50 is the canvas here.
+  --header-menu-shadow: 0 18px 48px rgb(0 0 0 / 0.5);
+}
