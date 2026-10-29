@@ -1,0 +1,108 @@
+# upstream/dev (2.62.0) into dev — 2026-10-29
+
+- Range: `68a13ec9d`..`afad4112d` (26 upstream commits, up to the `2.62.0` release commit)
+- Merge commit: `9cc0c3ed8`; ports: none (both language-switch fixes ride in the merge commit); tests: `b084e1313`
+- PR: opened from `chore/merge-upstream-dev` — lands as a merge commit, never squash or rebase
+
+## Decisions that carry forward
+
+- **The built-in Sales Rep Hub is gone; the SalesRep plugin serves the hub.** Upstream deleted
+  `client-app/modules/sales-rep` (VirtoCommerce/vc-frontend#2607), and with it the rollback switch
+  (`sales_rep_builtin_enabled`) that the 2.60.0 decision rested on. The fork's restyle of the in-repo
+  hub (rail width, `sm` calendar, widget order, My customers search, KPI card) and its dark KPI card file
+  `assets/styles/dark/modules/sales-rep/stat-widget.scss` were deleted with it; they survive only in git
+  history before this merge. This replaces the Sales Rep Hub and the rail/calendar rules in
+  `2026-10-15-2.60.0.md`. User.
+- **Language switching lives in `shared/layout/composables/useLocaleSwitch.ts`.** `language-selector.vue`
+  and the header preferences menu both call `selectLanguage` from it, so an upstream fix to `select` in
+  `language-selector.vue` is ported into `useLocaleSwitch.selectLanguage`, and the selector keeps the
+  fork's script. Upstream's selector tests run unchanged against the real composable; only their mocks
+  add its extra dependencies (`useCurrency`, `useShortCart`, `useMutation`). Obvious.
+- **The root `package.json` keeps the fork's own version** (3.2.0), unchanged from the last log.
+
+## Conflicts
+
+| File(s)                                                       | Fork                                              | Upstream                                                                                                                                           | Resolution                                                                                                                             | Decided by  |
+| ------------------------------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `package.json`                                                | version 3.2.0                                     | 2.62.0                                                                                                                                             | 3.2.0                                                                                                                                  | earlier log |
+| `assets/styles/_dark.scss`                                    | `vc-tab-switch-group` dark import                 | `vc-tile-button` dark import (VirtoCommerce/vc-frontend#2575)                                                                                      | both; the `dark/modules/sales-rep/stat-widget` import removed with the module                                                          | obvious     |
+| `mobile-menu-link.vue`                                        | BEM `__icon--active` / `__text--active` modifiers | `isHighlighted()` via `isMenuLinkActive` (VirtoCommerce/vc-frontend#2458)                                                                          | the fork's modifiers, driven by `isHighlighted(isActive, isExactActive)`                                                               | obvious     |
+| `language-selector.vue`, `.test.ts`, `.slug-fallback.test.ts` | `select` moved into `useLocaleSwitch`             | permalink without locale prefix (VirtoCommerce/vc-frontend#2576), slug culture kept on a second switch (VirtoCommerce/vc-frontend#2604), new tests | the fork's `.vue`; both fixes ported into `useLocaleSwitch.selectLanguage`; upstream's tests with the composable's dependencies mocked | obvious     |
+| `pages/cart.vue`                                              | `cart__section` class                             | `@select-item` analytics (VirtoCommerce/vc-frontend#2598), punch-out section visibility (VirtoCommerce/vc-frontend#2564)                           | the fork's class with upstream's conditions and handlers                                                                               | obvious     |
+| `shared/catalog/components/category.vue`                      | `headImage`, `sortToken`, `applySort()`           | `getCategoryListProperties()`, `reportItemList()` (VirtoCommerce/vc-frontend#2594, VirtoCommerce/vc-frontend#2598)                                 | both                                                                                                                                   | obvious     |
+| `modules/sales-rep/**` (11 files)                             | restyled the in-repo hub                          | deleted (VirtoCommerce/vc-frontend#2607)                                                                                                           | deleted, plus the fork's dark KPI card file                                                                                            | user        |
+
+## Clean merges checked
+
+- `core-api/contract/index.d.ts` — regenerated with `yarn build:core-types`; it differs from upstream's
+  committed copy only in `SeoInfo` (`id`, `objectId`, `objectType` optional), from upstream's GraphQL
+  types update (VirtoCommerce/vc-frontend#2619) that upstream did not regenerate the contract for.
+- `core-api/package.json` — 0.2.5 (upstream's, the higher).
+- `cart-for-later.vue` — upstream's `selectItem` emit with an index uses the fork's `v-for` index.
+- `compare-table.vue`, `addresses.vue`, `vc-quantity-stepper.vue`, `option-product.vue`, `quotes.vue`,
+  `app-runner.ts` (`initSalesRep` removed), `_ui-kit-tokens.scss` (VcTileButton tokens), locales — read,
+  no cross-side mismatch.
+
+## Ports (vc-frontend:port-upstream-to-fork)
+
+Drift report `68a13ec9d..afad4112d` on `9cc0c3ed8`: sections A, A2, D, E empty; unresolved imports 0.
+
+| Upstream change                                                                                                                                            | Verdict                              | Fork file / evidence                                                                                                                  |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| VCST-4935, VCST-6501 language switch on fallback pages (VirtoCommerce/vc-frontend#2576, VirtoCommerce/vc-frontend#2604) — section C                        | already (ported in the merge commit) | `useLocaleSwitch.selectLanguage`, used by `header-preferences-menu.vue` and the mobile `language-selector.vue`                        |
+| VCST-4935 `getLocalizedPath` in `useLanguages.ts` (VirtoCommerce/vc-frontend#2576) — section B                                                             | already                              | its only user, `virto-pages.vue`, renders unchanged in the fork; `useLocaleSwitch` takes the refactor as is                           |
+| VCST-5690 `updateUser` error context in `useUser.ts` (VirtoCommerce/vc-frontend#2597) — section B                                                          | already                              | `pages/account/profile.vue:165` passes `SUPPRESS_ERROR_NOTIFICATIONS_CONTEXT`                                                         |
+| VCST-5904 MFA step in `login-form-section.vue` (VirtoCommerce/vc-frontend#2570) — section B                                                                | already                              | rendered by the fork through `shared/static-content/components/login.vue`                                                             |
+| GraphQL types used by `currency-selector.vue` (VirtoCommerce/vc-frontend#2619, VirtoCommerce/vc-frontend#2576, VirtoCommerce/vc-frontend#2601) — section B | n/a                                  | the selector is replaced by `header-preferences-menu.vue`; the type changes are SEO, page document and sign-in methods, none currency |
+
+Map changes: none.
+
+## Lost features and deferrals
+
+- **The fork's dark KPI card rules** (danger-700 for the falling delta, no shadow in dark) — deleted with
+  the built-in hub; declined, nothing added to the fork. They never reached the plugin's card: the
+  SalesRep plugin draws its own `.stat-widget` with `text-danger-600` and `shadow-sm` and reads none of
+  the fork's variables, so it shows the same dark-mode contrast and halo in upstream and the fork alike —
+  the plugin's to fix (checked in a local plugin clone, `sync/VCST-5159-storefront-plugin`, 2026-10-13).
+  Upstream's `VcStatWidget` (VirtoCommerce/vc-frontend#2568) already uses danger-700 and renders nowhere
+  yet. User.
+
+## Checks
+
+| Check          | Result                                                                                                                                                                                                                                                                                               |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| validate:types | pass                                                                                                                                                                                                                                                                                                 |
+| lint           | `yarn lint` crashes on a stray `.claude/worktrees/pr18-review` inside the clone (ESLint lints it without type info). `eslint client-app`: 26 errors — 2 in the `useLocaleSwitch` port (formatting, fixed), 24 in files the merge left untouched, so on the fork's `dev` already; reported, not fixed |
+| test:unit      | 3544 tests; 2 failed in upstream's new `mobile-menu-link.test.ts` (it read upstream's Tailwind class) — its `isLit` helper now reads the fork's `mobile-menu-link__text--active`; assertions unchanged; pass                                                                                         |
+| check-locales  | pass                                                                                                                                                                                                                                                                                                 |
+| build-only     | pass                                                                                                                                                                                                                                                                                                 |
+
+Mutations (one at a time, `cp` backup): `useLocaleSwitch` permalink with the locale prefix → 4 failed;
+`isShownThroughFallback` dropped → 1 failed; slug no longer the permalink → 3 failed;
+`mobile-menu-link` text without `isHighlighted` → 2 failed; `category.vue` reporting all products on
+infinite scroll → 2 failed; `select_item` without the reported position → 1 failed.
+
+New tests: `mobile-menu-link.upstream.test.ts` — the icon's `__icon--active` follows the link's rule;
+both cases fail when the icon goes back to `isActive || isExactActive`. Uncovered: `cart.vue`'s section
+conditions and `@select-item` handlers (upstream's lines with the fork's class; a page mount needs ~14
+composables mocked and upstream does not test the page either) — covered by the smoke and QA.
+
+## Smoke
+
+- Backend: https://vcst-qa.govirto.com, `vite preview` of `9cc0c3ed8` + `b084e1313` on :3100, anonymous
+- Checked, no console errors, overlay or alerts on any:
+  - Home (dark mode).
+  - `/bolts`: `view_item_list` `category_bolts_page_1` (16, indexes 0…) and, on infinite scroll, `page_2` with only the 13 new items; sort by Newest (`applySort`) reloads page 1.
+  - Product click from the category: `select_item` with `index: 2`, list `category_bolts_page_1`, currency USD. `view_item` fired twice on the product page — not compared against either parent; in QA.
+  - Cart (guest, 1 line): Shipping details, Payment, Order comment sections and the incomplete-data warning render for the single-page checkout.
+  - Language: header menu → Deutsch → `/de/bolts/…`; → English (US): `GetSlugInfo` sent `permalink: "bolts/eyebolts/…"`, no `de/` prefix.
+  - Mobile (375px) menu on `/compare`: only Compare lit, text and icon.
+- Not reachable: anything signed in — saved-for-later analytics, address and profile field errors
+  (VirtoCommerce/vc-frontend#2597), MFA sign-in (VirtoCommerce/vc-frontend#2570), Security page and its
+  menu link (VirtoCommerce/vc-frontend#2601), the account-rail rule highlight in the mobile menu;
+  punch-out sessions (VirtoCommerce/vc-frontend#2564); a page that exists in one language only (second
+  switch, VirtoCommerce/vc-frontend#2604); the SalesRep plugin hub. `vc-frontend:visual-compare` not run.
+
+## Follow-ups
+
+- None.
