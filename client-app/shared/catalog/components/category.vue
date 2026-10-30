@@ -459,12 +459,7 @@ const hideViewModeSelector = computed(() => {
   return !!props.viewMode && viewModes.includes(props.viewMode);
 });
 
-const categoryListProperties = computed(() => ({
-  item_list_id: `category_${currentCategory.value?.slug}_page_${currentPage.value}`,
-  item_list_name: `Category "${currentCategory.value?.name}" (page ${currentPage.value})`,
-  related_id: currentCategory.value?.id,
-  related_type: "category",
-}));
+const reportedPositions = new Map<string, { page: number; index: number }>();
 
 // A lookup ignores `q`, so analytics report the scanned code as its term.
 const searchTerm = computed(() => (isBarcodeLookup.value ? barcodeQueryParam.value : searchQueryParam.value));
@@ -617,7 +612,7 @@ async function changeProductsPage(pageNumber: number): Promise<void> {
 
   updateCurrentPage(pageNumber);
 
-  await fetchMoreProducts({
+  const { items } = await fetchMoreProducts({
     ...searchParams.value,
     page: currentPage.value,
   });
@@ -625,7 +620,7 @@ async function changeProductsPage(pageNumber: number): Promise<void> {
   /**
    * Send Google Analytics event for products on next page.
    */
-  analytics("viewItemList", products.value, categoryListProperties.value);
+  reportItemList(items, currentPage.value);
 
   if (searchTerm.value) {
     trackViewSearchResults();
@@ -653,7 +648,8 @@ async function fetchProducts(): Promise<void> {
   /**
    * Send Google Analytics event for products.
    */
-  analytics("viewItemList", products.value, categoryListProperties.value);
+  reportedPositions.clear();
+  reportItemList(products.value, currentPage.value);
 
   if (searchTerm.value) {
     trackViewSearchResults();
@@ -708,8 +704,29 @@ function applySort() {
   void resetCurrentPage();
 }
 
+function getCategoryListProperties(page: number): Record<string, string | undefined> {
+  return {
+    item_list_id: `category_${currentCategory.value?.slug}_page_${page}`,
+    item_list_name: `Category "${currentCategory.value?.name}" (page ${page})`,
+    related_id: currentCategory.value?.id,
+    related_type: "category",
+  };
+}
+
+function reportItemList(items: Product[], page: number): void {
+  items.forEach((item, index) => reportedPositions.set(item.id, { page, index }));
+  analytics("viewItemList", items, getCategoryListProperties(page));
+}
+
 function selectProduct(product: Product): void {
-  analytics("selectItem", product, categoryListProperties.value);
+  const position = reportedPositions.get(product.id);
+  analytics(
+    "selectItem",
+    product,
+    position
+      ? { ...getCategoryListProperties(position.page), index: position.index }
+      : getCategoryListProperties(currentPage.value),
+  );
 }
 
 function resetPage() {
