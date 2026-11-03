@@ -1,5 +1,5 @@
-import { mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { flushPromises, mount } from "@vue/test-utils";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, ref } from "vue";
 import LanguageSelector from "./language-selector.vue";
 import VcImage from "@/ui-kit/components/atoms/image/vc-image.vue";
@@ -8,18 +8,41 @@ const en = { cultureName: "en-US", twoLetterLanguageName: "en", nativeName: "Eng
 const de = { cultureName: "de-DE", twoLetterLanguageName: "de", nativeName: "Deutsch (Deutschland)" };
 const pl = { cultureName: "pl-PL", twoLetterLanguageName: "pl", nativeName: "polski (Polska)" };
 
-// The theme's selector takes its languages from the shared locale switch, not from useLanguages.
-vi.mock("@/shared/layout/composables", () => ({
-  useLocaleSwitch: () => ({
+const { getSlugInfo, currentLanguage, previousCultureSlug } = vi.hoisted(() => ({
+  getSlugInfo: vi.fn(),
+  currentLanguage: {
+    value: { cultureName: "en-US", twoLetterLanguageName: "en", nativeName: "English (United States)" },
+  },
+  previousCultureSlug: { value: { cultureName: "", slug: "" } },
+}));
+
+vi.mock("@/core/composables/useLanguages", () => ({
+  useLanguages: () => ({
     supportedLanguages: ref([en, de, pl]),
-    currentLanguage: ref(en),
-    selectLanguage: vi.fn(),
-    getCountryCode: (language: { twoLetterLanguageName: string }) => language.twoLetterLanguageName,
+    currentLanguage: ref(currentLanguage.value),
+    pinLocale: vi.fn(),
+    removeLocaleFromUrl: vi.fn(),
+    previousCultureSlug,
+    // eslint-disable-next-line sonarjs/null-dereference -- false positive: typed string parameter
+    getUrlWithoutLocale: (path: string) => path.replace(/^\/(de|pl)(?=\/|$)/, "") || "/",
   }),
 }));
 
+// The theme's selector switches through useLocaleSwitch, which also re-prices the cart on a currency change.
 vi.mock("@/core/composables", () => ({
   useThemeContext: () => ({ themeContext: ref(undefined) }),
+  useCurrency: () => ({ currentCurrency: ref(undefined), supportedCurrencies: ref([]), saveCurrencyCode: vi.fn() }),
+}));
+
+vi.mock("@/shared/cart", () => ({ useShortCart: () => ({ cart: ref(undefined) }) }));
+
+vi.mock("@vue/apollo-composable", () => ({ useMutation: () => ({ mutate: vi.fn() }) }));
+
+vi.mock("@/core/api/graphql/slugInfo/queries/getSlugInfo", () => ({ getSlugInfo }));
+
+vi.mock("@/shared/broadcast", () => ({
+  dataChangedEvent: "data-changed",
+  useBroadcast: () => ({ emit: vi.fn() }),
 }));
 
 const VcDropdownMenuStub = defineComponent({
@@ -62,5 +85,52 @@ describe("LanguageSelector", () => {
 
     expect(german.find("img").attributes("alt")).not.toContain("English");
     expect(german.text()).toContain("Deutsch");
+  });
+
+  describe("select", () => {
+    const reload = vi.fn();
+
+    beforeEach(() => {
+      vi.clearAllMocks();
+      currentLanguage.value = de;
+      previousCultureSlug.value = { cultureName: "", slug: "" };
+      vi.stubGlobal("location", { pathname: "/de/haeufige-fragen", reload });
+    });
+
+    afterEach(() => {
+      currentLanguage.value = en;
+      vi.unstubAllGlobals();
+    });
+
+    async function selectLanguage(cultureName: string) {
+      await mountSelector().find(`[data-culture-name="${cultureName}"]`).trigger("click");
+      await flushPromises();
+    }
+
+    it("looks up the translation by the permalink without the current locale prefix", async () => {
+      getSlugInfo.mockResolvedValue({ entityInfo: { id: "faq" } });
+
+      await selectLanguage("en-US");
+
+      expect(getSlugInfo).toHaveBeenCalledWith({ permalink: "haeufige-fragen", cultureName: "en-US" });
+      expect(previousCultureSlug.value).toEqual({ cultureName: "", slug: "" });
+      expect(reload).toHaveBeenCalled();
+    });
+
+    it("does nothing when the current language is selected", async () => {
+      await selectLanguage("de-DE");
+
+      expect(getSlugInfo).not.toHaveBeenCalled();
+      expect(reload).not.toHaveBeenCalled();
+    });
+
+    it("remembers the current language and permalink when the page has no translation", async () => {
+      getSlugInfo.mockResolvedValue({ entityInfo: null });
+
+      await selectLanguage("en-US");
+
+      expect(previousCultureSlug.value).toEqual({ cultureName: "de-DE", slug: "haeufige-fragen" });
+      expect(reload).toHaveBeenCalled();
+    });
   });
 });
