@@ -45,7 +45,7 @@
                 v-if="signInMethod.canRenameKey"
                 icon="edit"
                 variant="ghost"
-                color="neutral"
+                color="secondary"
                 size="sm"
                 :aria-label="$t('common.buttons.edit')"
                 @click="openRenameModal(signInMethod, key)"
