@@ -12,7 +12,7 @@
       },
     ]"
   >
-    <VcLabel v-if="label" :for-id="triggerId" :required="required" :error="error">
+    <VcLabel v-if="label" :for-id="triggerId" :required="required" :error="error" size="xs">
       {{ label }}
     </VcLabel>
 
@@ -541,6 +541,8 @@ function handleTab(event: KeyboardEvent, index: number) {
   $error: "";
 
   --radius: var(--vc-select-radius, var(--vc-radius, 0.5rem));
+  // The input's caption token, so the field labels of one form match.
+  --vc-label-color: var(--vc-input-label-color, theme("colors.neutral.700"));
 
   @apply flex flex-col;
 

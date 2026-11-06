@@ -3,7 +3,9 @@
     <div class="flex flex-col xl:flex-row">
       <div class="xl:w-2/3">
         <div>
-          <VcLabel required for-id="cardNumberPlaceholder">{{ labels.number }}</VcLabel>
+          <VcLabel required for-id="cardNumberPlaceholder" size="xs" class="datatrans-label">
+            {{ labels.number }}
+          </VcLabel>
 
           <div
             id="cardNumberPlaceholder"
@@ -49,7 +51,9 @@
           />
 
           <div class="min-w-32 basis-1/4">
-            <VcLabel required for-id="cvvPlaceholder">{{ labels.securityCode }}</VcLabel>
+            <VcLabel required for-id="cvvPlaceholder" size="xs" class="datatrans-label">
+              {{ labels.securityCode }}
+            </VcLabel>
 
             <div
               id="cvvPlaceholder"
@@ -465,6 +469,11 @@ onUnmounted(removeScript);
 
 <style lang="scss">
 @use "@/ui-kit/styles/focus-ring" as *;
+
+// The card fields are iframes, so their captions are plain labels: same caption as the VcInputs beside them.
+.datatrans-label {
+  --vc-label-color: var(--vc-input-label-color, var(--color-neutral-700));
+}
 
 .datatrans-input-wrap {
   --color: var(--vc-input-base-color, var(--color-primary-500));
