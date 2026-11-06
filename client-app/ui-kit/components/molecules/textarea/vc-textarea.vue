@@ -96,8 +96,8 @@ const text = useVModel(props, "modelValue", emit);
   $error: "";
 
   --radius: var(--vc-textarea-radius, var(--vc-radius, 0.5rem));
-  // The input's caption token, so the field labels of one form match.
-  --vc-label-color: var(--vc-input-label-color, theme("colors.neutral.700"));
+  // Falls back to the input's caption token, so the field labels of one form match.
+  --vc-label-color: var(--vc-textarea-label-color, var(--vc-input-label-color, theme("colors.neutral.700")));
 
   @apply flex flex-col text-neutral-950 font-normal;
 
