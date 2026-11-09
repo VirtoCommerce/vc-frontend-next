@@ -8,7 +8,7 @@
       v-if="isSupported"
       :aria-label="$t('ui_kit.buttons.copy')"
       size="xxs"
-      variant="outline"
+      variant="soft"
       icon="document-duplicate"
       color="secondary"
       @click="copyText"

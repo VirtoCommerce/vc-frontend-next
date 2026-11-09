@@ -15,6 +15,7 @@
         v-if="!readonly"
         :disabled="disabled"
         variant="outline"
+        color="secondary"
         icon="pencil"
         size="xs"
         class="vc-address-selection__button"

@@ -107,7 +107,7 @@
           <VcButton
             class="vc-line-items__button vc-line-items__button--desktop"
             color="secondary"
-            variant="outline"
+            variant="soft"
             size="xs"
             :disabled="!selectedItemIds.length"
             @click="removeSelectedItems"
@@ -119,7 +119,7 @@
             class="vc-line-items__button vc-line-items__button--mobile"
             color="secondary"
             size="xs"
-            variant="outline"
+            variant="soft"
             @click="removeAllItems"
           >
             {{ $t("ui_kit.buttons.remove_all") }}
