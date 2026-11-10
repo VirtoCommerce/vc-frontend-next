@@ -12,7 +12,7 @@
         v-if="xPickupEnabled && hasBOPIS && !onlyOneDeliveryMethod"
         class="shipping-details-section__delivery-option"
       >
-        <VcLabel>
+        <VcLabel size="xs">
           {{ $t("shared.checkout.shipping_details_section.labels.delivery_option") }}
         </VcLabel>
 
@@ -41,7 +41,7 @@
 
       <div v-if="mode === SHIPPING_OPTIONS.shipping" class="shipping-details-section__shipping-section">
         <div class="shipping-details-section__address-section" data-test-id="shipping-address-section">
-          <VcLabel required>
+          <VcLabel required size="xs">
             {{ $t("shared.checkout.shipping_details_section.labels.shipping_address") }}
           </VcLabel>
 
@@ -102,7 +102,7 @@
       </div>
 
       <div v-else class="shipping-details-section__pickup-section" data-test-id="pickup-location-section">
-        <VcLabel required>
+        <VcLabel required size="xs">
           {{ $t("shared.checkout.shipping_details_section.labels.pickup_point") }}
         </VcLabel>
 
@@ -282,6 +282,8 @@ function onShipmentMethodChange(method: ShippingMethodType) {
 
 <style lang="scss">
 .shipping-details-section {
+  --vc-label-color: var(--vc-input-label-color, theme("colors.neutral.700"));
+
   @apply @container;
 
   &__content {

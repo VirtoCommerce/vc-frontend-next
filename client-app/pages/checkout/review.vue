@@ -36,7 +36,7 @@
         <!-- Shipping details -->
         <div v-if="!allItemsAreDigital" class="mt-6 flex flex-col gap-6 md:mt-8 lg:flex-row lg:gap-8">
           <div class="lg:w-3/5 print:break-inside-avoid">
-            <VcLabel>
+            <VcLabel size="xs" class="[--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]">
               {{ $t("shared.checkout.shipping_details_section.labels.shipping_address") }}
             </VcLabel>
 
@@ -71,7 +71,7 @@
         <!-- Payment details -->
         <div class="mb-2 mt-6 flex flex-col gap-6 pt-5 md:mt-8 lg:flex-row lg:gap-8 lg:pt-0">
           <div class="lg:w-3/5 print:break-inside-avoid">
-            <VcLabel>
+            <VcLabel size="xs" class="[--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]">
               {{ $t("shared.checkout.billing_details_section.labels.billing_address") }}
             </VcLabel>
 
