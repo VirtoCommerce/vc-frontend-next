@@ -21,7 +21,7 @@ const meta: Meta<typeof VcLabel> = {
       control: "select",
       options: ["xs", "sm", "md", "lg"],
       description:
-        "Label size. Left unset inside a field, it follows the field's context and stops at `sm` — an `md` or `lg` control still gets a 14px caption. `VcInput`, `VcSelect`, `VcTextarea` and the date-range fields pin theirs to `xs`.",
+        "Label size. `xs` by default, the caption size of every field and of a standalone label, whatever the size of the control under it.",
     },
   },
   args: {

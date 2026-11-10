@@ -15,7 +15,7 @@
     @focusout="onFocusOut"
   >
     <!-- Carries no rule of its own: a published hook for a fork restyling the group label. -->
-    <VcLabel v-if="label" :required="required" :error="computedError" size="xs" class="vc-date-range-input__label">
+    <VcLabel v-if="label" :required="required" :error="computedError" class="vc-date-range-input__label">
       {{ label }}
     </VcLabel>
 
@@ -277,7 +277,6 @@ defineExpose({
   --focus-color: rgb(from var(--color) r g b / 0.8);
   --radius: var(--vc-input-radius, var(--vc-radius, 0.5rem));
   --vc-button-radius: calc(var(--radius) - 2px);
-  --vc-label-color: var(--vc-input-label-color, theme("colors.neutral.700"));
 
   // A committed date measures 86px at 16px/Lato; below this the year starts clipping.
   $tight-segments-breakpoint: 15.5rem;
