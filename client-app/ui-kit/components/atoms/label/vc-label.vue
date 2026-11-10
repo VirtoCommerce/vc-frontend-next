@@ -4,7 +4,7 @@
     :for="forId"
     :class="[
       'vc-label',
-      `vc-label--size--${size}`,
+      `vc-label--size--${_size}`,
       {
         'vc-label--error': error,
       },
@@ -17,6 +17,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed, inject } from "vue";
+
 interface IProps {
   required?: boolean;
   error?: boolean;
@@ -24,16 +26,34 @@ interface IProps {
   size?: "xs" | "sm" | "md" | "lg";
 }
 
-// One caption size for every field, whatever the size of the control under it.
-withDefaults(defineProps<IProps>(), {
-  size: "xs",
+const props = defineProps<IProps>();
+
+const inputContext = inject<VcInputContextType | null>("inputContext", null);
+
+const _size = computed(() => {
+  if (props.size) {
+    return props.size;
+  }
+
+  const inputSize = inputContext?.size.value;
+
+  if (inputSize === "xs") {
+    return "xs";
+  }
+
+  if (inputSize === "sm") {
+    return "sm";
+  }
+
+  // A control taller than `sm` does NOT get a label to match: the caption stops growing at 14.
+  // Pass `size` explicitly for the rare label that has to track its control.
+  return "sm";
 });
 </script>
 
 <style lang="scss">
 .vc-label {
-  // Muted, so the caption gives way to the value under it.
-  --color: var(--vc-label-color, theme("colors.neutral.700"));
+  --color: var(--vc-label-color, theme("colors.neutral.950"));
 
   @apply mb-0.5 font-bold text-[--color];
 

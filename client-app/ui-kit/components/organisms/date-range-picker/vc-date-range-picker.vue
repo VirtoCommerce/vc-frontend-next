@@ -7,7 +7,7 @@
     @focusin="onFocusIn"
     @focusout="onFocusOut"
   >
-    <VcLabel v-if="label" :required="required" :error="computedError">
+    <VcLabel v-if="label" :required="required" :error="computedError" size="xs">
       {{ label }}
     </VcLabel>
 
@@ -402,6 +402,8 @@ function onCalendarClear(): void {
   $fields-stack-breakpoint: 22rem;
 
   --field-height: theme("spacing.11");
+  // The input's caption token, so the field labels of one form match.
+  --vc-label-color: var(--vc-input-label-color, theme("colors.neutral.700"));
 
   &--size {
     &--xs {

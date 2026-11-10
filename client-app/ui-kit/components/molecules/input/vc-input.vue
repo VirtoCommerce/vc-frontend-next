@@ -308,7 +308,9 @@ provide<VcInputContextType>("inputContext", {
 
   --color: var(--vc-input-base-color, theme("colors.primary.500"));
 
-  // VcLabel's own colour, under a token that recolours the input captions alone.
+  // Muted, so the caption gives way to the value under it. Declared here rather than in
+  // VcLabel's own default, which standalone labels keep at the darkest step. VcSelect,
+  // VcTextarea and the date-range fields read the same token.
   --vc-label-color: var(--vc-input-label-color, theme("colors.neutral.700"));
 
   --radius: var(--vc-input-radius, var(--vc-radius, 0.5rem));

@@ -205,9 +205,7 @@ declare var __VLS_8$7: {};
 type __VLS_Slots$m = {} & {
     default?: (props: typeof __VLS_8$7) => any;
 };
-declare const __VLS_base$m: vue.DefineComponent<IProps$y, {}, {}, {}, {}, vue.ComponentOptionsMixin, vue.ComponentOptionsMixin, {}, string, vue.PublicProps, Readonly<IProps$y> & Readonly<{}>, {
-    size: "xs" | "sm" | "md" | "lg";
-}, {}, {}, {}, string, vue.ComponentProvideOptions, false, {}, any>;
+declare const __VLS_base$m: vue.DefineComponent<IProps$y, {}, {}, {}, {}, vue.ComponentOptionsMixin, vue.ComponentOptionsMixin, {}, string, vue.PublicProps, Readonly<IProps$y> & Readonly<{}>, {}, {}, {}, {}, string, vue.ComponentProvideOptions, false, {}, any>;
 declare const __VLS_export$C: __VLS_WithSlots$m<typeof __VLS_base$m, __VLS_Slots$m>;
 declare const _default$C: typeof __VLS_export$C;
 
