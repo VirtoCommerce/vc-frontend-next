@@ -3,7 +3,14 @@
     <div class="flex flex-col xl:flex-row">
       <div class="xl:w-2/3">
         <div>
-          <VcLabel required for-id="cardNumberPlaceholder">{{ labels.number }}</VcLabel>
+          <VcLabel
+            required
+            for-id="cardNumberPlaceholder"
+            size="xs"
+            class="[--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]"
+          >
+            {{ labels.number }}
+          </VcLabel>
 
           <div
             id="cardNumberPlaceholder"
@@ -49,7 +56,14 @@
           />
 
           <div class="min-w-32 basis-1/4">
-            <VcLabel required for-id="cvvPlaceholder">{{ labels.securityCode }}</VcLabel>
+            <VcLabel
+              required
+              for-id="cvvPlaceholder"
+              size="xs"
+              class="[--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]"
+            >
+              {{ labels.securityCode }}
+            </VcLabel>
 
             <div
               id="cvvPlaceholder"

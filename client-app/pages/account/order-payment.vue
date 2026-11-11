@@ -121,7 +121,7 @@
       <VcLayout sidebar-position="right">
         <VcWidget size="lg">
           <!-- region Billing address -->
-          <VcLabel>
+          <VcLabel size="xs" class="[--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]">
             {{ $t("pages.account.order_payment.billing_address_label") }}
           </VcLabel>
 
@@ -179,7 +179,7 @@
           <!-- endregion Billing address -->
 
           <!-- region Payment method -->
-          <VcLabel class="mt-5">
+          <VcLabel size="xs" class="mt-5 [--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]">
             {{ $t("pages.account.order_payment.payment_method_label") }}
           </VcLabel>
 

@@ -43,7 +43,13 @@
       </VcWidget>
 
       <VcWidget :title="$t('quote_details.shipping_address')" prepend-icon="truck" size="lg">
-        <VcLabel :required="isShippingAddressRequired">{{ $t("quote_details.shipping_address") }}</VcLabel>
+        <VcLabel
+          :required="isShippingAddressRequired"
+          size="xs"
+          class="[--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]"
+        >
+          {{ $t("quote_details.shipping_address") }}
+        </VcLabel>
 
         <div :class="['mt-2.5 rounded-[--vc-radius] border p-5', { 'cursor-not-allowed bg-neutral-50': fetching }]">
           <AddressSelection
@@ -61,7 +67,9 @@
 
       <!-- Quote billing address -->
       <VcWidget :title="$t('quote_details.billing_address')" prepend-icon="cash" size="lg">
-        <VcLabel required>{{ $t("quote_details.billing_address") }}</VcLabel>
+        <VcLabel required size="xs" class="[--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]">
+          {{ $t("quote_details.billing_address") }}
+        </VcLabel>
 
         <div
           :class="[

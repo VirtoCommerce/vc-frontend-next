@@ -33,7 +33,7 @@
         <VcWidget v-if="canEditOrganization" size="lg" class="lg:w-7/12">
           <div class="flex flex-col gap-4 xs:flex-row">
             <div class="grow">
-              <VcLabel>
+              <VcLabel size="xs" class="[--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]">
                 {{ $t("pages.company.info.labels.company_logo") }}
               </VcLabel>
 
