@@ -352,6 +352,7 @@
           "switching_back": "Volviendo…",
           "no_results": "No se encontraron resultados",
           "organization_locked_tooltip": "Esta organización está bloqueada. Contacta a tu administrador para obtener acceso.",
+          "search_organizations": "Buscar organizaciones",
           "dark_mode": {
             "system": "Tema: automático",
             "dark": "Tema: oscuro",

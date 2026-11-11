@@ -352,6 +352,7 @@
           "switching_back": "Switching back…",
           "no_results": "No results found",
           "organization_locked_tooltip": "This organization is locked. Contact your administrator for access.",
+          "search_organizations": "Search organizations",
           "dark_mode": {
             "system": "Theme: auto",
             "dark": "Theme: dark",

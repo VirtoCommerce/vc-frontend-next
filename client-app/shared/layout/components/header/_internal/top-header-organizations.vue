@@ -1,5 +1,5 @@
 <template>
-  <div class="top-header-organizations">
+  <div ref="root" class="top-header-organizations">
     <VcAlert
       v-if="switchError"
       class="top-header-organizations__error"
@@ -25,7 +25,8 @@
         type="search"
         size="sm"
         data-test-id="organizations-search"
-        :placeholder="$t('common.labels.search')"
+        :placeholder="$t('shared.layout.header.top_header.search_organizations')"
+        :aria-label="$t('shared.layout.header.top_header.search_organizations')"
         :clearable="!!searchPhrase"
         :aria="{
           role: 'combobox',
@@ -35,12 +36,18 @@
           'aria-activedescendant': activeDescendantId ?? null,
         }"
         @keydown.enter="onSearch"
-        @keydown.down.prevent="next(-1)"
+        @keydown.down.prevent="moveFocus(1)"
         @input="onSearchInput"
         @clear="onSearchClear"
       >
         <template #append>
-          <VcButton icon="search" icon-size="1rem" data-test-id="organizations-search-button" @click="onSearch" />
+          <VcButton
+            icon="search"
+            icon-size="1rem"
+            :aria-label="$t('shared.layout.header.top_header.search_organizations')"
+            data-test-id="organizations-search-button"
+            @click="onSearch"
+          />
         </template>
       </VcInput>
     </div>
@@ -69,8 +76,8 @@
             item.isLockedForCurrentUser ? $t('shared.layout.header.top_header.organization_locked_tooltip') : undefined
           "
           @click="selectOrganization(item.id)"
-          @keydown.up.prevent="prev(index)"
-          @keydown.down.prevent="next(index)"
+          @keydown.up.prevent="moveFocus(-1)"
+          @keydown.down.prevent="moveFocus(1)"
         >
           <VcRadioButton
             :model-value="contactOrganizationId"
@@ -89,14 +96,6 @@
           </template>
         </VcMenuItem>
 
-        <div
-          v-if="organizations.length === 0 && !loading"
-          class="top-header-organizations__empty"
-          data-test-id="organizations-empty-list"
-        >
-          {{ $t("shared.layout.header.top_header.no_results") }}
-        </div>
-
         <VcInfinityScrollLoader
           v-if="hasNextPage"
           :loading="loading"
@@ -107,13 +106,24 @@
           @visible="loadOrganizations"
         />
       </VcScrollbar>
+
+      <!-- Outside the listbox (only options belong there) and always rendered, so an empty result is announced. -->
+      <div role="status">
+        <div
+          v-if="organizations.length === 0 && !loading"
+          class="top-header-organizations__empty"
+          data-test-id="organizations-empty-list"
+        >
+          {{ $t("shared.layout.header.top_header.no_results") }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useDebounceFn } from "@vueuse/core";
-import { computed, onMounted, ref, watch } from "vue";
+import { useDebounceFn, useEventListener } from "@vueuse/core";
+import { computed, onMounted, ref, useTemplateRef, watch } from "vue";
 import { useOrganizationSwitcher, useUser, useUserOrganizations } from "@/shared/account";
 import { useComponentId } from "@/ui-kit/composables";
 
@@ -150,13 +160,30 @@ watch(
 
 const componentId = useComponentId("organizations");
 const listboxId = componentId + "-listbox";
-const focusedOptionIndex = ref(-1);
+const activeDescendantId = ref<string>();
+const root = useTemplateRef<HTMLElement>("root");
 
 // The list is shared session state, so a lock applied while this menu was closed would otherwise
-// leave a stale, clickable row. Refresh on every mount to catch that.
+// leave a stale, clickable row. Refresh on every mount to catch that. The phrase is shared too
+// (mobile menu), so each open starts from the full list.
 onMounted(() => {
+  searchPhrase.value = "";
   void search();
 });
+
+// Without the search field the popover keeps focus on its own panel, so arrows enter the list from there.
+useEventListener(
+  () => root.value?.closest<HTMLElement>("[role='dialog']"),
+  "keydown",
+  (event: KeyboardEvent) => {
+    if (event.target !== event.currentTarget || (event.key !== "ArrowDown" && event.key !== "ArrowUp")) {
+      return;
+    }
+
+    event.preventDefault();
+    moveFocus(event.key === "ArrowDown" ? 1 : -1);
+  },
+);
 
 const displayedOrganizations = computed(() => {
   const withoutCurrent = organizations.value.filter((item) => item.id !== organization.value?.id);
@@ -169,49 +196,37 @@ const displayedOrganizations = computed(() => {
 });
 
 watch(displayedOrganizations, () => {
-  focusedOptionIndex.value = -1;
+  activeDescendantId.value = undefined;
 });
 
 function getOptionId(index: number): string {
   return `${componentId}-option-${index}`;
 }
 
-const activeDescendantId = computed(() => {
-  if (focusedOptionIndex.value >= 0) {
-    return getOptionId(focusedOptionIndex.value);
-  }
-  return undefined;
-});
-
+// Locked rows are disabled buttons that can't take focus, so they're left out and arrows step over them.
 function getOptionElements(): HTMLElement[] {
   const elements = document.querySelectorAll<HTMLElement>(
-    `[data-vc-organization-option="${componentId}"] [tabindex='0']`,
+    `[data-vc-organization-option="${componentId}"] [tabindex='0']:not(:disabled)`,
   );
   return Array.from(elements);
 }
 
-function next(index: number): void {
+function moveFocus(step: 1 | -1): void {
   const elements = getOptionElements();
 
   if (!elements.length) {
     return;
   }
 
-  const nextIndex = index >= elements.length - 1 ? 0 : index + 1;
-  focusedOptionIndex.value = nextIndex;
-  elements[nextIndex]?.focus();
-}
-
-function prev(index: number): void {
-  const elements = getOptionElements();
-
-  if (!elements.length) {
-    return;
+  let current = elements.indexOf(document.activeElement as HTMLElement);
+  // From outside the list (search field, panel) Down enters at the top (-1 + 1) and Up at the bottom (0 - 1).
+  if (current === -1 && step === -1) {
+    current = 0;
   }
+  const target = elements[(current + step + elements.length) % elements.length];
 
-  const prevIndex = index <= 0 ? elements.length - 1 : index - 1;
-  focusedOptionIndex.value = prevIndex;
-  elements[prevIndex]?.focus();
+  activeDescendantId.value = target?.id;
+  target?.focus();
 }
 
 async function selectOrganization(organizationId: string): Promise<void> {
