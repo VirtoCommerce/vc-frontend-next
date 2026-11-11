@@ -12,7 +12,7 @@
           <slot />
 
           <div v-if="facets?.length" class="orders-filter__facets">
-            <VcLabel>{{ $t("shared.account.orders_filter.status_label") }}</VcLabel>
+            <VcLabel size="xs">{{ $t("shared.account.orders_filter.status_label") }}</VcLabel>
 
             <VcCheckboxGroup v-model="filterData.statuses" class="orders-filter__statuses">
               <VcCheckbox v-for="facet in statusFacet?.items" :key="facet.term" :value="facet.term">
@@ -88,6 +88,8 @@ function isSelectedStatus(status: string) {
   }
 
   &__facets {
+    --vc-label-color: var(--vc-input-label-color, theme("colors.neutral.700"));
+
     @apply mt-4;
   }
 

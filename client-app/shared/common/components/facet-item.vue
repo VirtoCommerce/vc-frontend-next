@@ -1,6 +1,6 @@
 <template>
   <div>
-    <VcLabel>
+    <VcLabel size="xs" class="[--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]">
       {{ facet.label }}
     </VcLabel>
 

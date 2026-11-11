@@ -69,7 +69,7 @@
           :maxlength="128"
         />
 
-        <div class="flex flex-col xl:flex-row xl:flex-wrap">
+        <div class="flex flex-col xl:flex-row xl:flex-wrap xl:gap-x-4">
           <VcSelect
             v-model="country"
             text-field="name"
@@ -91,7 +91,7 @@
             :error="!!errors.postalCode"
             :disabled="disabled"
             :label="$t('common.labels.zip_or_postal_code')"
-            class="order-3 mb-4 xl:order-none xl:ml-4 xl:w-4/12 xl:grow"
+            class="order-3 mb-4 xl:order-none xl:w-4/12 xl:grow"
             required
             test-id-input="postal-code-input"
             :maxlength="32"
@@ -118,7 +118,7 @@
             :error="!!errors.city"
             :disabled="disabled"
             :label="$t('common.labels.city')"
-            class="order-4 mb-4 xl:order-none xl:ml-4 xl:grow"
+            class="order-4 mb-4 xl:order-none xl:grow xl:basis-0"
             test-id-input="city-input"
             :required="requiredCity"
             :maxlength="128"

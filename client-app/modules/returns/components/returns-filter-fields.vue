@@ -40,7 +40,7 @@
     </template>
 
     <div v-if="statuses.length" class="returns-filter-fields__statuses">
-      <VcLabel>{{ $t("returns.filters.status") }}</VcLabel>
+      <VcLabel size="xs">{{ $t("returns.filters.status") }}</VcLabel>
 
       <VcCheckboxGroup
         :model-value="modelValue.statuses"
@@ -198,6 +198,8 @@ watch(
   }
 
   &__statuses {
+    --vc-label-color: var(--vc-input-label-color, theme("colors.neutral.700"));
+
     @apply mt-4;
   }
 
