@@ -151,12 +151,6 @@ const columnCount = computed(() => Number(isSettingsColumnShown.value) + Number(
   --surface: var(--color-additional-50);
   --line: color-mix(in srgb, var(--ink) 12%, transparent);
 
-  // Same as the account menu: the kit's shadow-lg is drawn in additional-950, the light end in
-  // this dark preset, so it glowed. The design's user-menu shadow, in black.
-  html.dark & {
-    --vc-popover-shadow: 0 18px 48px rgb(0 0 0 / 0.5);
-  }
-
   &__pill {
     @apply flex flex-none cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full;
 

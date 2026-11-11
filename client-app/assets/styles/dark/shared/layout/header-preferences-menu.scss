@@ -1,0 +1,5 @@
+.header-preferences-menu {
+  // The header menus' deeper lift (--header-menu-shadow on .header-plate). Per menu: the plate also
+  // wraps the mega-menu and push-messages popovers, which keep the dark default (or a theme's).
+  --vc-popover-shadow: var(--header-menu-shadow);
+}

@@ -202,7 +202,12 @@ onMounted(() => {
   &__inner {
     --vc-icon-size: var(--content-height);
 
-    @apply flex items-center w-full px-[--p-x] text-left rounded-[inherit] font-normal;
+    @apply flex items-center w-full px-[--p-x] text-left font-normal;
+
+    // The plate's corners. Public, so a list can round its rows without a radius on the root; unset,
+    // the plate keeps following the root's. `inherit` must sit in the property itself: routed through
+    // a private custom property it no longer acts as the keyword and computes to 0.
+    border-radius: var(--vc-menu-item-radius, inherit);
 
     // The row's rest fill, public so a theme can put its rows on its own surface.
     background-color: var(--vc-menu-item-bg, var(--color-additional-50));
@@ -274,8 +279,6 @@ onMounted(() => {
     // Menu lists render inside a VcScrollbar with zero clearance (measured in the
     // language dropdown), so an outset ring is clipped: invert the shared offset.
     &:focus-visible {
-      @apply rounded-[inherit];
-
       @include focus-ring($inset: true);
     }
 

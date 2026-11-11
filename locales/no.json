@@ -352,6 +352,7 @@
           "switching_back": "Bytter tilbake…",
           "no_results": "Ingen resultater funnet",
           "organization_locked_tooltip": "Denne organisasjonen er låst. Kontakt administratoren din for tilgang.",
+          "search_organizations": "Søk i organisasjoner",
           "dark_mode": {
             "system": "Tema: automatisk",
             "dark": "Tema: mørkt",
@@ -425,6 +426,9 @@
             "navigation": "Navigasjon",
             "main_navigation": "Hovednavigasjon"
           }
+        },
+        "organizations_menu": {
+          "trigger_label": "Organisasjoner: {name}"
         }
       },
       "footer": {

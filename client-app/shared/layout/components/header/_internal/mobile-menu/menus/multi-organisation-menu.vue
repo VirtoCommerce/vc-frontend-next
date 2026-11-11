@@ -62,7 +62,7 @@
 import { onMounted, ref, useTemplateRef, computed } from "vue";
 import { useOrganizationSwitcher, useUser, useUserOrganizations } from "@/shared/account";
 
-const { organizations, hasNextPage, loading, pagesCount, currentPage, loadOrganizations, search } =
+const { searchPhrase, organizations, hasNextPage, loading, pagesCount, currentPage, loadOrganizations, search } =
   useUserOrganizations();
 const { user, isMultiOrganization, organization } = useUser();
 const { switchError, trySwitch } = useOrganizationSwitcher();
@@ -74,9 +74,11 @@ const organizationsWithoutCurrent = computed(() =>
   organizations.value.filter((item) => item.id !== organization.value?.id),
 );
 
-// useUserOrganizations fetches only once per session, so a lock applied while this menu was
-// closed would otherwise leave a stale, clickable row. Refresh on every mount to catch that.
+// The list is shared session state, so a lock applied while this menu was closed would otherwise
+// leave a stale, clickable row. Refresh on every mount to catch that. This menu has no search field,
+// so a phrase left by the desktop popover must not filter it.
 onMounted(() => {
+  searchPhrase.value = "";
   void search();
 });
 

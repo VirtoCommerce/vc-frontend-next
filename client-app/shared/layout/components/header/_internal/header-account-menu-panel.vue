@@ -41,8 +41,8 @@
       </div>
     </div>
 
-    <!-- Impersonation and the organization switcher are ours, not the design's: they have nowhere
-         else to live, and both end the session they belong to, so they sit with Sign out. -->
+    <!-- Impersonation is ours, not the design's: it has nowhere else to live, and it ends the
+         session it belongs to, so it sits with Sign out. -->
     <div class="header-account-menu-panel__footer">
       <button
         v-if="operator"
@@ -67,12 +67,6 @@
         <span class="header-account-menu-panel__row-text">{{ $t("shared.layout.header.link_logout") }}</span>
       </button>
     </div>
-
-    <TopHeaderOrganizations
-      v-if="IS_ORGANIZATION_SWITCHER_SHOWN && isMultiOrganization"
-      class="header-account-menu-panel__organizations"
-      @organization-selected="emit('navigate')"
-    />
   </div>
 </template>
 
@@ -82,7 +76,6 @@ import { computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useImpersonate, useUser } from "@/shared/account";
 import { useAccountMenuSections } from "@/shared/account/composables/useAccountMenuSections";
-import TopHeaderOrganizations from "./top-header-organizations.vue";
 import type { ExtendedMenuLinkType } from "@/core/types";
 import type { AccountMenuSectionType } from "@/shared/account/composables/useAccountMenuSections";
 import AccountNavigationItem from "@/shared/account/components/account-navigation-item.vue";
@@ -100,16 +93,7 @@ interface IProps {
   initials: string;
 }
 
-/**
- * The organisation switcher is the one block in this panel the design has not drawn. It is the old
- * header's component standing unstyled next to rows that were, so it reads as a different product.
- * Held out rather than deleted: the wiring around it — the multi-organisation guard and the
- * `navigate` emit that closes the panel after a switch — is exactly what has to come back, so
- * turning this to `true` is the whole restore. Flip it when the design arrives.
- */
-const IS_ORGANIZATION_SWITCHER_SHOWN = false;
-
-const { user, operator, organization, isMultiOrganization } = useUser();
+const { user, operator, organization } = useUser();
 const { backToOperatorLabel } = useImpersonate();
 const { sections } = useAccountMenuSections();
 const route = useRoute();
@@ -161,11 +145,9 @@ watch(
   // prop so the fill, the radius and the shadow all land on the same element.
   @apply flex flex-col rounded-[--vc-radius] border border-neutral-200 p-6;
 
-  // One knob for every hoverable thing in the panel — the rows, the head, Sign out — so dark
-  // has a single place to brighten instead of three. The two inks are here rather than inlined at
-  // their use site so a fork retints them from one list. See dark/shared/layout/…
-  --hover-plate: theme("colors.neutral.100");
-  --active-plate: theme("colors.secondary.100");
+  // The hover and active plates come from the header (--header-menu-*-bg in header-plate.vue), so
+  // this panel and the organizations menu brighten together in dark. The two inks are here rather
+  // than inlined at their use site so a fork retints them from one list (dark: dark/shared/layout/…).
   --sign-out-ink: theme("colors.danger.700");
   --subtitle-ink: theme("colors.neutral.600");
 
@@ -190,7 +172,7 @@ watch(
     transition: background var(--transition-duration, 0.2s) ease;
 
     &:hover {
-      background: var(--hover-plate);
+      background: var(--header-menu-hover-bg);
     }
   }
 
@@ -234,10 +216,9 @@ watch(
 
     // A nav hover is a neutral tint, so the secondary fill is left to say "you are here" and
     // nothing else — the same pairing the account sidebar uses. BOTH halves are declared here, on
-    // one selector: a theme that moves only one of them collapses the pair into a single colour,
-    // and scoping them to the tiles keeps them off the organization switcher below.
-    --vc-menu-item-hover-bg: var(--hover-plate);
-    --vc-menu-item-active-bg: var(--active-plate);
+    // one selector: a theme that moves only one of them collapses the pair into a single colour.
+    --vc-menu-item-hover-bg: var(--header-menu-hover-bg);
+    --vc-menu-item-active-bg: var(--header-menu-active-bg);
   }
 
   &__title {
@@ -254,7 +235,7 @@ watch(
     transition: background var(--transition-duration, 0.2s) ease;
 
     &:hover {
-      background: var(--hover-plate);
+      background: var(--header-menu-hover-bg);
     }
 
     // Sign out is not another section of the account, so it is the one row that carries a colour.
@@ -267,19 +248,6 @@ watch(
 
   &__row-text {
     @apply truncate;
-  }
-
-  // The switcher draws itself as the flush bottom slab of a popover that had no padding of its own
-  // (it is shared with the legacy top header, which still wants exactly that). Bleed it back out to
-  // the panel's edges rather than restyling a component two headers depend on.
-  &__organizations {
-    @apply -mx-6 -mb-6 mt-4;
-
-    // Bleeding it to the edge puts its corners on the panel's for the first time, and its own
-    // `rounded-b-md` is half the panel's radius. Restated here rather than in the shared component,
-    // which the legacy top header still wants square-cornered.
-    border-end-start-radius: var(--vc-radius);
-    border-end-end-radius: var(--vc-radius);
   }
 }
 </style>
