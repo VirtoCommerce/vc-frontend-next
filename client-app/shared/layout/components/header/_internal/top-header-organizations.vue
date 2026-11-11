@@ -108,15 +108,15 @@
       </VcScrollbar>
 
       <!-- Outside the listbox (only options belong there) and always rendered, so an empty result is announced. -->
-      <div role="status">
-        <div
+      <output>
+        <span
           v-if="organizations.length === 0 && !loading"
           class="top-header-organizations__empty"
           data-test-id="organizations-empty-list"
         >
           {{ $t("shared.layout.header.top_header.no_results") }}
-        </div>
-      </div>
+        </span>
+      </output>
     </div>
   </div>
 </template>
@@ -330,7 +330,7 @@ async function onSearchClear(): Promise<void> {
   }
 
   &__empty {
-    @apply px-2.5 py-2 text-center text-sm text-neutral-600;
+    @apply block px-2.5 py-2 text-center text-sm text-neutral-600;
   }
 }
 </style>
