@@ -81,6 +81,12 @@
   // read by the typography block's h1-h6 and by a widget's title, so the two cannot drift.
   --vc-typography-heading-font-weight: 600;
 
+  // A widget's title is one of those headings: the same weight, sentence case, and the display face's
+  // tight tracking. VcWidget reads these from upstream's title tokens.
+  --vc-widget-title-font-weight: var(--vc-typography-heading-font-weight);
+  --vc-widget-title-text-transform: none;
+  --vc-widget-title-letter-spacing: -0.02em;
+
   // A row's hover, one step down from the kit's. The kit hovers on neutral-200, which in this
   // palette is the LINE colour (#e7ddce) — laid across a whole row on a white plate it reads as a
   // selected row rather than as the pointer passing over one. 100 is the surface step above the

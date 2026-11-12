@@ -6,7 +6,7 @@
       :navigation="{
         nextEl: '[data-btn=btn-next]',
         prevEl: '[data-btn=btn-prev]',
-        lockClass: '!hidden',
+        lockClass: 'hidden',
       }"
       class="vc-product-image__carousel"
       rewind
@@ -142,7 +142,10 @@ function slideChanged(swiper: SwiperInstance) {
   &__carousel-img {
     $carouselImg: &;
 
-    @apply w-full aspect-square select-none rounded-[--radius] object-contain object-center;
+    --vc-image-object-fit: contain;
+    --vc-image-fallback-object-fit: scale-down;
+
+    @apply w-full aspect-square select-none rounded-[--radius];
 
     &--clickable {
       @apply cursor-pointer;
@@ -191,7 +194,11 @@ function slideChanged(swiper: SwiperInstance) {
 
   &__img {
     $img: &;
-    @apply w-full aspect-square rounded-[--radius] object-contain object-center;
+
+    --vc-image-object-fit: contain;
+    --vc-image-fallback-object-fit: scale-down;
+
+    @apply w-full aspect-square rounded-[--radius];
   }
 
   &__slot {
