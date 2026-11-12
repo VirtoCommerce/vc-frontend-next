@@ -34,8 +34,13 @@
   @include meta.load-css("print");
 }
 
-// The paprika theme loads unlayered, like _custom.scss: it beats every layer, as it did before the
-// layers existed, and its tokens on :root win over upstream's presets/paprika.scss (vc.preset).
+// The paprika theme's rules for components compete with them by specificity, as before the layers.
+@layer vc.app {
+  @include meta.load-css("paprika-components");
+}
+
+// The paprika theme's tokens load unlayered, like _custom.scss: they beat every layer, as before the
+// layers existed, and win over upstream's presets/paprika.scss (vc.preset).
 @include meta.load-css("color-mode-switch");
 @include meta.load-css("paprika");
 

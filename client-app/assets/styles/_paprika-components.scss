@@ -1,0 +1,83 @@
+// Paprika's rules for components (VCST-6030). main.scss loads this file inside @layer vc.app, so the
+// rules win over the kit and compete with app components by specificity, as they did before the
+// cascade layers. Tokens stay in _paprika.scss, which loads unlayered.
+
+// The empty page's illustration is the design's 320 on the desktop, not the kit's 440: at 440 it
+// pushed the sign-up form down to 516 and stood a column away from it.
+@media (width >= theme("screens.lg")) {
+  :root .vc-empty-page {
+    --vc-composite-shape-size: 20rem;
+  }
+}
+
+// A configurator option is one flat 96px row on the desktop: radio, 64px picture, the name at
+// the body face, then the unit price, the quantity and the line total, all regular 14. The
+// properties column exists for the narrow layout only, so it folds to nothing here.
+.product-configuration .option-product {
+  @container (min-width: theme("containers.2xl")) {
+    // Flat rows: only the zebra tells one from the next, and the list rounds as a whole.
+    --vc-product-card-radius: 0;
+
+    .vc-product-card__wrapper {
+      grid-template-areas: "select image title properties price add-to-cart total";
+      grid-template-rows: auto;
+      grid-template-columns: 2rem 4.75rem minmax(0, 1fr) 0 6.75rem 6.25rem 8.25rem;
+      min-height: 6rem;
+    }
+
+    .vc-product-properties {
+      @apply h-0 overflow-hidden;
+    }
+
+    .vc-product-title {
+      @apply font-bold leading-[1.17];
+    }
+
+    .vc-product-price,
+    .vc-product-total {
+      --vc-product-price-font-size: 0.875rem;
+
+      @apply font-geologica;
+    }
+
+    .vc-product-price__actual {
+      @apply font-normal;
+    }
+
+    .vc-product-total {
+      @apply ms-0 w-auto;
+    }
+  }
+}
+
+// Every lg widget is the design's `.vc-widget--lg`, one recipe wherever it stands: the head
+// seated 16 off the corner rather than centred in a control-height row, the body 16/18/20, the
+// title 16. Nested widgets inherit custom properties, so every knob is handed back to the
+// defaults one level down.
+@media (width >= theme("screens.lg")) {
+  .vc-widget--size--lg {
+    --vc-widget-header-min-height: 0px;
+    --vc-widget-header-padding-y: 1rem 0;
+    --vc-widget-header-padding-x: 1rem;
+    --vc-widget-padding-x: 1.125rem;
+    --vc-widget-padding-top: 1rem;
+    --vc-widget-padding-bottom: 1.25rem;
+    --vc-widget-title-font-size: 1rem;
+  }
+
+  // Zero specificity: it only has to beat inheritance, and a component that names its own
+  // nested widget's knobs must still win.
+  :where(.vc-widget--size--lg .vc-widget:not(.vc-widget--size--lg)) {
+    --vc-widget-header-min-height: initial;
+    --vc-widget-header-padding-y: initial;
+    --vc-widget-header-padding-x: initial;
+    --vc-widget-padding-x: initial;
+    --vc-widget-padding-top: initial;
+    --vc-widget-padding-bottom: initial;
+    --vc-widget-title-font-size: initial;
+  }
+}
+
+// The design's wide rung: the column goes 1550 -> 1900 and nothing else moves — the gutter
+// stays 32, so the container needs 1964 of window before the column reaches 1900. The header
+// and footer shells read the same var and travel with it.
