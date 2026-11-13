@@ -242,8 +242,6 @@ onUnmounted(() => {
 
 <style lang="scss">
 .filters-popup-sidebar {
-  @apply lg:w-[22rem] #{!important};
-
   &__container {
     @apply space-y-5 mb-4;
   }

@@ -10,6 +10,7 @@
       v-bind="$attrs"
       :href="href"
       :class="['bottom-header-link', { 'bottom-header-link--active': isActive && link.route }]"
+      :aria-label="getCountAriaLabel(link.title, count)"
       @click="(e: MouseEvent) => (link.route ? navigate(e) : undefined)"
     >
       <span class="bottom-header-link__mark">
@@ -17,11 +18,7 @@
           <VcIcon v-if="link.icon" :name="link.icon" :size="24" class="bottom-header-link__icon" />
         </slot>
 
-        <transition mode="out-in" name="scale">
-          <VcBadge v-if="count" class="bottom-header-link__badge" rounded nowrap size="sm" max-width="none">
-            {{ $n(count, { style: "decimal", notation: "compact" }) }}
-          </VcBadge>
-        </transition>
+        <HeaderBadge :count="count" size="sm" overlay />
       </span>
 
       <span class="bottom-header-link__label">
@@ -32,7 +29,9 @@
 </template>
 
 <script setup lang="ts">
+import { useHeaderCountLabel } from "@/shared/layout/composables/useHeaderCountLabel";
 import type { ExtendedMenuLinkType } from "@/core/types";
+import HeaderBadge from "@/shared/layout/components/header-badge/header-badge.vue";
 
 interface IProps {
   link: ExtendedMenuLinkType;
@@ -46,6 +45,8 @@ defineOptions({
 withDefaults(defineProps<IProps>(), {
   count: 0,
 });
+
+const { getCountAriaLabel } = useHeaderCountLabel();
 </script>
 
 <style lang="scss">
@@ -84,10 +85,6 @@ withDefaults(defineProps<IProps>(), {
 
   &__icon {
     @apply mb-0.5 text-secondary-600;
-  }
-
-  &__badge {
-    @apply absolute -right-3 -top-2 transition-transform;
   }
 
   &__label {

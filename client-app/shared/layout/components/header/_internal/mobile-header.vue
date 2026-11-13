@@ -46,31 +46,13 @@
 
               <router-link
                 :to="{ name: ROUTES.CART.NAME }"
-                :aria-label="$t('common.links.cart')"
+                :aria-label="getCountLabel($t('common.links.cart'), cart?.itemsQuantity)"
                 class="mobile-header__button"
               >
                 <span class="mobile-header__cart">
                   <VcIcon name="cart" :size="24" />
 
-                  <transition
-                    mode="out-in"
-                    enter-from-class="scale-0"
-                    leave-to-class="scale-0"
-                    enter-active-class="will-change-transform"
-                    leave-active-class="will-change-transform"
-                  >
-                    <VcBadge
-                      v-if="cart?.itemsQuantity"
-                      variant="solid"
-                      size="sm"
-                      class="mobile-header__badge"
-                      rounded
-                      nowrap
-                      max-width="none"
-                    >
-                      {{ $n(cart.itemsQuantity, { style: "decimal", notation: "compact" }) }}
-                    </VcBadge>
-                  </transition>
+                  <HeaderBadge :count="cart?.itemsQuantity" variant="solid" size="sm" overlay />
                 </span>
               </router-link>
             </div>
@@ -99,10 +81,12 @@ import { useWhiteLabeling } from "@/core/composables";
 import { ROUTES } from "@/router/routes/constants";
 import { useShortCart } from "@/shared/cart";
 import { useNestedMobileHeader } from "@/shared/layout";
+import { useHeaderCountLabel } from "@/shared/layout/composables/useHeaderCountLabel";
 import { useSearchBar } from "@/shared/layout/composables/useSearchBar";
 import { useStuckPlate } from "@/shared/layout/composables/useStuckPlate";
 import MobileMenu from "./mobile-menu/mobile-menu.vue";
 import MobileSearchBar from "./mobile-search-bar.vue";
+import HeaderBadge from "@/shared/layout/components/header-badge/header-badge.vue";
 
 const mobileMenuVisible = ref(false);
 const plate = ref<HTMLElement | null>(null);
@@ -111,6 +95,7 @@ const { stuck } = useStuckPlate(plate);
 
 const { customSlots, isAnimated } = useNestedMobileHeader();
 const { searchBarVisible, toggleSearchBar } = useSearchBar();
+const { getCountLabel } = useHeaderCountLabel();
 
 const { height } = useElementSize(plate);
 const { cart } = useShortCart();
@@ -262,10 +247,6 @@ syncRefs(isScrollLocked, scrollLock);
 
   &__cart {
     @apply relative block;
-  }
-
-  &__badge {
-    @apply absolute -end-2 -top-2 transition-transform;
   }
 }
 </style>

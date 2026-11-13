@@ -3,12 +3,7 @@
     <div class="flex flex-col xl:flex-row">
       <div class="xl:w-2/3">
         <div>
-          <VcLabel
-            required
-            for-id="cardNumber-container"
-            size="xs"
-            class="[--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]"
-          >
+          <VcLabel required size="xs" class="[--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]">
             {{ labels.number }}
           </VcLabel>
 
@@ -45,12 +40,7 @@
           />
 
           <div class="min-w-32 basis-1/4">
-            <VcLabel
-              required
-              for-id="securityCode-container"
-              size="xs"
-              class="[--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]"
-            >
+            <VcLabel required size="xs" class="[--vc-label-color:var(--vc-input-label-color,var(--color-neutral-700))]">
               {{ labels.securityCode }}
             </VcLabel>
 
