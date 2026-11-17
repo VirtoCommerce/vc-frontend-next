@@ -3,17 +3,18 @@
     {
       "id": "home",
       "title": "Home",
-      "why": "Fork's demo-home replaces upstream home.vue (fork-map)",
+      "why": "Fork's demo-home replaces upstream home.vue (fork-map); main.scss: paprika unlayered over upstream's cascade layers; footer markup (vc-footer.vue conflict)",
       "steps": [
         {
           "goto": "/"
         }
-      ]
+      ],
+      "schemes": ["light", "dark"]
     },
     {
       "id": "category",
       "title": "Category listing",
-      "why": "category.vue conflict (isCompact + prepareScope, VCST-5817); product-card analytics roles (VCST-6017)",
+      "why": "Baseline listing under the cascade layers (VCST-6231): product cards, facet plates, VcWidget tokens",
       "steps": [
         {
           "goto": "/bolts"
@@ -23,7 +24,7 @@
     {
       "id": "search",
       "title": "Search results",
-      "why": "search-bar scope slot (VCST-5817), both sides changed search-bar.vue",
+      "why": "search-bar.vue changed on both sides; scope chip focus fix (VCST-6254)",
       "steps": [
         {
           "goto": "/search?q=shirt"
@@ -33,7 +34,7 @@
     {
       "id": "pdp-variations",
       "title": "PDP with a variations list",
-      "why": "product.vue SKU conflict (VCST-6307 dark-mode SKU ink), variations.vue conflict (fork icon-shape + upstream analytics roles)",
+      "why": "VcWidget conflict (upstream title tokens, seamless; fork knobs), image-gallery.vue conflict (object-fit tokens + fork image background), widget titles",
       "schemes": ["light", "dark"],
       "steps": [
         {
@@ -44,7 +45,7 @@
     {
       "id": "pdp-options",
       "title": "PDP with options and recommendations",
-      "why": "recommended-products.vue conflict (fork icon-shape + upstream analytics roles) — the 'Customers bought together' widget",
+      "why": "VcWidget with the fork's icon-shape heads under upstream's widget structure",
       "schemes": ["light"],
       "steps": [
         {
@@ -55,7 +56,7 @@
     {
       "id": "pdp-configurable",
       "title": "Configurable PDP",
-      "why": "Configuration checklist in Price & delivery (VCST-6027); SKU line from the product.vue conflict (VCST-6307 dark-mode ink); product-configuration.vue changed on both sides",
+      "why": "product-configuration widgets: nested widgets, flush bodies, VcWidget conflict",
       "steps": [
         {
           "goto": "/products-with-options/configurable-caps-shirts/configurable-hat"
@@ -66,7 +67,7 @@
     {
       "id": "compare",
       "title": "Compare page",
-      "why": "compare-table.vue conflict: upstream native table (VCST-5880) + fork tab group / edge radius",
+      "why": "Header counter (HeaderBadge 99+, overlay placement, VCST-3632) on the Compare link; compare-table under cascade layers",
       "schemes": ["light", "dark"],
       "seed": {
         "keys": ["compareProducts"],
@@ -89,7 +90,7 @@
     {
       "id": "compare-stuck",
       "title": "Compare page, header pinned",
-      "why": "compare-table pinned header row: fork's wedge-backing shadow on upstream's new <thead>",
+      "why": "Pinned header row and the counter on the pinned header (bottom-header-link conflict)",
       "fullPage": false,
       "seed": {
         "keys": ["compareProducts"],
@@ -114,9 +115,38 @@
       ]
     },
     {
+      "id": "mobile-menu",
+      "title": "Mobile menu with a count",
+      "why": "mobile-menu-link.vue conflict: the fork's row with upstream's HeaderBadge and count aria-label",
+      "viewports": ["mobile"],
+      "schemes": ["light", "dark"],
+      "fullPage": false,
+      "seed": {
+        "keys": ["compareProducts"],
+        "steps": [
+          {
+            "goto": "/bolts"
+          },
+          {
+            "click": "button[aria-pressed='false'][aria-label*='compar' i]",
+            "count": 4
+          }
+        ]
+      },
+      "steps": [
+        {
+          "goto": "/"
+        },
+        {
+          "click": "button[aria-label='Main menu']",
+          "wait": 800
+        }
+      ]
+    },
+    {
       "id": "cart",
       "title": "Cart",
-      "why": "Out-of-range quantity explanation (VCST-5990) — quantity set to 999999; vc-quantity-stepper changed on both sides",
+      "why": "cart.vue conflict (cart__mobile-action without !important, mobile sticky Proceed/Place order); vc-line-item.vue conflict (object-fit token + image background); cart counter (HeaderBadge)",
       "steps": [
         {
           "goto": "/soft-drinks/soda/coca-cola-regular-6x330ml"
@@ -138,12 +168,38 @@
           "press": "Enter",
           "wait": 2500
         }
+      ],
+      "schemes": ["light", "dark"]
+    },
+    {
+      "id": "dashboard",
+      "title": "Account dashboard",
+      "why": "dashboard.vue: upstream's live layout (VCST-6078) with the fork's always-visible h1; dashboard widgets under the fork's VcWidget and title tokens",
+      "auth": true,
+      "schemes": ["light", "dark"],
+      "steps": [
+        {
+          "goto": "/account/dashboard",
+          "wait": 2000
+        }
+      ]
+    },
+    {
+      "id": "coupons",
+      "title": "Coupons",
+      "why": "coupon-item.vue conflict (fork line height + overflow-wrap anywhere, VCST-6158)",
+      "auth": true,
+      "steps": [
+        {
+          "goto": "/account/coupons",
+          "wait": 1500
+        }
       ]
     },
     {
       "id": "sign-in",
       "title": "Sign in",
-      "why": "Baseline page; account/auth surfaces",
+      "why": "Baseline page",
       "viewports": ["desktop"],
       "steps": [
         {

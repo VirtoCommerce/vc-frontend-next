@@ -1,0 +1,13 @@
+@use "sass:meta";
+
+html.dark {
+  @include meta.load-css("dark/shared/account/account-navigation");
+  @include meta.load-css("dark/shared/catalog/product-pickup-locations");
+  @include meta.load-css("dark/shared/checkout/select-address-map-view");
+  @include meta.load-css("dark/shared/layout/header-account-menu-panel");
+  @include meta.load-css("dark/shared/layout/header-plate");
+  @include meta.load-css("dark/shared/layout/header-account-menu");
+  @include meta.load-css("dark/shared/layout/header-preferences-menu");
+  @include meta.load-css("dark/shared/layout/header-organizations-menu");
+  @include meta.load-css("dark/shared/layout/header-badge");
+}

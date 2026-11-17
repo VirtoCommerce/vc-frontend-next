@@ -8,7 +8,7 @@
         'vc-widget--collapsed': _collapsed,
         'vc-widget--no-shadow': !shadow,
         'vc-widget--no-border': !border,
-        'vc-widget--nested': nested,
+        'vc-widget--seamless': seamless,
         'vc-widget--icon-shape': iconShape,
       },
     ]"
@@ -96,12 +96,6 @@ interface IProps {
   shadow?: boolean;
   border?: boolean;
   /**
-   * The widget already sits inside someone else's shell — a plate, a sidebar, a column. It then
-   * draws no plate of its own and keeps no side inset, because two nested insets in a row push the
-   * content 36-52px off the edge and break its alignment with everything else in that shell.
-   */
-  nested?: boolean;
-  /**
    * Draws the prepended icon on a disc and sets the title to match, which is how this theme marks
    * the head of a content block. Off by default: a widget that is a panel rather than a block — a
    * checkout section, a cart summary — keeps the bare glyph. Retune it with the
@@ -109,6 +103,12 @@ interface IProps {
    */
   iconShape?: boolean;
   size?: "xs" | "sm" | "md" | "lg";
+  /**
+   * Draws no plate (border, background, shadow, radius, dividers) and no inline padding, so the shell around it
+   * (another widget, a sidebar card) owns them; header and vertical spacing stay. Below `md` it also stays inside
+   * VcContainer's padding.
+   */
+  seamless?: boolean;
 }
 
 const emit = defineEmits<IEmits>();
@@ -159,12 +159,16 @@ watchEffect(() => {
   --p-x: var(--vc-widget-padding-x, var(--pad));
   --p-t: var(--vc-widget-padding-top, var(--pad));
   --p-b: var(--vc-widget-padding-bottom, var(--pad));
+  --border-width: var(--vc-widget-border-width, 1px);
   --border-color: var(--vc-widget-border-color, theme("colors.neutral.200"));
   --divide-color: var(--vc-widget-divide-color, var(--border-color));
   --bg-color: var(--vc-widget-bg-color, theme("colors.additional.50"));
   --radius: var(--vc-widget-radius, var(--vc-radius, 0.5rem));
-  // Exposed so a theme can give the widget its own elevation — a theme whose surfaces are
-  // plates needs a shadow that survives dark mode, where this one's black is invisible.
+  --inner-radius: calc(
+    var(--vc-widget-radius, calc(theme("borderRadius.DEFAULT") + var(--border-width))) - var(--border-width)
+  );
+  // No fallback: without a design's radius token the body keeps classic's square corners.
+  --body-radius: calc(var(--vc-widget-radius) - var(--border-width));
   --shadow: var(--vc-widget-shadow, theme("boxShadow.md"));
   --header-gap: theme("gap.2");
   // The head's own three measures, public for the same reason the body's inset is: a theme whose
@@ -178,11 +182,10 @@ watchEffect(() => {
   --header-p-x: var(--vc-widget-header-padding-x, var(--p-x));
   --title-size: var(--vc-widget-title-font-size, var(--title-text));
 
-  @apply relative border border-[--border-color] bg-[--bg-color] text-neutral-950 text-base rounded-[--radius] divide-y divide-[--divide-color] bg-center;
+  @apply relative border-[length:--border-width] border-[--border-color] bg-[--bg-color] text-neutral-950 text-base rounded-[--radius] divide-y divide-[--divide-color] shadow-md bg-center;
 
-  // Raw, not `shadow-[--shadow]`: Tailwind reads a bare custom property there as a shadow
-  // COLOUR and drops the box-shadow declaration altogether.
-  box-shadow: var(--shadow);
+  // shadow-md keeps `--tw-shadow-colored`, so a `shadow-<colour>` class still tints; only the value is ours.
+  --tw-shadow: var(--shadow);
 
   @media (width < theme("screens.md")) {
     .vc-container & {
@@ -200,30 +203,6 @@ watchEffect(() => {
 
   &--collapsible {
     $collapsible: &;
-  }
-
-  // Chromeless: the shell around it already drew the plate. Expressed entirely through this
-  // block's own tokens rather than by re-declaring the paint, so it cannot fall out of step with
-  // the base rule and so a theme that overrides `--vc-widget-*` from outside still loses here —
-  // which is the point, since the plate it would be painting is not this widget's to draw.
-  //
-  // The rows go with it: a nested widget's list has to stand on the same vertical as its own
-  // heading, and `--vc-menu-item-padding-x` is the kit's public name for that inset. The hover
-  // plate still spans the full width of the shell, which is what the account sidebar does too.
-  //
-  // Compounded with the block's own class on purpose. The size rules below set `--p-x` as well, at
-  // one class each, and they are written after this one — so at equal specificity they won, and a
-  // nested widget at the DEFAULT `md` kept a 24px inset while its rows had already given theirs up:
-  // exactly the misalignment the variant exists to remove. Measured on the running page before this
-  // line: `--p-x` came back 1.5rem at md and 1.75rem at lg, 0px only at sm and xs.
-  &--nested#{$self} {
-    --bg-color: transparent;
-    --border-color: transparent;
-    --divide-color: transparent;
-    --shadow: none;
-    --radius: 0;
-    --p-x: 0px;
-    --vc-menu-item-padding-x: 0px;
   }
 
   &--size {
@@ -285,19 +264,32 @@ watchEffect(() => {
     @apply border-none;
   }
 
+  &--seamless {
+    --p-x: 0;
+    --border-width: 0;
+    --bg-color: transparent;
+    --radius: 0;
+    --inner-radius: 0;
+    --body-radius: 0;
+
+    @apply divide-none shadow-none;
+
+    @media (width < theme("screens.md")) {
+      .vc-container & {
+        @apply mx-0;
+      }
+    }
+  }
+
   &__header-container {
     @apply w-full text-start empty:hidden;
 
     &,
     & > * {
-      // The widget's own curve, not a fixed step: `rounded-t` is 4px whatever --radius says, so
-      // on a theme that rounds its plates to 28 the header's corners cut inside the plate — and
-      // on a collapsible widget those corners are a button, whose focus ring follows them.
-      border-radius: var(--radius) var(--radius) 0 0;
+      @apply rounded-t-[--inner-radius];
 
-      // Collapsed, the header IS the whole plate, so it rounds on all four.
       #{$collapsed} & {
-        border-radius: var(--radius);
+        @apply rounded-b-[--inner-radius];
       }
     }
   }
@@ -319,17 +311,16 @@ watchEffect(() => {
   &__title {
     @apply font-geologica flex flex-col justify-center min-w-0 grow text-[length:--title-size] break-words;
 
-    // The same knob the typography block's headings read: a widget's title is one of them, set in
-    // the same face, and a theme that lightens its headings has to reach this one too or the page
-    // carries two weights. The kit's own weight stays the fallback.
-    font-weight: var(--vc-typography-heading-font-weight, 700);
-
-    // The display face is set a touch tight, the same as every other heading it stands beside —
-    // the face is drawn for it and reads loose at a title's size without it.
-    letter-spacing: -0.02em;
+    font-weight: var(--vc-widget-title-font-weight, var(--vc-heading-font-weight, theme("fontWeight.bold")));
+    text-transform: var(--vc-widget-title-text-transform, var(--vc-heading-text-transform, uppercase));
+    letter-spacing: var(--vc-widget-title-letter-spacing, var(--vc-heading-letter-spacing, inherit));
   }
 
   &__slot-container {
+    &:first-child {
+      @apply rounded-t-[--body-radius];
+    }
+
     // The plate's curve is a border-radius on a box whose children paint over it, so a body that runs
     // edge to edge — a table handed in through `default-container` — squares the corner off the moment
     // a row takes a fill. Only the box that ENDS the plate carries the curve; with a footer below it,
@@ -343,9 +334,9 @@ watchEffect(() => {
     // instead: `--vc-table-flush-radius` is the kit's channel for that, and the radius below is for a
     // body that paints a background of its own.
     &:last-child {
-      --vc-table-flush-radius: var(--radius);
+      --vc-table-flush-radius: var(--body-radius);
 
-      border-radius: 0 0 var(--radius) var(--radius);
+      @apply rounded-b-[--body-radius];
     }
   }
 
@@ -393,12 +384,10 @@ watchEffect(() => {
   }
 
   &__footer-container {
-    @apply empty:hidden;
+    @apply rounded-b-[--inner-radius] empty:hidden;
 
-    &,
     & > * {
-      // The same curve the header takes, at the other end of the plate.
-      border-radius: 0 0 var(--radius) var(--radius);
+      @apply rounded-b-[--inner-radius];
     }
   }
 

@@ -4,14 +4,16 @@
       "fork": [
         "client-app/shared/layout/components/header/_internal/header-plate.vue",
         "client-app/shared/layout/components/header/_internal/header-account-menu.vue",
-        "client-app/shared/layout/components/header/_internal/header-account-menu-panel.vue"
+        "client-app/shared/layout/components/header/_internal/header-account-menu-panel.vue",
+        "client-app/shared/layout/components/header/_internal/header-organizations-menu.vue",
+        "client-app/shared/layout/components/header/_internal/header-pod.vue"
       ],
       "upstream": [
         "client-app/shared/layout/components/header/_internal/top-header.vue",
         "client-app/shared/layout/components/header/_internal/bottom-header.vue",
         "client-app/shared/layout/components/header/_internal/top-header-link.vue"
       ],
-      "note": "desktop header: one plate with the logo, catalog menu, search, links and an initials-only account button; names and organizations live in the account panel. Upstream's top-bar ship-to selector has no place in it yet"
+      "note": "desktop header: one plate with the logo, catalog menu, search, links, an organizations menu (upstream's organization list inside the theme's pod) and an initials-only account button. Upstream's top-bar ship-to selector has no place in it yet"
     },
     {
       "fork": [

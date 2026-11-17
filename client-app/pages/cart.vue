@@ -565,7 +565,7 @@ void (async () => {
   }
 
   &__mobile-action {
-    margin-top: theme("spacing.2") !important;
+    margin-top: theme("spacing.2");
   }
 }
 </style>

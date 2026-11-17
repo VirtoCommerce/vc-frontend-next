@@ -4,6 +4,7 @@
       :is="isLink ? 'a' : 'button'"
       :href="getHrefValue(href)"
       :class="['mobile-menu-link', { 'mobile-menu-link--big': big }, $attrs.class]"
+      :aria-label="getCountAriaLabel(link.title, count)"
       @click.prevent="click(navigate)"
     >
       <slot name="icon" v-bind="{ isActive, isExactActive }">
@@ -29,9 +30,7 @@
         <slot v-bind="{ isActive, isExactActive, formattedText: formatTextFunction(link.title) }" />
       </span>
 
-      <VcBadge v-if="count" variant="soft" color="neutral" rounded>
-        {{ $n(count, { style: "decimal", notation: "compact" }) }}
-      </VcBadge>
+      <HeaderBadge :count="count" variant="soft" color="neutral" />
 
       <VcIcon v-if="isParent" class="mobile-menu-link__chevron" name="chevron-right" />
     </component>
@@ -42,8 +41,10 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { getLinkAttr, isMenuLinkActive } from "@/core/utilities";
+import { useHeaderCountLabel } from "@/shared/layout/composables/useHeaderCountLabel";
 import type { ExtendedMenuLinkType } from "@/core/types";
 import type { NavigationFailure } from "vue-router";
+import HeaderBadge from "@/shared/layout/components/header-badge/header-badge.vue";
 
 interface IEmits {
   (event: "select"): void;
@@ -65,6 +66,7 @@ const props = withDefaults(defineProps<IProps>(), {
 });
 
 const route = useRoute();
+const { getCountAriaLabel } = useHeaderCountLabel();
 
 const isParent = computed<boolean>(() => !!props.link.children?.length);
 const isLink = computed<boolean>(() => !!props.link.route || !!props.link.isCatalogItem);

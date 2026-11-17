@@ -16,6 +16,7 @@ interface IProps {
   iconColor?: string;
   bgColor?: string;
   img?: string;
+  /** An icon name used as the mask. Without it the shape takes `--vc-shape-mask-image`, a polygon by default. */
   mask?: string;
   /**
    * The element to draw as. A `div` is flow content, which is invalid inside a `button` — so a
@@ -25,17 +26,15 @@ interface IProps {
 }
 
 const props = withDefaults(defineProps<IProps>(), {
-  mask: "polygon",
   img: "",
   tag: "div",
 });
 
-const iconUrl = computed(() => getIconUrl(props.mask));
 const imgUrl = computed(() => getImageUrl(props.img));
 
 const style = computed(() => ({
   backgroundImage: props.img ? `url("${imgUrl.value}")` : "none",
-  maskImage: iconUrl.value ? `url("${iconUrl.value}")` : "none",
+  maskImage: props.mask ? `url("${getIconUrl(props.mask)}")` : undefined,
 }));
 
 const _bgColor = computed(() => getColorValue(props.bgColor));
@@ -59,6 +58,7 @@ const _iconColor = computed(() => getColorValue(props.iconColor));
 
   @apply relative flex items-center justify-center size-[--size] bg-[--bg-color] bg-cover bg-center;
 
+  mask-image: var(--vc-shape-mask-image, url("../../../icons/solid/polygon.svg"));
   mask-repeat: no-repeat;
   mask-position: center;
   mask-size: contain;

@@ -1,10 +1,17 @@
 import { mount } from "@vue/test-utils";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createMemoryHistory, createRouter } from "vue-router";
 import MobileMenuLink from "./mobile-menu-link.vue";
 import type { ExtendedMenuLinkType } from "@/core/types";
 import type { VueWrapper } from "@vue/test-utils";
 import type { RouteLocationNormalizedLoaded, Router } from "vue-router";
+
+vi.mock("vue-i18n", () => ({
+  useI18n: () => ({
+    t: (key: string, params?: Record<string, unknown>) => (params ? `${key} ${JSON.stringify(params)}` : key),
+    n: (value: number) => String(value),
+  }),
+}));
 
 const Page = { template: "<div />" };
 
