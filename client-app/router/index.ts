@@ -5,11 +5,13 @@ import { ROUTES } from "@/router/routes/constants";
 import { useUser } from "@/shared/account";
 import { saveUcpContinuation } from "@/shared/checkout/ucp/continuation";
 import { mainRoutes } from "./routes";
-import type { RouteRecordName } from "vue-router";
+import type { RouteLocationNormalized, RouteLocationRaw, RouteRecordName } from "vue-router";
+
+const AWAITING_APPROVAL_ROUTE_NAME = "AwaitingApproval";
 
 export function createRouter(options: { base: string }) {
   const { base } = options;
-  const { isAuthenticated, organization } = useUser();
+  const { isAuthenticated, isAwaitingApproval, organization } = useUser();
   const { themeContext } = useThemeContext();
 
   const router = _createRouter({
@@ -23,6 +25,19 @@ export function createRouter(options: { base: string }) {
       }
     },
   });
+
+  // A customer not yet approved by the store admin sees only the waiting page (and the public pages)
+  function getApprovalRedirect(to: RouteLocationNormalized): RouteLocationRaw | undefined {
+    if (isAwaitingApproval.value && !to.meta.public && to.name !== AWAITING_APPROVAL_ROUTE_NAME) {
+      return { name: AWAITING_APPROVAL_ROUTE_NAME };
+    }
+
+    if (to.name === AWAITING_APPROVAL_ROUTE_NAME && !isAwaitingApproval.value) {
+      return { name: ROUTES.CATALOG.NAME };
+    }
+
+    return undefined;
+  }
 
   router.beforeEach((to, _, next) => {
     const isCheckout = to.matched.some((route) => route.name === "Checkout");
@@ -53,6 +68,11 @@ export function createRouter(options: { base: string }) {
         name: ROUTES.SIGN_IN.NAME,
         query,
       });
+    }
+
+    const approvalRedirect = getApprovalRedirect(to);
+    if (approvalRedirect) {
+      return next(approvalRedirect);
     }
 
     // Protecting company routes

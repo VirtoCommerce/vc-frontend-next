@@ -2431,6 +2431,7 @@ type GetMeQuery = {
             firstName: string;
             lastName: string;
             fullName: string;
+            status?: string;
             organizationId?: string;
             defaultLanguage?: string;
             currencyCode?: string;
@@ -3682,6 +3683,8 @@ interface IThemeConfigSettings {
     };
     image_carousel_in_product_card_enabled?: boolean;
     registration_enabled?: boolean;
+    /** Only customers whose contact status is Approved get past sign-in; others see the awaiting-approval page. */
+    require_contact_approval?: boolean;
     social_auth_google?: boolean;
     social_auth_twitter?: boolean;
     social_auth_ad?: boolean;
@@ -5339,6 +5342,7 @@ declare function _useUser(): {
             fullName: string;
         };
     } | null>;
+    isAwaitingApproval: vue.ComputedRef<boolean>;
     userGroups: vue.ComputedRef<string[]>;
     checkPermissions: (...permissions: string[]) => boolean;
     fetchUser: (options?: {
@@ -5379,6 +5383,7 @@ declare function _useUser(): {
             firstName: string;
             lastName: string;
             fullName: string;
+            status?: string;
             organizationId?: string;
             defaultLanguage?: string;
             currencyCode?: string;
@@ -5421,6 +5426,7 @@ declare function _useUser(): {
             firstName: string;
             lastName: string;
             fullName: string;
+            status?: string;
             organizationId?: string;
             defaultLanguage?: string;
             currencyCode?: string;

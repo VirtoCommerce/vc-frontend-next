@@ -76,6 +76,14 @@ function reportOptionalChunkFailure(error: unknown): undefined {
   return undefined;
 }
 
+function canBrowseCatalog(
+  isAuthenticated: boolean,
+  isAwaitingApproval: boolean,
+  anonymousUsersAllowed: boolean,
+): boolean {
+  return (isAuthenticated && !isAwaitingApproval) || anonymousUsersAllowed;
+}
+
 // eslint-disable-next-line no-restricted-exports
 export default async () => {
   const appSelector = "#app";
@@ -110,7 +118,7 @@ export default async () => {
 
   app.use(authPlugin);
 
-  const { setUser, user, isAuthenticated, savedUserId, checkPermissions } = useUser();
+  const { setUser, user, isAuthenticated, isAwaitingApproval, savedUserId, checkPermissions } = useUser();
   const { themeContext, addPresetToThemeContext, setThemeContext } = useThemeContext();
   const {
     currentLanguage,
@@ -267,7 +275,13 @@ export default async () => {
   // Transitional: `icon_variant` eases client migration to outline; slated for removal (outline-only default).
   setDefaultIconVariant(themeContext.value.settings.icon_variant ?? "outline");
 
-  if (isAuthenticated.value || themeContext.value.storeSettings.anonymousUsersAllowed) {
+  if (
+    canBrowseCatalog(
+      isAuthenticated.value,
+      isAwaitingApproval.value,
+      themeContext.value.storeSettings.anonymousUsersAllowed,
+    )
+  ) {
     void fetchCatalogMenu();
   }
 

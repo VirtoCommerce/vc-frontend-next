@@ -408,6 +408,8 @@ export interface IThemeConfigSettings {
   image_carousel_in_product_card_enabled?: boolean;
 
   registration_enabled?: boolean;
+  /** Only customers whose contact status is Approved get past sign-in; others see the awaiting-approval page. */
+  require_contact_approval?: boolean;
   social_auth_google?: boolean;
   social_auth_twitter?: boolean;
   social_auth_ad?: boolean;
