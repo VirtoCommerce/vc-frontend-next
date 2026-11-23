@@ -1950,10 +1950,10 @@
     },
     "awaiting_approval": {
       "meta": {
-        "title": "Awaiting approval"
+        "title": "Aguardando aprovação"
       },
-      "title": "Your account is awaiting approval",
-      "message": "Thanks for registering. The catalog opens as soon as the store team approves your account. We will let you know by email."
+      "title": "Sua conta está aguardando aprovação",
+      "message": "Obrigado por se cadastrar. O catálogo ficará disponível assim que a equipe da loja aprovar sua conta. Avisaremos você por e-mail."
     },
     "brands": {
       "top_brands_title": "Melhores marcas",

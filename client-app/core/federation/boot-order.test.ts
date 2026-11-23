@@ -59,6 +59,7 @@ vi.mock("@/shared/account", () => ({
     user: ref({ id: "u1", userName: "u", contact: { organizationId: "o" } }),
     isAuthenticated: ref(false),
     isAwaitingApproval: ref(false),
+    canBrowseCatalog: ref(false),
     savedUserId: ref(undefined),
     checkPermissions: vi.fn(() => true),
   }),

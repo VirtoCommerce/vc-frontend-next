@@ -74,7 +74,16 @@ describe("router guard — customers awaiting approval", () => {
     await router.push("/catalog");
     await router.isReady();
 
-    expect(router.currentRoute.value.name).toBe("AwaitingApproval");
+    expect(router.currentRoute.value.name).toBe(ROUTES.AWAITING_APPROVAL.NAME);
+  });
+
+  // The password-expiry modal sends the customer to the form; sending them back would loop.
+  test("lets a customer awaiting approval change their password", async () => {
+    const router = createRouter({ base: "/" });
+    await router.push("/change-password");
+    await router.isReady();
+
+    expect(router.currentRoute.value.name).toBe(ROUTES.CHANGE_PASSWORD.NAME);
   });
 
   test("leaves public pages alone while awaiting approval", async () => {

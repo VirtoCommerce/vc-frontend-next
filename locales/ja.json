@@ -1950,10 +1950,10 @@
     },
     "awaiting_approval": {
       "meta": {
-        "title": "Awaiting approval"
+        "title": "承認待ち"
       },
-      "title": "Your account is awaiting approval",
-      "message": "Thanks for registering. The catalog opens as soon as the store team approves your account. We will let you know by email."
+      "title": "アカウントは承認待ちです",
+      "message": "ご登録ありがとうございます。ストアのスタッフがアカウントを承認すると、カタログをご覧いただけるようになります。承認されましたらメールでお知らせします。"
     },
     "brands": {
       "top_brands_title": "人気ブランド",

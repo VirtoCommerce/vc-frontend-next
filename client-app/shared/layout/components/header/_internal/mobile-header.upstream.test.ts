@@ -5,7 +5,7 @@ import { createMemoryHistory, createRouter } from "vue-router";
 import MobileHeader from "./mobile-header.vue";
 import HeaderBadge from "@/shared/layout/components/header-badge/header-badge.vue";
 
-const mocks = vi.hoisted(() => ({ itemsQuantity: 0 }));
+const mocks = vi.hoisted(() => ({ itemsQuantity: 0, canBrowseCatalog: true }));
 
 vi.mock("vue-i18n", () => ({
   useI18n: () => ({
@@ -15,6 +15,8 @@ vi.mock("vue-i18n", () => ({
 }));
 
 vi.mock("@/core/composables", () => ({ useWhiteLabeling: () => ({ themeLogoUrl: ref("") }) }));
+
+vi.mock("@/shared/account", () => ({ useUser: () => ({ canBrowseCatalog: ref(mocks.canBrowseCatalog) }) }));
 
 vi.mock("@/shared/cart", () => ({ useShortCart: () => ({ cart: ref({ itemsQuantity: mocks.itemsQuantity }) }) }));
 
@@ -67,6 +69,7 @@ const cartLink = (wrapper: Awaited<ReturnType<typeof mountHeader>>) => wrapper.g
 describe("MobileHeader cart count", () => {
   beforeEach(() => {
     mocks.itemsQuantity = 0;
+    mocks.canBrowseCatalog = true;
   });
 
   it("names the cart link with the full count and caps the badge at 99+", async () => {
@@ -83,5 +86,28 @@ describe("MobileHeader cart count", () => {
 
     expect(cartLink(wrapper).attributes("aria-label")).toBe("common.links.cart");
     expect(cartLink(wrapper).findComponent(HeaderBadge).text()).toBe("");
+  });
+});
+
+describe("MobileHeader search", () => {
+  const searchButton = (wrapper: Awaited<ReturnType<typeof mountHeader>>) =>
+    wrapper.find("button[aria-label='common.labels.toggle_search_bar']");
+
+  beforeEach(() => {
+    mocks.canBrowseCatalog = true;
+  });
+
+  it("offers search to a customer who can browse the catalog", async () => {
+    const wrapper = await mountHeader(0);
+
+    expect(searchButton(wrapper).exists()).toBe(true);
+  });
+
+  it("offers no search to a customer awaiting approval", async () => {
+    mocks.canBrowseCatalog = false;
+    const wrapper = await mountHeader(0);
+
+    expect(searchButton(wrapper).exists()).toBe(false);
+    expect(wrapper.findComponent({ name: "MobileSearchBar" }).exists()).toBe(false);
   });
 });

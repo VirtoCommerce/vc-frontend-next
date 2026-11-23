@@ -1950,10 +1950,10 @@
     },
     "awaiting_approval": {
       "meta": {
-        "title": "Awaiting approval"
+        "title": "Väntar på godkännande"
       },
-      "title": "Your account is awaiting approval",
-      "message": "Thanks for registering. The catalog opens as soon as the store team approves your account. We will let you know by email."
+      "title": "Ditt konto väntar på godkännande",
+      "message": "Tack för din registrering. Katalogen blir tillgänglig så snart butiksteamet har godkänt ditt konto. Vi meddelar dig via e-post."
     },
     "brands": {
       "top_brands_title": "Toppmärken",

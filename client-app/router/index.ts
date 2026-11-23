@@ -7,8 +7,6 @@ import { saveUcpContinuation } from "@/shared/checkout/ucp/continuation";
 import { mainRoutes } from "./routes";
 import type { RouteLocationNormalized, RouteLocationRaw, RouteRecordName } from "vue-router";
 
-const AWAITING_APPROVAL_ROUTE_NAME = "AwaitingApproval";
-
 export function createRouter(options: { base: string }) {
   const { base } = options;
   const { isAuthenticated, isAwaitingApproval, organization } = useUser();
@@ -26,13 +24,20 @@ export function createRouter(options: { base: string }) {
     },
   });
 
+  // Routes a customer awaiting approval may still open: the waiting page itself, and the password form
+  // (an expired password sends them there, and they would otherwise be sent back here in a loop).
+  const AWAITING_APPROVAL_ALLOWED_ROUTES: RouteRecordName[] = [
+    ROUTES.AWAITING_APPROVAL.NAME,
+    ROUTES.CHANGE_PASSWORD.NAME,
+  ];
+
   // A customer not yet approved by the store admin sees only the waiting page (and the public pages)
   function getApprovalRedirect(to: RouteLocationNormalized): RouteLocationRaw | undefined {
-    if (isAwaitingApproval.value && !to.meta.public && to.name !== AWAITING_APPROVAL_ROUTE_NAME) {
-      return { name: AWAITING_APPROVAL_ROUTE_NAME };
+    if (isAwaitingApproval.value && !to.meta.public && !AWAITING_APPROVAL_ALLOWED_ROUTES.includes(to.name ?? "")) {
+      return { name: ROUTES.AWAITING_APPROVAL.NAME };
     }
 
-    if (to.name === AWAITING_APPROVAL_ROUTE_NAME && !isAwaitingApproval.value) {
+    if (to.name === ROUTES.AWAITING_APPROVAL.NAME && !isAwaitingApproval.value) {
       return { name: ROUTES.CATALOG.NAME };
     }
 

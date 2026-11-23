@@ -23,7 +23,7 @@
           <VcIcon v-if="catalogMenuItems.length" :name="catalogButtonIcon" size="xxs" />
         </a>
 
-        <SearchBar class="header-plate__search" />
+        <SearchBar v-if="canBrowseCatalog" class="header-plate__search" />
 
         <ul class="header-plate__links">
           <li v-for="item in desktopMainMenuItems" :key="item.id" :data-test-id="item.dataTestId">
@@ -100,7 +100,7 @@ defineProps<IProps>();
 
 const router = useRouter();
 const route = useRoute();
-const { isAuthenticated, isMultiOrganization } = useUser();
+const { isAuthenticated, isMultiOrganization, canBrowseCatalog } = useUser();
 const { themeLogoUrl } = useWhiteLabeling();
 const { catalogMenuItems, desktopMainMenuItems } = useNavigations();
 

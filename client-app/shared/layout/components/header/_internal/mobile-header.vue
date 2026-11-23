@@ -34,6 +34,7 @@
 
             <div v-else class="mobile-header__side mobile-header__side--end">
               <button
+                v-if="canBrowseCatalog"
                 :aria-label="$t('common.labels.toggle_search_bar')"
                 type="button"
                 class="mobile-header__button"
@@ -62,7 +63,7 @@
         <!-- endregion Default slot -->
 
         <!-- region Mobile Search Bar -->
-        <MobileSearchBar :visible="searchBarVisible" />
+        <MobileSearchBar v-if="canBrowseCatalog" :visible="searchBarVisible" />
         <!-- endregion Mobile Search Bar -->
       </div>
     </div>
@@ -79,6 +80,7 @@ import { syncRefs, useCssVar, useElementSize, useScrollLock } from "@vueuse/core
 import { computed, nextTick, ref, watch } from "vue";
 import { useWhiteLabeling } from "@/core/composables";
 import { ROUTES } from "@/router/routes/constants";
+import { useUser } from "@/shared/account";
 import { useShortCart } from "@/shared/cart";
 import { useNestedMobileHeader } from "@/shared/layout";
 import { useHeaderCountLabel } from "@/shared/layout/composables/useHeaderCountLabel";
@@ -95,6 +97,7 @@ const { stuck } = useStuckPlate(plate);
 
 const { customSlots, isAnimated } = useNestedMobileHeader();
 const { searchBarVisible, toggleSearchBar } = useSearchBar();
+const { canBrowseCatalog } = useUser();
 const { getCountLabel } = useHeaderCountLabel();
 
 const { height } = useElementSize(plate);

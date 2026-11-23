@@ -5,7 +5,7 @@ import HeaderPlate from "./header-plate.vue";
 import ExtensionPointList from "@/shared/common/components/extension-point-list.vue";
 import ExtensionPoint from "@/shared/common/components/extension-point.vue";
 
-const h = vi.hoisted(() => ({ isAuthenticated: true }));
+const h = vi.hoisted(() => ({ isAuthenticated: true, canBrowseCatalog: true }));
 
 vi.mock("vue-router", () => ({
   useRoute: () => ({ path: "/" }),
@@ -19,7 +19,12 @@ vi.mock("@/core/composables", () => ({
 
 vi.mock("@/shared/account/composables/useUser", async () => {
   const { computed } = await import("vue");
-  return { useUser: () => ({ isAuthenticated: computed(() => h.isAuthenticated) }) };
+  return {
+    useUser: () => ({
+      isAuthenticated: computed(() => h.isAuthenticated),
+      canBrowseCatalog: computed(() => h.canBrowseCatalog),
+    }),
+  };
 });
 
 vi.mock("@/shared/layout/composables/useStuckPlate", () => ({
@@ -73,5 +78,19 @@ describe("HeaderPlate status slot", () => {
 
     expect(end.find("[data-test-id='punchout-mode-label']").exists()).toBe(true);
     expect(end.html().indexOf("punchout-mode-label")).toBeLessThan(end.html().indexOf("account-menu"));
+  });
+});
+
+describe("HeaderPlate search", () => {
+  it("shows the search bar to a customer who can browse the catalog", () => {
+    h.canBrowseCatalog = true;
+
+    expect(mountPlate().find(".header-plate__search").exists()).toBe(true);
+  });
+
+  it("hides the search bar from a customer awaiting approval", () => {
+    h.canBrowseCatalog = false;
+
+    expect(mountPlate().find(".header-plate__search").exists()).toBe(false);
   });
 });

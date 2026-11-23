@@ -74,6 +74,12 @@ export function _useUser() {
       status: user.value?.contact?.status,
     }),
   );
+  // Whether the catalog (menu, mega-menu, search) is shown: never to a customer awaiting approval.
+  const canBrowseCatalog = computed<boolean>(
+    () =>
+      !isAwaitingApproval.value &&
+      (isAuthenticated.value || !!themeContext.value?.storeSettings?.anonymousUsersAllowed),
+  );
 
   const broadcast = useBroadcast();
   const { refresh, errors: authErrors } = useAuth();
@@ -402,6 +408,7 @@ export function _useUser() {
     organization,
     operator,
     isAwaitingApproval,
+    canBrowseCatalog,
     userGroups,
     checkPermissions,
     fetchUser,

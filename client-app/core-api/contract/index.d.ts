@@ -5060,6 +5060,10 @@ declare const ROUTES: {
         readonly NAME: "ChangePassword";
         readonly PATH: "/change-password";
     };
+    readonly AWAITING_APPROVAL: {
+        readonly NAME: "AwaitingApproval";
+        readonly PATH: "/awaiting-approval";
+    };
     readonly SAVED_FOR_LATER: {
         readonly NAME: "SavedForLater";
     };
@@ -5343,6 +5347,7 @@ declare function _useUser(): {
         };
     } | null>;
     isAwaitingApproval: vue.ComputedRef<boolean>;
+    canBrowseCatalog: vue.ComputedRef<boolean>;
     userGroups: vue.ComputedRef<string[]>;
     checkPermissions: (...permissions: string[]) => boolean;
     fetchUser: (options?: {

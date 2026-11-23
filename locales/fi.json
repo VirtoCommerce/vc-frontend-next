@@ -1950,10 +1950,10 @@
     },
     "awaiting_approval": {
       "meta": {
-        "title": "Awaiting approval"
+        "title": "Odottaa hyväksyntää"
       },
-      "title": "Your account is awaiting approval",
-      "message": "Thanks for registering. The catalog opens as soon as the store team approves your account. We will let you know by email."
+      "title": "Tilisi odottaa hyväksyntää",
+      "message": "Kiitos rekisteröitymisestä. Luettelo avautuu, kun kaupan tiimi on hyväksynyt tilisi. Ilmoitamme siitä sähköpostitse."
     },
     "brands": {
       "top_brands_title": "Huippumerkit",

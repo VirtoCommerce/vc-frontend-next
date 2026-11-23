@@ -74,14 +74,10 @@ watch([headerHeight, isMobile], ([value, mobile]) => {
   appHeaderHeightVar.value = `${value}px`;
 });
 
-const { isAuthenticated } = useUser();
+const { canBrowseCatalog } = useUser();
 
 const isMegaMenuShown = computed(() => {
-  return (
-    MEGA_MENU_ENABLED &&
-    desktopMenuMode.value === DESKTOP_MENU_MODES.horizontal &&
-    (isAuthenticated.value || themeContext.value.storeSettings.anonymousUsersAllowed)
-  );
+  return MEGA_MENU_ENABLED && desktopMenuMode.value === DESKTOP_MENU_MODES.horizontal && canBrowseCatalog.value;
 });
 </script>
 

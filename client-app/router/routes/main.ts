@@ -65,8 +65,8 @@ export const mainRoutes: RouteRecordRaw[] = [
   { path: "/set-password", name: "SetPassword", component: ResetPassword, meta: { public: true } },
   { path: "/blocked", name: "Blocked", component: BlockedPage, meta: { public: true, redirectable: false } },
   {
-    path: "/awaiting-approval",
-    name: "AwaitingApproval",
+    path: ROUTES.AWAITING_APPROVAL.PATH,
+    name: ROUTES.AWAITING_APPROVAL.NAME,
     component: AwaitingApprovalPage,
     meta: { requiresAuth: true, redirectable: false },
   },

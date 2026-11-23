@@ -1950,10 +1950,10 @@
     },
     "awaiting_approval": {
       "meta": {
-        "title": "Awaiting approval"
+        "title": "Venter på godkjenning"
       },
-      "title": "Your account is awaiting approval",
-      "message": "Thanks for registering. The catalog opens as soon as the store team approves your account. We will let you know by email."
+      "title": "Kontoen din venter på godkjenning",
+      "message": "Takk for at du registrerte deg. Katalogen blir tilgjengelig så snart butikkteamet har godkjent kontoen din. Vi gir deg beskjed på e-post."
     },
     "brands": {
       "top_brands_title": "Toppmerker",
