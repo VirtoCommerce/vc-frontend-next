@@ -7,3 +7,11 @@
 @layer theme {
   @include meta.load-css("../client-app/assets/styles/colors");
 }
+
+// The fork's paprika look, loaded as the app's main.scss loads it: component rules in vc.app, tokens unlayered.
+@layer vc.app {
+  @include meta.load-css("../client-app/assets/styles/paprika-components");
+}
+
+@include meta.load-css("../client-app/assets/styles/color-mode-switch");
+@include meta.load-css("../client-app/assets/styles/paprika");
