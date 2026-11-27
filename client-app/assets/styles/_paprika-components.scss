@@ -322,6 +322,12 @@ html.dark {
   }
 }
 
+// A widget's collapse chevron takes the header's ink, not the accent: VcIcon's own colour, which the kit's
+// `text-primary` on the chevron used to lose to by load order.
+:where(.vc-widget__append-icon) {
+  color: var(--color);
+}
+
 // The design's wide rung: the column goes 1550 -> 1900 and nothing else moves — the gutter
 // stays 32, so the container needs 1964 of window before the column reaches 1900. The header
 // and footer shells read the same var and travel with it.
