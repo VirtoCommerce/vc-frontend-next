@@ -165,7 +165,9 @@ syncRefs(isScrollLocked, scrollLock);
 
   --glass: var(--header-plate-glass, var(--header-bottom-bg-color));
 
-  @apply sticky z-40;
+  @apply sticky z-40 mx-auto;
+
+  inline-size: var(--vc-frame-header-width, 100%);
 
   // The gutters and the step above the plate are air; an element there would swallow taps meant
   // for the page under it. The plate takes the events back.
