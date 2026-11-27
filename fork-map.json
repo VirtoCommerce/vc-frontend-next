@@ -56,6 +56,14 @@
       ],
       "upstream": [],
       "note": "fork-only additions that replace no upstream file"
+    },
+    {
+      "fork": ["client-app/core/composables/useWhiteLabeling.ts"],
+      "upstream": [
+        "client-app/shared/layout/composables/useHeaderLogo.ts",
+        "client-app/shared/layout/composables/useFooterLogo.ts"
+      ],
+      "note": "one logo per colour mode: useWhiteLabeling().themeLogoUrl (the inverted logo in dark mode, always) serves the theme's header, mobile header, light footer, minimal and secure headers; upstream switches to the dark logo only when a Site Builder theme is applied and gives its dark footer the inverted logo"
     }
   ]
 }
