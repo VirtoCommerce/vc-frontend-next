@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { computed, nextTick, ref } from "vue";
+import { KeepAlive, computed, defineComponent, h as render, nextTick, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import HeaderPlate from "./header-plate.vue";
 import type { ExtendedMenuLinkType } from "@/core/types";
@@ -15,6 +15,7 @@ type HoistedType = {
   isMultiOrganization: boolean;
   entries: Record<string, Record<string, EntryType>>;
   menuItems: { value: ExtendedMenuLinkType[] };
+  catalogMenuItems: { value: ExtendedMenuLinkType[] };
   iconsMenuLinks: { value: ExtendedMenuLinkType[] | undefined };
 };
 
@@ -23,6 +24,7 @@ const h = vi.hoisted((): HoistedType => ({
   isMultiOrganization: false,
   entries: {},
   menuItems: { value: [] },
+  catalogMenuItems: { value: [] },
   iconsMenuLinks: { value: undefined },
 }));
 
@@ -50,7 +52,7 @@ const MY_LIST: ExtendedMenuLinkType = { id: "my-list", title: "My list", route: 
 const ORGANIZATIONS: ExtendedMenuLinkType = { id: "organizations", title: "Organizations", icon: "case" };
 
 vi.mock("@/core/composables", () => ({
-  useNavigations: () => ({ catalogMenuItems: ref([]), desktopMainMenuItems: h.menuItems }),
+  useNavigations: () => ({ catalogMenuItems: h.catalogMenuItems, desktopMainMenuItems: h.menuItems }),
   useWhiteLabeling: () => ({ themeLogoUrl: ref("") }),
 }));
 
@@ -95,7 +97,7 @@ vi.mock("vue-i18n", () => ({
 
 const VcBadgeStub = { name: "VcBadge", template: "<span><slot /></span>" };
 
-function mountPlate() {
+function mountPlate(root: object = HeaderPlate) {
   const page = { render: () => null };
   const router = createRouter({
     history: createMemoryHistory(),
@@ -108,7 +110,7 @@ function mountPlate() {
     ],
   });
 
-  return mount(HeaderPlate, {
+  return mount(root, {
     global: {
       plugins: [router],
       components: { ExtensionPoint, ExtensionPointList },
@@ -144,6 +146,7 @@ beforeEach(() => {
   h.isMultiOrganization = false;
   h.entries = STATUS_ENTRIES;
   h.menuItems.value = [];
+  h.catalogMenuItems.value = [];
   h.iconsMenuLinks.value = undefined;
 });
 
@@ -245,5 +248,39 @@ describe("HeaderPlate organizations", () => {
     h.menuItems.value = [BUILT_IN_CART];
 
     expect(mountPlate().find("[data-test-id='organizations-menu']").exists()).toBe(false);
+  });
+});
+
+describe("HeaderPlate kept alive", () => {
+  const shown = ref(true);
+  const Host = defineComponent({
+    setup: () => () =>
+      render(KeepAlive, null, [
+        shown.value ? render(HeaderPlate, { isCatalogButtonShown: true }) : render("div", { class: "other-page" }),
+      ]),
+  });
+
+  beforeEach(() => {
+    shown.value = true;
+    h.entries = {};
+    h.catalogMenuItems.value = [{ id: "laptops", title: "Laptops", route: "/laptops" }];
+  });
+
+  it("closes the catalog menu and lets the page scroll when a page without the header takes over", async () => {
+    const wrapper = mountPlate(Host);
+    await wrapper.get(".header-plate__catalog").trigger("click");
+    expect(wrapper.get(".header-plate__catalog").attributes("aria-expanded")).toBe("true");
+    expect(document.body.style.overflow).toBe("hidden");
+
+    shown.value = false;
+    await nextTick();
+
+    expect(document.body.style.overflow).not.toBe("hidden");
+
+    shown.value = true;
+    await nextTick();
+
+    expect(wrapper.get(".header-plate__catalog").attributes("aria-expanded")).toBe("false");
+    wrapper.unmount();
   });
 });

@@ -5,10 +5,11 @@ import { VcPopover } from "@/ui-kit/components/molecules";
 import HeaderOrganizationsMenu from "./header-organizations-menu.vue";
 import type { VueWrapper } from "@vue/test-utils";
 
-const { organization } = await vi.hoisted(async () => {
+const { organization, listMounted } = await vi.hoisted(async () => {
   const { ref } = await import("vue");
   return {
     organization: ref<{ id: string; name: string } | undefined>(),
+    listMounted: vi.fn(),
   };
 });
 
@@ -24,6 +25,11 @@ vi.mock("./organization-list.vue", () => ({
   default: defineComponent({
     name: "OrganizationList",
     emits: { organizationSelected: () => true },
+
+    setup: () => {
+      listMounted();
+    },
+
     template: `<button class="test-choose" type="button" @click="$emit('organizationSelected')">Org 2</button>`,
   }),
 }));
@@ -64,6 +70,7 @@ async function open(wrapper: VueWrapper): Promise<void> {
 
 beforeEach(() => {
   organization.value = { id: "org-1", name: "Northwind Traders" };
+  listMounted.mockClear();
 });
 
 describe("HeaderOrganizationsMenu", () => {
@@ -96,5 +103,16 @@ describe("HeaderOrganizationsMenu", () => {
 
     expect(trigger(wrapper).attributes("aria-expanded")).toBe("false");
     expect(document.activeElement).toBe(next);
+  });
+
+  it("mounts the list afresh on every open, so it refetches and drops a previous switch error", async () => {
+    const wrapper = mountPage();
+    await open(wrapper);
+    await wrapper.get(".test-choose").trigger("click");
+    await flushPromises();
+
+    await open(wrapper);
+
+    expect(listMounted).toHaveBeenCalledTimes(2);
   });
 });
