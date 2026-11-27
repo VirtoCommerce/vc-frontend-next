@@ -96,7 +96,6 @@
     <VcWidget v-else class="orders__plate" size="lg">
       <template #default-container>
         <OrdersTable
-          bordered
           class="orders__table"
           :loading="ordersLoading"
           :orders="orders"
@@ -104,6 +103,7 @@
           :pages="pages"
           :page="page"
           :order-scope="orderScope"
+          bordered
           @header-click="applySorting"
           @page-changed="changePage"
           @row-click="goToOrderDetails"

@@ -8,10 +8,12 @@
     <component
       :is="link.route ? 'a' : 'button'"
       v-bind="$attrs"
-      :href="href"
+      :href="externalUrl ?? href"
+      :target="externalUrl ? '_blank' : undefined"
+      :rel="externalUrl ? 'noopener noreferrer' : undefined"
       :class="['bottom-header-link', { 'bottom-header-link--active': isActive && link.route }]"
       :aria-label="getCountAriaLabel(link.title, count)"
-      @click="(e: MouseEvent) => (link.route ? navigate(e) : undefined)"
+      @click="(e: MouseEvent) => (link.route && !externalUrl ? navigate(e) : undefined)"
     >
       <span class="bottom-header-link__mark">
         <slot name="icon">
@@ -29,6 +31,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+import { getLinkAttr, isSafeLinkUrl } from "@/core/utilities/common";
 import { useHeaderCountLabel } from "@/shared/layout/composables/useHeaderCountLabel";
 import type { ExtendedMenuLinkType } from "@/core/types";
 import HeaderBadge from "@/shared/layout/components/header-badge/header-badge.vue";
@@ -42,11 +46,19 @@ defineOptions({
   inheritAttrs: false,
 });
 
-withDefaults(defineProps<IProps>(), {
+const props = withDefaults(defineProps<IProps>(), {
   count: 0,
 });
 
 const { getCountAriaLabel } = useHeaderCountLabel();
+
+const externalUrl = computed(() => {
+  const { route } = props.link;
+
+  return typeof route === "string" && route && "externalLink" in getLinkAttr(route) && isSafeLinkUrl(route)
+    ? route
+    : undefined;
+});
 </script>
 
 <style lang="scss">

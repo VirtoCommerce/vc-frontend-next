@@ -20,7 +20,13 @@
     </template>
 
     <!-- Desktop columns: the four the design draws — number, date, status, total -->
-    <VcTableColumn id="number" v-slot="{ item }" :title="$t('pages.account.orders.order_number_label')" sortable strong>
+    <VcTableColumn
+      id="number"
+      v-slot="{ item }"
+      :title="$t('pages.account.orders.order_number_label')"
+      sortable
+      row-header
+    >
       {{ item.number }}
     </VcTableColumn>
 
@@ -48,7 +54,6 @@
 
 <script setup lang="ts">
 import { getDisplayTotals } from "@/core/utilities";
-import { VcTableColumn } from "@/ui-kit/components/organisms";
 import OrderCard from "../order-card.vue";
 import OrderStatus from "../order-status.vue";
 import type { OrderScopeType } from "../../types";

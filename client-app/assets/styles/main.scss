@@ -5,14 +5,10 @@
   @tailwind components;
 }
 
+@include meta.load-css("@/ui-kit/styles");
+
 @layer theme {
   @include meta.load-css("colors");
-  @include meta.load-css("ui-kit-tokens");
-
-  :root {
-    //Recommended maximum border-radius: 10px (0.625rem)
-    --vc-radius: 0.5rem;
-  }
 }
 
 @layer vc.app {
@@ -23,11 +19,14 @@
     scroll-padding-top: var(--vc-app-header-height, 0px);
   }
 
-  @include meta.load-css("dark-app");
-}
+  // Only the overscroll area outside VcFrame (the rubber band); the frame paints its own canvas.
+  @media screen {
+    body {
+      @apply bg-[var(--vc-frame-bg-color,transparent)];
+    }
+  }
 
-@layer vc.kit {
-  @include meta.load-css("dark-kit");
+  @include meta.load-css("dark-app");
 }
 
 @layer vc.print {

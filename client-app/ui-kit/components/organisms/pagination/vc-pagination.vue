@@ -188,9 +188,7 @@ const setPage = (page: number) => {
   }
 
   &__pages {
-    // The numbers are round controls, not a strip: without a gap two circles meet and read as one
-    // capsule with a rule through it. 8 is the step the design gives this row.
-    @apply order-2 flex justify-center gap-2;
+    @apply order-2 flex justify-center gap-[var(--vc-pagination-pages-gap,normal)];
 
     #{$wrapped} & {
       @apply flex-wrap;
@@ -198,24 +196,17 @@ const setPage = (page: number) => {
   }
 
   &__page {
-    // A pager is a row of controls, so the number takes the same full radius the arrows beside it
-    // already have — those are VcButtons and were rounded with everything else, while this one kept
-    // a hardcoded 4px and left two different arcs in one row. `min-width` equals the height, so a
-    // one- or two-digit page draws a true circle and "100" stretches to a pill rather than a box.
-    --radius: var(--vc-pagination-page-radius, 9999px);
-    --border: var(--vc-pagination-page-border-color, theme("colors.neutral.200"));
-    --hover-border: var(--vc-pagination-page-hover-border-color, theme("colors.primary.200"));
+    --radius: var(--vc-pagination-page-radius, theme("borderRadius.DEFAULT"));
+    // No ring until its width token is set; the colour falls back to the theme's default border colour.
+    --border-color: var(--vc-pagination-page-border-color, theme("borderColor.DEFAULT"));
+    --hover-border-color: var(--vc-pagination-page-hover-border-color, var(--border-color));
+    --ring-color: var(--border-color);
 
-    @apply flex items-center justify-center min-w-[2rem] h-8 p-1 text-xs font-bold;
+    @apply flex items-center justify-center min-w-[2rem] h-8 p-1 rounded-[--radius] text-xs font-bold
+      border-[length:var(--vc-pagination-page-border-width,0)] border-solid border-[color:var(--ring-color)];
 
-    border-radius: var(--radius);
-
-    // The ring is drawn even when the page is not the current one: white on a white plate read as a
-    // bare digit, and the row did not look like a row of round controls at all.
     &[type="button"] {
       @apply bg-additional-50 text-neutral-950;
-
-      border: 1px solid var(--border);
     }
 
     &:focus-visible {
@@ -224,23 +215,22 @@ const setPage = (page: number) => {
     }
 
     &:hover {
-      @apply bg-primary-50;
+      --ring-color: var(--hover-border-color);
 
-      border-color: var(--hover-border);
+      @apply bg-primary-50;
     }
 
     &--active {
+      --ring-color: var(--vc-pagination-page-active-border-color, var(--border-color));
+
       @apply pointer-events-none;
 
       background-color: var(--page-active-bg);
       color: var(--page-active-text);
-      border: 1px solid var(--page-active-bg);
     }
 
     &--ellipsis {
-      @apply pointer-events-none;
-
-      border: 0;
+      @apply pointer-events-none border-0 text-[color:var(--vc-pagination-ellipsis-color,currentColor)];
     }
   }
 

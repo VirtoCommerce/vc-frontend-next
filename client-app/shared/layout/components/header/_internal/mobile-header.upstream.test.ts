@@ -28,6 +28,14 @@ vi.mock("@/shared/layout/composables/useSearchBar", () => ({
 
 vi.mock("@/shared/layout/composables/useStuckPlate", () => ({ useStuckPlate: () => ({ stuck: ref(false) }) }));
 
+vi.mock("@/shared/layout/composables/useThemeChrome", () => ({
+  useThemeChrome: () => ({ logoWidth: ref(), logoStyle: ref(), siteHeader: ref() }),
+}));
+
+vi.mock("@/shared/static-content/sections", () => ({ getPreviewSectionAttrs: () => ({}) }));
+
+vi.mock("../../announcement-bar/announcement-bar.vue", () => ({ default: { template: "<div />" } }));
+
 const Page = { template: "<div />" };
 const VcBadge = { template: "<span><slot /></span>" };
 

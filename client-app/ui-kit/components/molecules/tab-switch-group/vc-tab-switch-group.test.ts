@@ -1,146 +1,267 @@
-import { flushPromises, mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { enableAutoUnmount, mount } from "@vue/test-utils";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { defineComponent, nextTick, ref } from "vue";
 import { VcTabSwitch, VcTabSwitchGroup } from "@/ui-kit/components/molecules";
 
-const CHECKED = "vc-tab-switch--checked";
+function createWrapper(initial?: string, disabled: string[] = []) {
+  return mount(
+    defineComponent({
+      components: { VcTabSwitch, VcTabSwitchGroup },
+      setup: () => ({ value: ref(initial), disabled, modes: ["light", "dark", "system"] }),
 
-// jsdom has no layout: every rect is zero, so the indicator's ARITHMETIC cannot be exercised here.
-// What is testable is the contract around it — the group's markup, and that it survives a run in an
-// environment with neither layout nor Web Animations, which is exactly where these tests execute.
-function mountGroup(props: Record<string, unknown> = {}, selected = "grid") {
-  return mount(VcTabSwitchGroup, {
-    props,
-    slots: {
-      default: [
-        `<VcTabSwitch value="grid" label="Grid" model-value="${selected}" />`,
-        `<VcTabSwitch value="list" label="List" model-value="${selected}" />`,
-      ].join(""),
-    },
-    global: {
-      components: { VcTabSwitch },
-      stubs: { VcIcon: true },
-    },
-  });
+      template: `
+        <VcTabSwitchGroup v-model="value" aria-label="Color mode">
+          <VcTabSwitch
+            v-for="mode in modes"
+            :key="mode"
+            :value="mode"
+            :label="mode"
+            :disabled="disabled.includes(mode)"
+          />
+        </VcTabSwitchGroup>
+      `,
+    }),
+    { attachTo: document.body, global: { stubs: { VcIcon: true } } },
+  );
 }
 
+function radios(wrapper: ReturnType<typeof createWrapper>) {
+  return wrapper.findAll('[role="radio"]');
+}
+
+function pill(wrapper: ReturnType<typeof createWrapper>) {
+  return wrapper.find('[data-test-id="vc-tab-switch-group-pill"]');
+}
+
+function checkedStates(wrapper: ReturnType<typeof createWrapper>) {
+  return radios(wrapper).map((radio) => radio.attributes("aria-checked"));
+}
+
+enableAutoUnmount(afterEach);
+
 describe("VcTabSwitchGroup", () => {
-  // A `fieldset` IS the group role, so the group is asserted through the element rather than through
-  // a `role` attribute — and the attribute must stay ABSENT, or it is being restated redundantly.
-  it("groups the switches for assistive technology", () => {
-    const wrapper = mountGroup({ ariaLabel: "View mode" });
+  it("renders a radiogroup whose items are radios", () => {
+    const wrapper = createWrapper("dark");
 
-    expect(wrapper.element.tagName).toBe("FIELDSET");
-    expect(wrapper.attributes("role")).toBeUndefined();
-    expect(wrapper.attributes("aria-label")).toBe("View mode");
+    expect(wrapper.findComponent(VcTabSwitchGroup).attributes("role")).toBe("radiogroup");
+    expect(checkedStates(wrapper)).toEqual(["false", "true", "false"]);
   });
 
-  it("renders the switches it was given", () => {
-    const wrapper = mountGroup();
+  it("selects the clicked item and updates the model", async () => {
+    const wrapper = createWrapper("light");
 
-    expect(wrapper.findAllComponents(VcTabSwitch)).toHaveLength(2);
+    await radios(wrapper)[2].trigger("click");
+
+    expect(checkedStates(wrapper)).toEqual(["false", "false", "true"]);
+    expect(wrapper.findComponent(VcTabSwitchGroup).emitted("change")).toEqual([["system"]]);
   });
 
-  describe("variant", () => {
-    it("is plain unless asked otherwise", () => {
-      expect(mountGroup().classes()).toContain("vc-tab-switch-group--plain");
+  it("gives the group one tab stop: the checked item", async () => {
+    const wrapper = createWrapper("dark");
+    await nextTick();
+
+    expect(radios(wrapper).map((radio) => radio.attributes("tabindex"))).toEqual(["-1", "0", "-1"]);
+  });
+
+  it("keeps every item reachable while nothing is selected", () => {
+    const wrapper = createWrapper();
+
+    expect(radios(wrapper).map((radio) => radio.attributes("tabindex"))).toEqual(["0", "0", "0"]);
+  });
+
+  it("keeps every item reachable while the value matches no item", async () => {
+    const wrapper = createWrapper("sepia");
+    await nextTick();
+
+    expect(radios(wrapper).map((radio) => radio.attributes("tabindex"))).toEqual(["0", "0", "0"]);
+  });
+
+  it("keeps the enabled items reachable while the checked item is disabled", () => {
+    const wrapper = createWrapper("dark", ["dark"]);
+
+    expect(radios(wrapper).map((radio) => radio.attributes("tabindex"))).toEqual(["0", "-1", "0"]);
+  });
+
+  it("takes a disabled item out of the tab order and does not select it", async () => {
+    const wrapper = createWrapper(undefined, ["dark"]);
+
+    expect(radios(wrapper)[1].attributes("tabindex")).toBe("-1");
+
+    await radios(wrapper)[1].trigger("click");
+
+    expect(checkedStates(wrapper)).toEqual(["false", "false", "false"]);
+    expect(wrapper.findComponent(VcTabSwitchGroup).emitted("change")).toBeUndefined();
+  });
+
+  it("gives every radio the same name", () => {
+    const names = createWrapper("light")
+      .findAll('input[type="radio"]')
+      .map((input) => input.attributes("name"));
+
+    expect(names[0]).toBeTruthy();
+    expect(new Set(names).size).toBe(1);
+  });
+
+  describe("pill", () => {
+    // jsdom has no layout and no Web Animations: each item gets a box by its label, and animate is a spy.
+    const BOXES: Record<string, { left: number; width: number }> = {
+      light: { left: 0, width: 50 },
+      dark: { left: 50, width: 60 },
+      system: { left: 110, width: 70 },
+      // Where a running slide has drawn the pill.
+      pill: { left: 20, width: 100 },
+    };
+
+    function stubLayout() {
+      const box = (el: HTMLElement) =>
+        (el.dataset.testId === "vc-tab-switch-group-pill"
+          ? BOXES.pill
+          : BOXES[el.getAttribute("aria-label") ?? ""]) ?? {
+          left: 0,
+          width: 0,
+        };
+
+      vi.spyOn(HTMLElement.prototype, "offsetLeft", "get").mockImplementation(function (this: HTMLElement) {
+        return box(this).left;
+      });
+      vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(function (this: HTMLElement) {
+        return box(this).width;
+      });
+
+      const animate = vi.fn();
+      Object.defineProperty(HTMLElement.prototype, "animate", { value: animate, configurable: true });
+
+      return animate;
+    }
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      vi.unstubAllGlobals();
+      Reflect.deleteProperty(HTMLElement.prototype, "animate");
     });
 
-    it.each(["filled", "filled-strong", "seg"])("carries the %s modifier", (variant) => {
-      expect(mountGroup({ variant }).classes()).toContain(`vc-tab-switch-group--${variant}`);
+    it("is not rendered while nothing is checked", () => {
+      const wrapper = createWrapper();
+
+      expect(pill(wrapper).exists()).toBe(false);
+    });
+
+    it("stretches over both items, then settles on the newly checked one", async () => {
+      const animate = stubLayout();
+      const wrapper = createWrapper("light");
+      await nextTick();
+
+      expect(pill(wrapper).attributes("style")).toContain("width: 50px");
+
+      await radios(wrapper)[2].trigger("click");
+
+      const [keyframes] = animate.mock.calls[0] as [Keyframe[]];
+
+      expect(keyframes).toEqual([
+        { left: "0px", width: "50px" },
+        { left: "0px", width: "180px", offset: 0.42 },
+        { left: "110px", width: "70px" },
+      ]);
+      expect(pill(wrapper).attributes("style")).toContain("left: 110px");
+    });
+
+    it("starts a move during a running slide from where the pill is drawn", async () => {
+      const animate = stubLayout();
+      animate.mockReturnValue({ playState: "running", cancel: vi.fn() });
+      const wrapper = createWrapper("light");
+      await nextTick();
+
+      await radios(wrapper)[2].trigger("click");
+      await radios(wrapper)[1].trigger("click");
+
+      const [keyframes] = animate.mock.calls[1] as [Keyframe[]];
+
+      expect(keyframes[0]).toEqual({ left: "20px", width: "100px" });
+    });
+
+    it("jumps without animation when the user prefers reduced motion", async () => {
+      vi.stubGlobal(
+        "matchMedia",
+        vi.fn((query: string) => ({
+          matches: query === "(prefers-reduced-motion: reduce)",
+          media: query,
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+        })),
+      );
+      const animate = stubLayout();
+      const wrapper = createWrapper("light");
+      await nextTick();
+
+      await radios(wrapper)[2].trigger("click");
+
+      expect(animate).not.toHaveBeenCalled();
+      expect(pill(wrapper).attributes("style")).toContain("left: 110px");
     });
   });
 
-  it("stretches to equal columns only when asked", () => {
-    expect(mountGroup().classes()).not.toContain("vc-tab-switch-group--fill");
-    expect(mountGroup({ fill: true }).classes()).toContain("vc-tab-switch-group--fill");
-  });
+  describe("keyboard", () => {
+    it("moves and selects with the arrows, wrapping at the ends", async () => {
+      const wrapper = createWrapper("light");
 
-  // The indicator is decorative and duplicates the state the switches already announce.
-  it("hides the indicator from assistive technology", () => {
-    expect(mountGroup().get(".vc-tab-switch-group__pill").attributes("aria-hidden")).toBe("true");
-  });
+      await radios(wrapper)[0].trigger("keydown", { key: "ArrowRight" });
+      expect(checkedStates(wrapper)).toEqual(["false", "true", "false"]);
 
-  describe("the indicator", () => {
-    it("does not reach for Web Animations when the environment has none", () => {
-      // jsdom provides no Element.animate; the guard is what keeps this from throwing on mount.
-      expect(() => mountGroup({ variant: "seg" })).not.toThrow();
+      await radios(wrapper)[1].trigger("keydown", { key: "ArrowDown" });
+      expect(checkedStates(wrapper)).toEqual(["false", "false", "true"]);
+
+      await radios(wrapper)[2].trigger("keydown", { key: "ArrowRight" });
+      expect(checkedStates(wrapper)).toEqual(["true", "false", "false"]);
+
+      await radios(wrapper)[0].trigger("keydown", { key: "ArrowLeft" });
+      expect(checkedStates(wrapper)).toEqual(["false", "false", "true"]);
+      expect(document.activeElement).toBe(radios(wrapper)[2].element);
+
+      await radios(wrapper)[2].trigger("keydown", { key: "ArrowUp" });
+      expect(checkedStates(wrapper)).toEqual(["false", "true", "false"]);
     });
 
-    it("leaves the indicator hidden while nothing is selected", () => {
-      const wrapper = mountGroup({ variant: "seg" }, "neither");
+    it("leaves arrows with a modifier key to the browser", async () => {
+      const wrapper = createWrapper("light");
 
-      expect(wrapper.get(".vc-tab-switch-group__pill").attributes("style")).toContain("opacity: 0");
+      await radios(wrapper)[0].trigger("keydown", { key: "ArrowRight", altKey: true });
+
+      expect(checkedStates(wrapper)).toEqual(["true", "false", "false"]);
     });
 
-    it("does not measure before the group has been laid out", () => {
-      // Zero-width box = not in flow yet. Measuring now would pin the indicator at zero and then
-      // animate away from a position it never actually had.
-      const wrapper = mountGroup({ variant: "seg" });
-      const pill = wrapper.get(".vc-tab-switch-group__pill").element as HTMLElement;
+    it("goes to the ends with Home and End", async () => {
+      const wrapper = createWrapper("dark");
 
-      expect(pill.style.left).toBe("");
-      expect(pill.style.width).toBe("");
+      await radios(wrapper)[1].trigger("keydown", { key: "End" });
+      expect(checkedStates(wrapper)).toEqual(["false", "false", "true"]);
+
+      await radios(wrapper)[2].trigger("keydown", { key: "Home" });
+      expect(checkedStates(wrapper)).toEqual(["true", "false", "false"]);
     });
-  });
 
-  it("moves the indicator when the selection changes, and animates only once it has somewhere to come from", async () => {
-    // The checked class landing on a switch is the whole signal, so the test moves it by hand. The
-    // layout jsdom cannot produce is faked: a 200px track of two 100px halves.
-    const animate = vi.fn();
-    const wrapper = mountGroup({ variant: "seg" });
-    const pill = wrapper.get(".vc-tab-switch-group__pill").element as HTMLElement;
-    const [first, second] = wrapper.findAllComponents(VcTabSwitch).map((item) => item.element as HTMLElement);
+    it("swaps the horizontal arrows in RTL", async () => {
+      const wrapper = createWrapper("dark");
+      (wrapper.findComponent(VcTabSwitchGroup).element as HTMLElement).style.direction = "rtl";
 
-    pill.animate = animate;
-    vi.spyOn(wrapper.element, "getBoundingClientRect").mockReturnValue({ left: 0, width: 200 });
-    vi.spyOn(first, "getBoundingClientRect").mockReturnValue({ left: 0, width: 100 } as DOMRect);
-    vi.spyOn(second, "getBoundingClientRect").mockReturnValue({ left: 100, width: 100 } as DOMRect);
+      await radios(wrapper)[1].trigger("keydown", { key: "ArrowRight" });
+      expect(checkedStates(wrapper)).toEqual(["true", "false", "false"]);
 
-    // The first measurement that succeeds places the indicator without travelling to it.
-    first.classList.remove(CHECKED);
-    await flushPromises();
-    first.classList.add(CHECKED);
-    await flushPromises();
+      await radios(wrapper)[0].trigger("keydown", { key: "ArrowLeft" });
+      expect(checkedStates(wrapper)).toEqual(["false", "true", "false"]);
 
-    expect(pill.style.left).toBe("0px");
-    expect(pill.style.width).toBe("100px");
-    expect(pill.style.opacity).toBe("1");
-    expect(animate).not.toHaveBeenCalled();
+      await radios(wrapper)[1].trigger("keydown", { key: "ArrowDown" });
+      expect(checkedStates(wrapper)).toEqual(["false", "false", "true"]);
 
-    first.classList.remove(CHECKED);
-    second.classList.add(CHECKED);
-    await flushPromises();
+      await radios(wrapper)[2].trigger("keydown", { key: "ArrowUp" });
+      expect(checkedStates(wrapper)).toEqual(["false", "true", "false"]);
+    });
 
-    expect(pill.style.left).toBe("100px");
-    expect(pill.style.width).toBe("100px");
-    expect(animate).toHaveBeenCalledTimes(1);
+    it("skips a disabled item", async () => {
+      const wrapper = createWrapper("light", ["dark"]);
 
-    // Stretch across both seats at the middle keyframe, then gather on the new one.
-    const [keyframes] = animate.mock.calls[0] as [Keyframe[]];
-    expect(keyframes).toEqual([
-      { left: "0px", width: "100px" },
-      { left: "0px", width: "200px", offset: 0.42 },
-      { left: "100px", width: "100px" },
-    ]);
-  });
+      await radios(wrapper)[0].trigger("keydown", { key: "ArrowRight" });
 
-  it("hides the indicator again when nothing is checked", async () => {
-    const wrapper = mountGroup({ variant: "seg" });
-    const pill = wrapper.get(".vc-tab-switch-group__pill").element as HTMLElement;
-    const [first] = wrapper.findAllComponents(VcTabSwitch).map((item) => item.element as HTMLElement);
-
-    vi.spyOn(wrapper.element, "getBoundingClientRect").mockReturnValue({ left: 0, width: 200 });
-    vi.spyOn(first, "getBoundingClientRect").mockReturnValue({ left: 0, width: 100 } as DOMRect);
-
-    first.classList.remove(CHECKED);
-    await flushPromises();
-    first.classList.add(CHECKED);
-    await flushPromises();
-    expect(pill.style.opacity).toBe("1");
-
-    first.classList.remove(CHECKED);
-    await flushPromises();
-
-    expect(pill.style.opacity).toBe("0");
+      expect(checkedStates(wrapper)).toEqual(["false", "false", "true"]);
+    });
   });
 });

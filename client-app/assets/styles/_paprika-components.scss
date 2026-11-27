@@ -78,6 +78,250 @@
   }
 }
 
+// Every tab switch group is the design's segmented rail: one indicator slides between the options
+// on a recessed track. Zero specificity, so a component that retunes its own rail still wins.
+:where(.vc-tab-switch-group) {
+  --vc-tab-switch-group-gap: 0px;
+  --vc-tab-switch-group-padding: 3px;
+  --vc-tab-switch-group-radius: 9999px;
+  --vc-tab-switch-group-bg-color: color-mix(in srgb, theme("colors.neutral.950") 5%, transparent);
+
+  --vc-tab-switch-radius: 9999px;
+  --vc-tab-switch-padding-x: theme("padding[3.5]");
+  --vc-tab-switch-border-color: transparent;
+  --vc-tab-switch-checked-border-color: transparent;
+  // The fill belongs to the indicator. Left on the switch it would light a second plate at the
+  // far end of the travel, and the movement would be lost between the two. The checked switch
+  // keeps its ink and its shadow.
+  --vc-tab-switch-checked-bg-color: transparent;
+  --vc-tab-switch-text-color: theme("colors.neutral.600");
+  --vc-tab-switch-font-weight: theme("fontWeight.normal");
+  --vc-tab-switch-checked-font-weight: theme("fontWeight.semibold");
+  --vc-tab-switch-hover-color: theme("colors.neutral.950");
+  // The checked segment's icon is not an accent here — the text leads.
+  --vc-tab-switch-color: currentColor;
+}
+
+:where(.vc-tab-switch-group__pill) {
+  display: block;
+  border-radius: 9999px;
+  background: theme("colors.additional.50");
+  box-shadow: var(--vc-tab-switch-group-pill-shadow, theme("boxShadow.md"));
+}
+
+// The label's box is reserved at the checked weight, so a regular-weight label is centred in it
+// rather than left at its start.
+:where(.vc-tab-switch-group .vc-tab-switch__label) {
+  text-align: center;
+}
+
+html.dark {
+  // The rail's light track is ink at 5%, which on a dark panel is a lightening film — the track
+  // would sit ABOVE the surface it is meant to be cut into. Dark cuts it the other way: near-black
+  // at 60%, so the groove reads as depth in both themes.
+  //
+  // The near-black is neutral-50, not additional-950: every dark preset in the repo flips
+  // additional-950 to the LIGHT end of the ramp, so that spelling paints the groove as a 60% white
+  // wash over the panel. neutral-50 is the darkest surface step in all eight of them.
+  :where(.vc-tab-switch-group) {
+    --vc-tab-switch-group-bg-color: color-mix(in srgb, var(--color-neutral-50) 60%, transparent);
+  }
+
+  // The indicator cannot stay additional-50 here: in dark that step IS the panel colour, and the
+  // selected segment measured 1.24:1 against its own track where 3:1 is required (WCAG 1.4.11).
+  // It moves to secondary-400, one step down from 600 — in the dark ramp 500 is nearly as light
+  // as 600, so 400 is the real step down — which also puts the selection in the same family as
+  // the current row of the category menu. The fill alone only reaches 2.40:1, so the state is
+  // carried by the pair of inset rings as well; the label on it reads 7.21:1.
+  //
+  // No backdrop-filter on this one. The indicator does not sit still: it travels between the
+  // segments, animating `left` and `width`, and a blurred backdrop is re-sampled on every frame of
+  // that — the most expensive thing a compositor can be asked for here. The contrast case above
+  // never rested on the blur: it is carried by the fill and the pair of rings.
+  :where(.vc-tab-switch-group__pill) {
+    background: color-mix(in srgb, var(--color-secondary-400) 72%, transparent);
+    // Not boxShadow.md: it is drawn in additional-950, the light end here, and glowed.
+    box-shadow:
+      var(--vc-tab-switch-group-pill-shadow, var(--vc-tab-switch-checked-shadow)),
+      inset 0 0 0 1px color-mix(in srgb, var(--color-secondary-700) 20%, transparent),
+      inset 0 1px 0 color-mix(in srgb, var(--color-secondary-800) 26%, transparent);
+  }
+}
+
+// The design's heading ladder: Geologica, sentence case, the display face's tight tracking, and one
+// weight for every level (`--vc-typography-heading-font-weight`, _paprika.scss). Tokens on zero
+// specificity, so a component that names its own heading's size still wins. The font is scoped to
+// the headings here, so a bare h1-h6 keeps its own.
+//
+// The wide step is `4xl`, not `2xl`: at the 1512 the design is drawn and shown at, the kit's `2xl`
+// (1440) has already fired and every heading would render one step larger than the design. The
+// design's own wide mode starts at 1900, and `4xl` is this project's step for that rung.
+:where(.vc-typography--variant--h1),
+:where(.vc-typography--variant--h2),
+:where(.vc-typography--variant--h3),
+:where(.vc-typography--variant--h4),
+:where(.vc-typography--variant--h5),
+:where(.vc-typography--variant--h6) {
+  --vc-heading-font-family: theme("fontFamily.geologica");
+  --vc-typography-font-weight: var(--vc-typography-heading-font-weight);
+  --vc-typography-text-transform: none;
+}
+
+:where(.vc-typography--variant--h1) {
+  --vc-typography-font-size: 1.875rem;
+  --vc-typography-line-height: 2.125rem;
+  --vc-typography-letter-spacing: -0.03em;
+}
+
+:where(.vc-typography--variant--h2) {
+  --vc-typography-font-size: 1.5rem;
+  --vc-typography-line-height: 1.875rem;
+  --vc-typography-letter-spacing: -0.025em;
+}
+
+:where(.vc-typography--variant--h3) {
+  --vc-typography-font-size: 1.25rem;
+  --vc-typography-line-height: 1.625rem;
+  --vc-typography-letter-spacing: -0.02em;
+}
+
+:where(.vc-typography--variant--h4) {
+  --vc-typography-font-size: 1.125rem;
+  --vc-typography-line-height: 1.5rem;
+  --vc-typography-letter-spacing: -0.015em;
+}
+
+:where(.vc-typography--variant--h5) {
+  --vc-typography-font-size: 1rem;
+  --vc-typography-line-height: 1.375rem;
+  --vc-typography-letter-spacing: -0.01em;
+}
+
+:where(.vc-typography--variant--h6) {
+  --vc-typography-font-size: 0.875rem;
+  --vc-typography-line-height: 1.25rem;
+  --vc-typography-letter-spacing: -0.006em;
+}
+
+:where(.vc-typography--variant--base) {
+  --vc-typography-line-height: 1.5;
+}
+
+@media (width >= theme("screens.lg")) {
+  :where(.vc-typography--variant--h1) {
+    --vc-typography-font-size: 2rem;
+    --vc-typography-line-height: 2.25rem;
+  }
+
+  :where(.vc-typography--variant--h2) {
+    --vc-typography-font-size: 1.625rem;
+    --vc-typography-line-height: 2rem;
+  }
+
+  :where(.vc-typography--variant--h3) {
+    --vc-typography-line-height: 1.75rem;
+  }
+}
+
+@media (width >= theme("screens.4xl")) {
+  :where(.vc-typography--variant--h1) {
+    --vc-typography-font-size: 2.25rem;
+    --vc-typography-line-height: 2.5rem;
+  }
+
+  :where(.vc-typography--variant--h2) {
+    --vc-typography-font-size: 1.75rem;
+    --vc-typography-line-height: 2.125rem;
+  }
+
+  :where(.vc-typography--variant--h3) {
+    --vc-typography-font-size: 1.375rem;
+    --vc-typography-line-height: 1.875rem;
+  }
+
+  :where(.vc-typography--variant--h4) {
+    --vc-typography-font-size: 1.25rem;
+    --vc-typography-line-height: 1.625rem;
+  }
+
+  :where(.vc-typography--variant--h5) {
+    --vc-typography-font-size: 1.0625rem;
+    --vc-typography-line-height: 1.4375rem;
+  }
+
+  :where(.vc-typography--variant--h6) {
+    --vc-typography-font-size: 0.9375rem;
+    --vc-typography-line-height: 1.3125rem;
+  }
+
+  :where(.vc-typography--variant--base) {
+    --vc-typography-font-size: 1.0625rem;
+    --vc-typography-line-height: 1.625rem;
+  }
+}
+
+// Below md the kit pulls a widget out to 6px off the screen edge. Here every plate stands on the
+// page's gutter, in line with the header above it.
+@media (width < theme("screens.md")) {
+  :where(.vc-container .vc-widget) {
+    margin-inline: 0;
+  }
+}
+
+// The organizations pod's list (header-organizations-menu.vue): one column under an uppercase title, the search a
+// plain field, and the rows in one outlined tile that alone scrolls. Upstream's own rules draw the classic strip.
+.header-organizations-menu__panel .organization-list {
+  @apply flex flex-col;
+
+  &__error {
+    @apply m-0 mb-2.5;
+  }
+
+  &__search {
+    @apply border-b-0 bg-transparent p-0 pb-2.5;
+
+    // A field, not a pill; the in-field button follows (VcInput takes the field radius less 2px).
+    --vc-input-radius: var(--control-radius, 0.5rem);
+  }
+
+  &__label {
+    @apply pb-1.5 font-bold uppercase tracking-wider;
+
+    &--static {
+      @apply px-0 pt-0;
+    }
+  }
+
+  // The list is one outlined tile, like the groups of the account and preferences menus.
+  &__items {
+    @apply my-0 flex min-h-0 flex-1 flex-col rounded-[--vc-radius] border border-neutral-200 p-1 pb-1.5;
+  }
+
+  &__scroll {
+    @apply max-h-none min-h-0 flex-1;
+  }
+
+  // Rows draw on the header's shared menu plates (header-plate.vue); bold marks the current one.
+  &__item {
+    --vc-menu-item-radius: var(--control-radius, 0.5rem);
+    --vc-menu-item-padding-x: theme("spacing[2.5]");
+    --vc-menu-item-hover-bg-color: var(--header-menu-hover-bg);
+    --vc-menu-item-active-bg-color: var(--header-menu-active-bg);
+
+    & + .organization-list__item {
+      @apply mt-0.5;
+    }
+  }
+
+  &__lock {
+    --vc-icon-color: theme("colors.neutral.600");
+  }
+
+  &__empty {
+    @apply px-2.5 text-sm;
+  }
+}
+
 // The design's wide rung: the column goes 1550 -> 1900 and nothing else moves — the gutter
 // stays 32, so the container needs 1964 of window before the column reaches 1900. The header
 // and footer shells read the same var and travel with it.

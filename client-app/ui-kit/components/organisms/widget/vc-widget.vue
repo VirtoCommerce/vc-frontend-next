@@ -188,12 +188,11 @@ watchEffect(() => {
   --tw-shadow: var(--shadow);
 
   @media (width < theme("screens.md")) {
+    // 6px from the screen edge, for any `--vc-container-px`.
     .vc-container & {
-      // The widget reaches past the container's inset on a narrow screen. Keyed to a token
-      // because the amount is only right against the inset it was chosen for: a theme with a
-      // narrower page gutter has to be able to stop the widget going off the screen. The
-      // default is the value this rule has always had.
-      margin-inline: var(--vc-widget-container-margin-x, -1.125rem);
+      --bleed: calc(theme("spacing[1.5]") - var(--vc-container-px, theme("padding.6")));
+
+      @apply mx-[--bleed];
     }
 
     #{$self} & {
@@ -206,6 +205,12 @@ watchEffect(() => {
   }
 
   &--size {
+    // Small widgets keep their own inset: `--vc-widget-padding-x` sets md and lg only.
+    &--xs,
+    &--sm {
+      --p-x: theme("padding.4");
+    }
+
     &--xs {
       --header-min-h: 2.375rem;
       --title-text: theme("fontSize.sm");
@@ -256,6 +261,8 @@ watchEffect(() => {
     // With the shadow gone the outline is the widget's only edge, so this one does not read
     // the border colour a theme clears in exchange for a shadow — it has its own knob.
     --border-color: var(--vc-widget-no-shadow-border-color, theme("colors.neutral.200"));
+    // Without a shadow the widget keeps an edge; `no-border` drops it.
+    --border-width: max(var(--vc-widget-border-width, 1px), 1px);
 
     @apply shadow-none;
   }

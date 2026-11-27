@@ -1,0 +1,24 @@
+.vc-widget {
+  $lg: "";
+  $header-container: "";
+  $header: "";
+
+  &--size--lg {
+    $lg: &;
+  }
+
+  &__header-container {
+    $header-container: &;
+  }
+
+  &__header {
+    $header: &;
+  }
+
+  &__title {
+    // The lg widget's own title only: a widget nested in its body keeps its title size.
+    #{$lg} > #{$header-container} > #{$header} > & {
+      font-size: theme("fontSize.base");
+    }
+  }
+}

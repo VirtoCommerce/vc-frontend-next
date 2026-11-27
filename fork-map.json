@@ -11,7 +11,9 @@
       "upstream": [
         "client-app/shared/layout/components/header/_internal/top-header.vue",
         "client-app/shared/layout/components/header/_internal/bottom-header.vue",
-        "client-app/shared/layout/components/header/_internal/top-header-link.vue"
+        "client-app/shared/layout/components/header/_internal/top-header-link.vue",
+        "client-app/shared/layout/components/header/_internal/organization-switcher.vue",
+        "client-app/shared/layout/components/header/_internal/organization-list.vue"
       ],
       "note": "desktop header: one plate with the logo, catalog menu, search, links, an organizations menu (upstream's organization list inside the theme's pod) and an initials-only account button. Upstream's top-bar ship-to selector has no place in it yet"
     },
@@ -50,7 +52,6 @@
         "client-app/shared/catalog/composables/useCatalogGridMotion.ts",
         "client-app/shared/layout/composables/useStuckPlate.ts",
         "client-app/core/utilities/color-mode-switch/index.ts",
-        "client-app/ui-kit/components/molecules/tab-switch-group/vc-tab-switch-group.vue",
         "client-app/shared/account/composables/useAccountMenuSections.ts"
       ],
       "upstream": [],

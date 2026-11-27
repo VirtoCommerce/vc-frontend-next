@@ -149,7 +149,7 @@ const { t } = useI18n();
   .changes-section {
     &__title {
       --vc-typography-font-size: 1.875rem;
-      --line-height: 2.25rem;
+      --vc-typography-line-height: 2.25rem;
     }
   }
 }

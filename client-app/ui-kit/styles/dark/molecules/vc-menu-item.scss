@@ -1,0 +1,27 @@
+.vc-menu-item {
+  $colors: primary, secondary, accent, neutral, success, danger, info, warning;
+  $active: "";
+
+  // The light rules' tokens, so a list's override reaches dark too; only the defaults differ.
+  &__inner {
+    &--active {
+      $active: &;
+    }
+
+    &:not(#{$active}) {
+      background-color: var(--vc-menu-item-bg-color, inherit);
+    }
+
+    @each $color in $colors {
+      &--color--#{$color} {
+        &:hover {
+          background-color: var(--vc-menu-item-hover-bg-color, var(--color-#{$color}-100));
+        }
+
+        &#{$active} {
+          background-color: var(--vc-menu-item-active-bg-color, var(--color-#{$color}-100));
+        }
+      }
+    }
+  }
+}

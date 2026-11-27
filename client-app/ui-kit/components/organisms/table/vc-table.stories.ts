@@ -1,7 +1,7 @@
 import { computed, ref, watch } from "vue";
 import { VcBadge, VcCheckbox } from "@/ui-kit/components/atoms";
 import { BREAKPOINTS } from "@/ui-kit/constants";
-import { VcTable, VcTableColumn } from "..";
+import { VcTable, VcTableColumn, VcWidget } from "..";
 import type { Meta, StoryObj } from "@storybook/vue3-vite";
 
 const breakpointOptions = ["none", ...Object.keys(BREAKPOINTS)] as const;
@@ -430,28 +430,19 @@ async function onPageChange(newPage: number) {
   },
 };
 
-// 5. StrongColumn
-export const StrongColumn: StoryType = {
+// 4b. RowHeaderColumn
+export const RowHeaderColumn: StoryType = {
   args: {
     items: sampleItems,
-    pages: 1,
-    page: 1,
-    bordered: true,
   },
   render: (args) => ({
     components: { VcTable, VcTableColumn },
     setup: () => ({ args }),
     template: `
-      <VcTable :items="args.items" :pages="args.pages" :page="args.page" :bordered="args.bordered">
-        <VcTableColumn id="name" title="Name" strong v-slot="{ item }">
-          {{ item.name }}
-        </VcTableColumn>
-        <VcTableColumn id="email" title="Email" v-slot="{ item }">
-          {{ item.email }}
-        </VcTableColumn>
-        <VcTableColumn id="role" title="Role" v-slot="{ item }">
-          {{ item.role }}
-        </VcTableColumn>
+      <VcTable :items="args.items">
+        <VcTableColumn id="name" title="Name" row-header v-slot="{ item }">{{ item.name }}</VcTableColumn>
+        <VcTableColumn id="email" title="Email" v-slot="{ item }">{{ item.email }}</VcTableColumn>
+        <VcTableColumn id="role" title="Role" v-slot="{ item }">{{ item.role }}</VcTableColumn>
       </VcTable>
     `,
   }),
@@ -459,19 +450,45 @@ export const StrongColumn: StoryType = {
     docs: {
       description: {
         story:
-          "`strong` marks the column that identifies the row: its cells take the strong weight and the darkest ink, while the rest of the body sits a shade below the header.",
+          "`row-header` marks the column that identifies the row, such as an order number: its cells are bold. It applies to the cells VcTable renders from `VcTableColumn` slots only.",
       },
-      source: {
-        code: `
-<VcTable :items="items" bordered>
-  <VcTableColumn id="name" title="Name" strong v-slot="{ item }">
-    {{ item.name }}
-  </VcTableColumn>
-  <VcTableColumn id="email" title="Email" v-slot="{ item }">
-    {{ item.email }}
-  </VcTableColumn>
-</VcTable>
-        `,
+    },
+  },
+};
+
+// 4c. InWidget
+export const InWidget: StoryType = {
+  args: {
+    items: sampleItems,
+    pages: 5,
+    page: 1,
+  },
+  render: (args) => ({
+    components: { VcTable, VcTableColumn, VcWidget },
+    setup: () => {
+      const page = ref(args.page);
+      return { args, page };
+    },
+    template: `
+      <VcWidget title="Members">
+        <VcTable
+          :items="args.items"
+          :pages="args.pages"
+          :page="page"
+          bordered
+          @page-changed="page = $event"
+        >
+          <VcTableColumn id="name" title="Name" row-header v-slot="{ item }">{{ item.name }}</VcTableColumn>
+          <VcTableColumn id="email" title="Email" v-slot="{ item }">{{ item.email }}</VcTableColumn>
+          <VcTableColumn id="role" title="Role" v-slot="{ item }">{{ item.role }}</VcTableColumn>
+        </VcTable>
+      </VcWidget>
+    `,
+  }),
+  parameters: {
+    docs: {
+      description: {
+        story: "A table inside a widget keeps the widget's padding and its own border.",
       },
     },
   },
@@ -850,7 +867,7 @@ export const RowClick: StoryType = {
     docs: {
       description: {
         story:
-          'Row click using `@row-click` on VcTable. Automatically adds `cursor-pointer` and `role="button"` to each row.',
+          'Row click using `@row-click` on VcTable. Each row gets a pointer cursor (the `vc-table__row--clickable` modifier) and `role="button"`.',
       },
       source: {
         code: `
@@ -2128,7 +2145,7 @@ export const SlotsApiDefault: StoryType = {
           <tr
             v-for="item in args.items"
             :key="item.id"
-            class="cursor-pointer even:bg-neutral-50 hover:bg-[--vc-table-row-hover-bg-color]"
+            class="cursor-pointer even:bg-neutral-50 hover:bg-[var(--vc-table-row-hover-bg-color,var(--color-neutral-200))]"
           >
             <td class="p-5">{{ item.name }}</td>
             <td class="p-5">{{ item.email }}</td>
@@ -2167,7 +2184,7 @@ const items = ref([
       <tr
         v-for="item in items"
         :key="item.id"
-        class="even:bg-neutral-50 hover:bg-[--vc-table-row-hover-bg-color]"
+        class="even:bg-neutral-50 hover:bg-[var(--vc-table-row-hover-bg-color,var(--color-neutral-200))]"
       >
         <td class="p-5">{{ item.name }}</td>
         <td class="p-5">{{ item.email }}</td>
@@ -2223,7 +2240,7 @@ export const SlotsApiDesktopItem: StoryType = {
         </template>
 
         <template #desktop-item="{ item }">
-          <tr class="cursor-pointer even:bg-neutral-50 hover:bg-[--vc-table-row-hover-bg-color]">
+          <tr class="cursor-pointer even:bg-neutral-50 hover:bg-[var(--vc-table-row-hover-bg-color,var(--color-neutral-200))]">
             <td class="p-5">
               <div class="flex items-center gap-2">
                 <div class="size-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-sm font-bold">
@@ -2290,7 +2307,7 @@ export const SlotsApiDesktopItem: StoryType = {
 
   <!-- Desktop: component iterates, you render one row -->
   <template #desktop-item="{ item }">
-    <tr class="even:bg-neutral-50 hover:bg-[--vc-table-row-hover-bg-color]">
+    <tr class="even:bg-neutral-50 hover:bg-[var(--vc-table-row-hover-bg-color,var(--color-neutral-200))]">
       <td class="p-5">
         <div class="flex items-center gap-2">
           <div class="size-8 rounded-full bg-primary-100">
@@ -2354,7 +2371,7 @@ export const SlotsApiResponsive: StoryType = {
           <tr
             v-for="item in args.items"
             :key="item.id"
-            class="cursor-pointer even:bg-neutral-50 hover:bg-[--vc-table-row-hover-bg-color]"
+            class="cursor-pointer even:bg-neutral-50 hover:bg-[var(--vc-table-row-hover-bg-color,var(--color-neutral-200))]"
           >
             <td class="p-5">{{ item.name }}</td>
             <td class="p-5">{{ item.email }}</td>
@@ -2463,7 +2480,7 @@ export const SlotsApiSorting: StoryType = {
           <tr
             v-for="item in sortedItems"
             :key="item.id"
-            class="cursor-pointer even:bg-neutral-50 hover:bg-[--vc-table-row-hover-bg-color]"
+            class="cursor-pointer even:bg-neutral-50 hover:bg-[var(--vc-table-row-hover-bg-color,var(--color-neutral-200))]"
           >
             <td class="p-5">{{ item.name }}</td>
             <td class="p-5">{{ item.email }}</td>
@@ -2605,7 +2622,7 @@ export const SlotsApiCustomHeader: StoryType = {
           <tr
             v-for="item in args.items"
             :key="item.id"
-            class="cursor-pointer even:bg-neutral-50 hover:bg-[--vc-table-row-hover-bg-color]"
+            class="cursor-pointer even:bg-neutral-50 hover:bg-[var(--vc-table-row-hover-bg-color,var(--color-neutral-200))]"
           >
             <td class="p-5">{{ item.name }}</td>
             <td class="p-5">{{ item.email }}</td>
@@ -2673,7 +2690,7 @@ export const SlotsApiWithoutHeader: StoryType = {
           <tr
             v-for="item in args.items"
             :key="item.id"
-            class="cursor-pointer even:bg-neutral-50 hover:bg-[--vc-table-row-hover-bg-color]"
+            class="cursor-pointer even:bg-neutral-50 hover:bg-[var(--vc-table-row-hover-bg-color,var(--color-neutral-200))]"
           >
             <td class="p-5">{{ item.name }}</td>
             <td class="p-5">{{ item.email }}</td>
@@ -2748,7 +2765,7 @@ export const SlotsApiScrollable: StoryType = {
             <tr
               v-for="item in args.items"
               :key="item.id"
-              class="cursor-pointer even:bg-neutral-50 hover:bg-[--vc-table-row-hover-bg-color]"
+              class="cursor-pointer even:bg-neutral-50 hover:bg-[var(--vc-table-row-hover-bg-color,var(--color-neutral-200))]"
             >
               <td class="p-5 min-w-52">{{ item.name }}</td>
               <td class="p-5 min-w-64">{{ item.email }}</td>
@@ -2860,7 +2877,7 @@ export const SlotsApiFull: StoryType = {
           <tr
             v-for="item in sortedItems"
             :key="item.id"
-            class="cursor-pointer even:bg-neutral-50 hover:bg-[--vc-table-row-hover-bg-color]"
+            class="cursor-pointer even:bg-neutral-50 hover:bg-[var(--vc-table-row-hover-bg-color,var(--color-neutral-200))]"
           >
             <td class="p-5">{{ item.name }}</td>
             <td class="p-5">{{ item.email }}</td>
@@ -2952,7 +2969,7 @@ async function onHeaderClick(sortInfo: VcTableSortInfoType) {
       <tr
         v-for="item in items"
         :key="item.id"
-        class="even:bg-neutral-50 hover:bg-[--vc-table-row-hover-bg-color]"
+        class="even:bg-neutral-50 hover:bg-[var(--vc-table-row-hover-bg-color,var(--color-neutral-200))]"
       >
         <td class="p-5">{{ item.name }}</td>
         <td class="p-5">{{ item.email }}</td>

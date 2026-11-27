@@ -201,7 +201,7 @@ const cartRoute = ROUTES.CART.PATH;
 
     &__title {
       --vc-typography-font-size: 3.125rem;
-      --line-height: 1.02;
+      --vc-typography-line-height: 1.02;
     }
 
     &__art {

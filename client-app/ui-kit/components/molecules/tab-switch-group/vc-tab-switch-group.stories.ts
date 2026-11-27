@@ -2,103 +2,69 @@ import { ref } from "vue";
 import { VcTabSwitch, VcTabSwitchGroup } from "..";
 import type { Meta, StoryObj } from "@storybook/vue3-vite";
 
-const VARIANTS = ["plain", "filled", "filled-strong", "seg"];
+const COLOR_MODES = [
+  { value: "light", label: "Light", icon: "sun" },
+  { value: "dark", label: "Dark", icon: "moon" },
+  { value: "system", label: "System", icon: "desktop-computer" },
+];
+
+type ColorModeType = (typeof COLOR_MODES)[number];
+type ItemAttrsType = (mode: ColorModeType) => Record<string, string | boolean>;
 
 const meta: Meta<typeof VcTabSwitchGroup> = {
   title: "Components/Molecules/VcTabSwitchGroup",
   component: VcTabSwitchGroup,
-  argTypes: {
-    variant: {
-      control: "inline-radio",
-      options: VARIANTS,
-      type: { name: "string", required: false },
-      table: {
-        type: {
-          summary: VARIANTS.join(" | "),
-        },
-      },
-    },
+  args: {
+    modelValue: "light",
   },
 } as Meta<typeof VcTabSwitchGroup>;
 
 export default meta;
 type StoryType = StoryObj<typeof meta>;
 
-const SORTING = ["Featured", "Relevance", "Price ↑", "Price ↓", "Newest"];
+// The group around one VcTabSwitch per colour mode; `itemAttrs` are that switch's extra attributes.
+// "Show code" gets the same markup with the items written out.
+function groupStory(itemAttrs: ItemAttrsType): StoryType {
+  const items = COLOR_MODES.map((mode) => {
+    const allAttrs: Record<string, string | boolean> = { value: mode.value, size: "sm", ...itemAttrs(mode) };
+    const attrs = Object.entries(allAttrs)
+      .filter(([, attrValue]) => attrValue !== false)
+      .map(([attrName, attrValue]) => (attrValue === true ? attrName : `${attrName}="${attrValue}"`));
 
-function sortingStory(args: Record<string, unknown>) {
+    return `  <VcTabSwitch ${attrs.join(" ")} />`;
+  });
+
   return {
-    components: { VcTabSwitch, VcTabSwitchGroup },
-    setup: () => ({ args, items: SORTING, selected: ref(SORTING[0]) }),
-    template: `
-      <VcTabSwitchGroup v-bind="args" aria-label="Sorting">
-        <VcTabSwitch
-          v-for="item in items"
-          :key="item"
-          v-model="selected"
-          size="sm"
-          name="sorting"
-          :value="item"
-          :label="item"
-          @change="selected = $event"
-        />
-      </VcTabSwitchGroup>
-    `,
+    render: (args) => ({
+      components: { VcTabSwitch, VcTabSwitchGroup },
+      setup: () => ({ modes: COLOR_MODES, itemAttrs, value: ref(args.modelValue) }),
+      template: `
+        <VcTabSwitchGroup v-model="value" aria-label="Color mode">
+          <VcTabSwitch v-for="mode in modes" :key="mode.value" :value="mode.value" size="sm" v-bind="itemAttrs(mode)" />
+        </VcTabSwitchGroup>
+      `,
+    }),
+    parameters: {
+      docs: {
+        source: {
+          code: `<VcTabSwitchGroup v-model="colorMode" aria-label="Color mode">\n${items.join("\n")}\n</VcTabSwitchGroup>`,
+        },
+      },
+    },
   };
 }
 
-export const Segmented: StoryType = {
-  args: { variant: "seg" },
-  render: sortingStory,
-};
+export const Basic = groupStory((mode) => ({ label: mode.label }));
 
-export const Plain: StoryType = {
-  args: { variant: "plain" },
-  render: sortingStory,
-};
+export const WithIcons = groupStory((mode) => ({ label: mode.label, icon: mode.icon }));
 
-export const Filled: StoryType = {
-  args: { variant: "filled" },
-  render: sortingStory,
-};
+export const IconsOnly = groupStory((mode) => ({ icon: mode.icon, "aria-label": mode.label }));
 
-export const FilledStrong: StoryType = {
-  args: { variant: "filled-strong" },
-  render: sortingStory,
-};
+export const DisabledItem = groupStory((mode) => ({ label: mode.label, disabled: mode.value === "dark" }));
 
-export const SegmentedWithIcons: StoryType = {
-  args: { variant: "seg" },
-  render: (args) => ({
-    components: { VcTabSwitch, VcTabSwitchGroup },
-    setup: () => ({
-      args,
-      modes: [
-        { value: "light", icon: "sun", label: "Light" },
-        { value: "dark", icon: "moon", label: "Dark" },
-        { value: "system", icon: "computer-desktop", label: "System" },
-      ],
-      selected: ref("light"),
-    }),
-    template: `
-      <VcTabSwitchGroup v-bind="args" aria-label="Appearance">
-        <VcTabSwitch
-          v-for="mode in modes"
-          :key="mode.value"
-          v-model="selected"
-          size="sm"
-          name="appearance"
-          :value="mode.value"
-          :icon="mode.icon"
-          :label="mode.label"
-          @change="selected = $event"
-        />
-      </VcTabSwitchGroup>
-    `,
-  }),
-};
-
-export const SegmentedFill: StoryType = {
-  args: { variant: "seg", fill: true },
-  render: sortingStory,
+export const NoSelection: StoryType = {
+  ...groupStory((mode) => ({ label: mode.label })),
+  args: {
+    modelValue: undefined,
+  },
 };

@@ -242,7 +242,7 @@ const { t } = useI18n();
   .why-buy-section {
     &__title {
       --vc-typography-font-size: 1.875rem;
-      --line-height: 2.25rem;
+      --vc-typography-line-height: 2.25rem;
     }
 
     &__grid {
@@ -271,7 +271,7 @@ const { t } = useI18n();
 
     &__card-title {
       --vc-typography-font-size: 1.625rem;
-      --line-height: 1.2;
+      --vc-typography-line-height: 1.2;
     }
 
     &__card-text {

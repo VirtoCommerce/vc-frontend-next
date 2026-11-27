@@ -82,7 +82,6 @@
       "add_with_bulk_order": "Legg til med massebestilling",
       "all_orders": "Alle bestillinger",
       "my_orders": "Mine bestillinger",
-      "scroll_to_top": "Rull til toppen",
       "show_less": "Vis mindre",
       "expand_all": "Utvid alle",
       "all_products": "Alle produkter",
@@ -364,13 +363,13 @@
           "main_menu": "Hovedmeny"
         },
         "preferences_menu": {
-          "aria_label": "Currency, language and theme",
-          "currency": "Currency",
-          "appearance": "Appearance",
-          "language": "Language",
+          "aria_label": "Valuta, språk og tema",
+          "currency": "Valuta",
+          "appearance": "Utseende",
+          "language": "Språk",
           "theme": {
-            "light": "Light",
-            "dark": "Dark",
+            "light": "Lyst",
+            "dark": "Mørkt",
             "system": "System"
           }
         },
@@ -381,7 +380,6 @@
           "home": "@:common.links.home",
           "catalog": "@:common.links.catalog",
           "bulk_order": "@:common.links.bulk_order",
-          "compare": "@:common.links.compare",
           "cart": "@:common.links.cart",
           "lists": "@:common.links.lists",
           "orders": "@:common.links.orders",
@@ -427,8 +425,8 @@
             "main_navigation": "Hovednavigasjon"
           }
         },
-        "organizations_menu": {
-          "trigger_label": "Organisasjoner: {name}"
+        "organization_switcher": {
+          "trigger_label": "{title}: {name}"
         },
         "link_with_count": "{title}: {count}",
         "cart_items_tooltip": "Ingen varer | {n} vare | {n} varer"
@@ -669,6 +667,9 @@
         "vs_last_year": "{delta} vs i fjor",
         "excluded_orders": "{count} bestilling i en annen valuta er ikke inkludert | {count} bestillinger i andre valutaer er ikke inkludert",
         "sub_with_excluded": "{sub} · {note}",
+        "sales_report": {
+          "title": "Salgsstatistikk"
+        },
         "recent_orders": {
           "title": "Mine nylige bestillinger",
           "view_all": "Alle bestillinger",
@@ -1202,50 +1203,6 @@
         "date_old_to_new": "Eldste"
       }
     },
-    "compare": {
-      "add_to_compare": {
-        "tooltips": {
-          "add": "Legg til i sammenligning",
-          "remove": "Fjern fra sammenligning"
-        }
-      },
-      "notifications": {
-        "limit_reached": "Kun {productsLimit} produkter fra samme kategori kan sammenlignes",
-        "added_html": "Produkt <span class=\"hidden lg:inline\">“<strong>{productName}</strong>”</span> er lagt til i sammenligningslisten <span class=\"hidden lg:inline\">(elementer igjen - {itemsLeft})</span>",
-        "removed_html": "Produkt <span class=\"hidden lg:inline\">“<strong>{productName}</strong>”</span> ble fjernet fra sammenligningslisten",
-        "compare_button": "Sammenlign",
-        "added_to_cart_html": "Lagt til <strong>{productName}</strong> i handlekurven",
-        "fetch_failed": "Kunne ikke laste inn noen sammenlignede produkter. Prøv igjen."
-      },
-      "table": {
-        "tabs": {
-          "all": "Alle",
-          "differences": "Forskjeller",
-          "group_label": "Radfilter"
-        },
-        "uncategorized": "Ukategorisert",
-        "unresolved_category": "Ukjent kategori",
-        "differ_rows": "Forskjellig: {count} av {total} rader",
-        "clear_category": "Fjern kategori",
-        "remove_product": "Fjern fra sammenligning",
-        "add_to_cart": "Legg i handlekurv",
-        "fields": {
-          "price_per_unit": "Pris per enhet",
-          "price_per_unit_tooltip": "Pris, ekskl. mva, per enhet.",
-          "customer_rating": "Kunderangering",
-          "availability": "Tilgjengelighet",
-          "sku": "@:common.labels.sku",
-          "min_order_qty": "Min. bestillingsantall",
-          "min_order_qty_tooltip": "MOQ — minimum antall enheter per bestilling."
-        },
-        "pin": {
-          "pin_title": "Fest øverst",
-          "unpin_title": "Løsne",
-          "pin_label": "Fest “{label}”",
-          "unpin_label": "Løsne “{label}”"
-        }
-      }
-    },
     "dashboard": {
       "edit": "Rediger oppsett",
       "editing": "Redigerer oppsett",
@@ -1315,7 +1272,7 @@
         "vs_last_year": "{change} vs i fjor"
       },
       "last_year": "I fjor",
-      "last_year_toggle": "Vis tall for i fjor i diagrammet «{chart}»",
+      "last_year_toggle": "I fjor: {chart}",
       "legend": {
         "aov_closed": "Snittordreverdi, avsluttede måneder",
         "current": "Denne måneden, hittil",
@@ -1957,34 +1914,6 @@
     },
     "brand": {
       "products_title": "Produkter"
-    },
-    "compare": {
-      "title": "Sammenlign produkter",
-      "meta": {
-        "keywords": "sammenlign produkter, produkt sammenligning, side om side sammenligning",
-        "description": "Sammenlign produkter side om side for å finne det beste alternativet for dine behov."
-      },
-      "added_count": "{count} av {total} lagt til",
-      "added_count_in_category": "{count} av {total} lagt til i {category}",
-      "actions": {
-        "clear_all": "Fjern alle"
-      },
-      "clear_all_modal": {
-        "title": "Fjern alle",
-        "message": "Ingen produkter vil bli fjernet fra sammenligningen. | 1 produkt vil bli fjernet fra sammenligningen. | Alle {n} produkter vil bli fjernet fra sammenligningen. | Alle {n} produkter vil bli fjernet fra sammenligningen."
-      },
-      "clear_category_modal": {
-        "title": "Fjern kategori",
-        "message": "Ingen produkter i {category} vil bli fjernet fra sammenligningen. | 1 produkt i {category} vil bli fjernet fra sammenligningen. | Alle {n} produkter i {category} vil bli fjernet fra sammenligningen. | Alle {n} produkter i {category} vil bli fjernet fra sammenligningen."
-      },
-      "empty": {
-        "title": "Sammenligningslisten din er tom",
-        "description": "Legg til produkter fra katalogen for å sammenligne deres egenskaper side om side. Du kan sammenligne opptil {limit} produkter per kategori.",
-        "restore_button": "Gjenopprett produkter",
-        "add_button": "Legg til produkter"
-      },
-      "error": "Kunne ikke laste inn data",
-      "retry": "Prøv igjen"
     },
     "demo_home": {
       "hero": {

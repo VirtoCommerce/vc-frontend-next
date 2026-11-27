@@ -88,7 +88,7 @@
         v-if="isCompact && scrolledDown"
         class="category-products__scroll-top"
         icon="chevron-up"
-        :aria-label="$t('common.buttons.scroll_to_top')"
+        :aria-label="$t('ui_kit.buttons.scroll_to_top')"
         @click="scrollToTop"
       />
     </template>

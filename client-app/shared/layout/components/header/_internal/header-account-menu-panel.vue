@@ -217,8 +217,8 @@ watch(
     // A nav hover is a neutral tint, so the secondary fill is left to say "you are here" and
     // nothing else — the same pairing the account sidebar uses. BOTH halves are declared here, on
     // one selector: a theme that moves only one of them collapses the pair into a single colour.
-    --vc-menu-item-hover-bg: var(--header-menu-hover-bg);
-    --vc-menu-item-active-bg: var(--header-menu-active-bg);
+    --vc-menu-item-hover-bg-color: var(--header-menu-hover-bg);
+    --vc-menu-item-active-bg-color: var(--header-menu-active-bg);
   }
 
   &__title {

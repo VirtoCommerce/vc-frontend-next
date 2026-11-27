@@ -59,6 +59,7 @@ import { flip, offset, shift, size, useFloating, autoUpdate, arrow } from "@floa
 import { onClickOutside, useEventListener } from "@vueuse/core";
 import { ref, toRefs, computed, watch, inject, nextTick } from "vue";
 import { useComponentId } from "@/ui-kit/composables";
+import { POPOVER_HOST_ID } from "@/ui-kit/constants";
 import { findFirstFocusableElement, getColorValue } from "@/ui-kit/utilities";
 import { vcPopoverKey } from "./vc-popover-context";
 
@@ -116,7 +117,7 @@ const emit = defineEmits<IEmits>();
 const props = withDefaults(defineProps<IProps>(), {
   zIndex: 1,
   placement: "bottom",
-  teleportSelector: "[id='popover-host']",
+  teleportSelector: `[id='${POPOVER_HOST_ID}']`,
   enableTeleport: null,
 });
 
@@ -454,6 +455,9 @@ watch(opened, (value: boolean) => {
     --bg-color: var(--props-bg-color, var(--vc-popover-bg-color, transparent));
     --radius: var(--props-radius, var(--vc-popover-radius, var(--vc-radius, 0.5rem)));
     --arrow-color: var(--props-bg-color, var(--vc-popover-bg-color, var(--color-additional-50)));
+    --padding: var(--vc-popover-padding, 0px);
+    --border-width: var(--vc-popover-border-width, 0px);
+    --border-color: var(--vc-popover-border-color, var(--color-neutral-200));
 
     // Radius only shapes the focus ring a dialog panel gets when it takes focus: the body itself
     // paints nothing, the card is drawn by &__content.
@@ -486,7 +490,7 @@ watch(opened, (value: boolean) => {
     // itself carries the offsets, so the transform here is free to be used for motion.
     // The origin arrives as an inline custom property on the body: v-bind() would land on the
     // component's root, which a teleported panel is not.
-    @apply rounded-[--radius] bg-[--bg-color] opacity-0;
+    @apply rounded-[--radius] border-[length:--border-width] border-[--border-color] bg-[--bg-color] p-[--padding] opacity-0;
 
     --duration: var(--vc-popover-enter-duration, 0.14s);
 

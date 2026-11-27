@@ -216,7 +216,7 @@
             :page-number="currentPage"
             :page-history="pageHistory"
             :products="products"
-            :saved-view-mode="savedViewMode"
+            :saved-view-mode="shownViewMode"
             :mode="catalogPaginationMode"
             :keyword="searchParams.keyword || barcodeQueryParam"
             class="category__products"
@@ -458,6 +458,9 @@ const isHorizontalFilters = computed(() => !isMobile.value && props.filtersOrien
 const hideViewModeSelector = computed(() => {
   return !!props.viewMode && viewModes.includes(props.viewMode);
 });
+const shownViewMode = computed(() =>
+  props.viewMode && hideViewModeSelector.value ? props.viewMode : savedViewMode.value,
+);
 
 const reportedPositions = new Map<string, { page: number; index: number }>();
 
@@ -850,12 +853,6 @@ watch(
   },
   { immediate: true },
 );
-
-watch(props, ({ viewMode }) => {
-  if (viewMode && viewModes.includes(viewMode)) {
-    savedViewMode.value = viewMode;
-  }
-});
 
 watch(
   () => currentCategory.value?.id,
@@ -1270,12 +1267,10 @@ onMounted(() => {
 
   // The layout switch and the sort are the design's seg track: no rim, 13 each side of a label, and
   // the soft plate shadow on the sliding pill and the chosen segment rather than the kit's md.
-  .vc-tab-switch-group--seg {
+  .vc-tab-switch-group {
     --vc-tab-switch-padding-x: 0.8125rem;
     --vc-tab-switch-group-pill-shadow: var(--category-plate-shadow);
     --vc-tab-switch-checked-shadow: var(--category-plate-shadow);
-
-    @apply border-0;
 
     // In dark the pill carries the fill and its own rim; a shadow on the segment over it would lay a
     // second veil on the pill's edge.

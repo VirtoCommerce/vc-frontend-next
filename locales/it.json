@@ -82,7 +82,6 @@
       "add_with_bulk_order": "Aggiungi con ordine multiplo",
       "all_orders": "Tutti gli ordini",
       "my_orders": "I miei ordini",
-      "scroll_to_top": "Torna su",
       "show_less": "Mostra di meno",
       "expand_all": "Espandi tutto",
       "all_products": "Tutti i prodotti",
@@ -364,14 +363,14 @@
           "main_menu": "Menu principale"
         },
         "preferences_menu": {
-          "aria_label": "Currency, language and theme",
-          "currency": "Currency",
-          "appearance": "Appearance",
-          "language": "Language",
+          "aria_label": "Valuta, lingua e tema",
+          "currency": "Valuta",
+          "appearance": "Aspetto",
+          "language": "Lingua",
           "theme": {
-            "light": "Light",
-            "dark": "Dark",
-            "system": "System"
+            "light": "Chiaro",
+            "dark": "Scuro",
+            "system": "Sistema"
           }
         },
         "link_sign_in": "Accedi",
@@ -381,7 +380,6 @@
           "home": "@:common.links.home",
           "catalog": "@:common.links.catalog",
           "bulk_order": "@:common.links.bulk_order",
-          "compare": "@:common.links.compare",
           "cart": "@:common.links.cart",
           "lists": "@:common.links.lists",
           "orders": "@:common.links.orders",
@@ -427,8 +425,8 @@
             "main_navigation": "Navigazione principale"
           }
         },
-        "organizations_menu": {
-          "trigger_label": "Organizzazioni: {name}"
+        "organization_switcher": {
+          "trigger_label": "{title}: {name}"
         },
         "link_with_count": "{title}: {count}",
         "cart_items_tooltip": "Nessun articolo | {n} articolo | {n} articoli"
@@ -669,6 +667,9 @@
         "vs_last_year": "{delta} vs anno scorso",
         "excluded_orders": "{count} ordine in un'altra valuta non incluso | {count} ordini in altre valute non inclusi",
         "sub_with_excluded": "{sub} · {note}",
+        "sales_report": {
+          "title": "Statistiche di vendita"
+        },
         "recent_orders": {
           "title": "I miei ordini recenti",
           "view_all": "Tutti gli ordini",
@@ -1202,50 +1203,6 @@
         "date_old_to_new": "Meno recenti"
       }
     },
-    "compare": {
-      "add_to_compare": {
-        "tooltips": {
-          "add": "Aggiungi al confronto",
-          "remove": "Rimuovi dal confronto"
-        }
-      },
-      "notifications": {
-        "limit_reached": "Solo {productsLimit} prodotti della stessa categoria possono essere confrontati",
-        "added_html": "Prodotto <span class=\"hidden lg:inline\">“<strong>{productName}</strong>”</span> aggiunto all'elenco di confronto <span class=\"hidden lg:inline\">(articoli rimasti - {itemsLeft})</span>",
-        "removed_html": "Prodotto <span class=\"hidden lg:inline\">“<strong>{productName}</strong>”</span> rimosso dall'elenco di confronto",
-        "compare_button": "Confronta",
-        "added_to_cart_html": "Aggiunto <strong>{productName}</strong> al carrello",
-        "fetch_failed": "Impossibile caricare alcuni prodotti confrontati. Riprova."
-      },
-      "table": {
-        "tabs": {
-          "all": "Tutti",
-          "differences": "Differenze",
-          "group_label": "Filtro righe"
-        },
-        "uncategorized": "Non categorizzato",
-        "unresolved_category": "Categoria sconosciuta",
-        "differ_rows": "Differiscono: {count} di {total} righe",
-        "clear_category": "Cancella categoria",
-        "remove_product": "Rimuovi dal confronto",
-        "add_to_cart": "Aggiungi al carrello",
-        "fields": {
-          "price_per_unit": "Prezzo per unità",
-          "price_per_unit_tooltip": "Prezzo, IVA esclusa, per unità.",
-          "customer_rating": "Valutazione cliente",
-          "availability": "Disponibilità",
-          "sku": "@:common.labels.sku",
-          "min_order_qty": "Quantità minima d'ordine",
-          "min_order_qty_tooltip": "MOQ — numero minimo di unità per ordine."
-        },
-        "pin": {
-          "pin_title": "Fissa in alto",
-          "unpin_title": "Rimuovi fissaggio",
-          "pin_label": "Fissa “{label}”",
-          "unpin_label": "Rimuovi fissaggio “{label}”"
-        }
-      }
-    },
     "dashboard": {
       "edit": "Modifica layout",
       "editing": "Modifica del layout",
@@ -1315,7 +1272,7 @@
         "vs_last_year": "{change} vs anno scorso"
       },
       "last_year": "Anno scorso",
-      "last_year_toggle": "Mostra l'anno scorso nel grafico «{chart}»",
+      "last_year_toggle": "Anno scorso: {chart}",
       "legend": {
         "aov_closed": "AOV, mesi chiusi",
         "current": "Questo mese, a oggi",
@@ -1957,34 +1914,6 @@
     },
     "brand": {
       "products_title": "Prodotti"
-    },
-    "compare": {
-      "title": "Confronta prodotti",
-      "meta": {
-        "keywords": "confronta prodotti, confronto prodotti, confronto affiancato",
-        "description": "Confronta prodotti fianco a fianco per trovare l'opzione migliore per le tue esigenze."
-      },
-      "added_count": "{count} di {total} aggiunti",
-      "added_count_in_category": "{count} di {total} aggiunti in {category}",
-      "actions": {
-        "clear_all": "Cancella tutto"
-      },
-      "clear_all_modal": {
-        "title": "Cancella tutto",
-        "message": "Nessun prodotto verrà rimosso dal confronto. | 1 prodotto verrà rimosso dal confronto. | Tutti i {n} prodotti verranno rimossi dal confronto. | Tutti i {n} prodotti verranno rimossi dal confronto."
-      },
-      "clear_category_modal": {
-        "title": "Cancella categoria",
-        "message": "Nessun prodotto in {category} verrà rimosso dal confronto. | 1 prodotto in {category} verrà rimosso dal confronto. | Tutti i {n} prodotti in {category} verranno rimossi dal confronto. | Tutti i {n} prodotti in {category} verranno rimossi dal confronto."
-      },
-      "empty": {
-        "title": "Il tuo elenco di confronto è vuoto",
-        "description": "Aggiungi prodotti dal catalogo per confrontare le loro caratteristiche fianco a fianco. Puoi confrontare fino a {limit} prodotti per categoria.",
-        "restore_button": "Ripristina prodotti",
-        "add_button": "Aggiungi prodotti"
-      },
-      "error": "Impossibile caricare i dati",
-      "retry": "Riprova"
     },
     "demo_home": {
       "hero": {

@@ -51,23 +51,17 @@
             <h3 class="header-preferences-menu__title">{{ $t("shared.layout.header.preferences_menu.appearance") }}</h3>
 
             <VcTabSwitchGroup
+              v-model="colorMode"
               class="header-preferences-menu__modes"
-              variant="seg"
-              fill
               :aria-label="$t('shared.layout.header.preferences_menu.appearance')"
             >
-              <!-- VcTabSwitch does not write to its model — v-model only feeds `checked`, and the
-                   consumer commits the new value from @change (see view-mode.vue). -->
               <VcTabSwitch
                 v-for="mode in COLOR_MODES"
                 :key="mode.value"
-                v-model="colorMode"
-                name="header-color-mode"
                 :value="mode.value"
                 :icon="mode.icon"
                 :label="$t(`shared.layout.header.preferences_menu.theme.${mode.value}`)"
                 size="sm"
-                @change="colorMode = $event"
               />
             </VcTabSwitchGroup>
           </section>
@@ -290,13 +284,15 @@ const columnCount = computed(() => Number(isSettingsColumnShown.value) + Number(
   }
 
   &__modes {
-    // The rail itself is VcTabSwitchGroup's seg variant. Only one thing differs from the
-    // catalog's rails: here the glyphs stay in the brand colour in every state, selected or
-    // not — the design's single exception, because in the catalog the accent is already
-    // spoken for by the sort switcher.
+    // The rail itself is the theme's VcTabSwitchGroup track, its three modes in equal columns
+    // across the card. Only one thing differs from the catalog's rails: here the glyphs stay in
+    // the brand colour in every state, selected or not — the design's single exception, because
+    // in the catalog the accent is already spoken for by the sort switcher.
     --vc-icon-color: theme("colors.primary.500");
     --vc-tab-switch-color: theme("colors.primary.500");
     --vc-tab-switch-hover-icon-color: theme("colors.primary.500");
+
+    @apply grid w-full auto-cols-fr grid-flow-col;
   }
 
   &__flag {

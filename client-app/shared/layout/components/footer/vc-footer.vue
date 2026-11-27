@@ -1,5 +1,10 @@
 <template>
-  <footer id="footer" :class="['app-footer', { 'app-footer--compact': compact }]" aria-label="Footer">
+  <footer
+    id="footer"
+    :class="['app-footer', { 'app-footer--compact': compact }]"
+    aria-label="Footer"
+    v-bind="getPreviewSectionAttrs(siteFooter?.id)"
+  >
     <div class="app-footer__shell">
       <!-- Top plate -->
       <div v-if="!compact" class="app-footer__top">
@@ -8,7 +13,16 @@
         </div>
 
         <nav class="app-footer__links">
-          <template v-if="whiteLabelingFooterLinks?.length">
+          <template v-if="themeFooterColumns">
+            <FooterLinks
+              v-for="(column, index) in themeFooterColumns"
+              :key="column.id ?? index"
+              :links-block="column"
+              v-bind="getPreviewSectionAttrs(column.id)"
+            />
+          </template>
+
+          <template v-else-if="whiteLabelingFooterLinks?.length">
             <FooterLinks
               v-for="(footerLink, index) in whiteLabelingFooterLinks"
               :key="index"
@@ -24,14 +38,21 @@
 
       <!-- Bottom plate -->
       <div class="app-footer__bottom">
-        <span>
+        <span v-if="copyright">{{ copyright }}</span>
+
+        <span v-else>
           {{ $t("shared.layout.footer.version") }} {{ version }}. © {{ new Date().getFullYear() }}
           <strong>{{ $t("shared.layout.footer.company_name") }}</strong
           >.
           {{ $t("shared.layout.footer.all_rights_reserved") }}
         </span>
 
-        <i18n-t keypath="shared.layout.footer.asp_net_e_commerce_platform" tag="span" scope="global">
+        <i18n-t
+          v-if="isCreditShown"
+          keypath="shared.layout.footer.asp_net_e_commerce_platform"
+          tag="span"
+          scope="global"
+        >
           <a class="app-footer__link" href="https://virtocommerce.com" target="_blank" rel="noopener noreferrer">
             {{ $t("shared.layout.footer.by_virto") }}
           </a>
@@ -44,7 +65,8 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { useNavigations, useWhiteLabeling } from "@/core/composables";
-import pkg from "../../../../../package.json";
+import { useThemeChrome } from "@/shared/layout/composables/useThemeChrome";
+import { getPreviewSectionAttrs } from "@/shared/static-content/sections";
 import FooterLinks from "./_internal/footer-links.vue";
 
 interface IProps {
@@ -55,8 +77,9 @@ const props = defineProps<IProps>();
 
 const { themeLogoUrl, footerLinks: whiteLabelingFooterLinks } = useWhiteLabeling();
 const { footerLinks, fetchFooterLinks } = useNavigations();
+const { footerColumns: themeFooterColumns, copyright, isCreditShown, siteFooter } = useThemeChrome();
 
-const { version } = pkg;
+const version = import.meta.env.APP_VERSION;
 
 onMounted(() => {
   if (!props.compact) {

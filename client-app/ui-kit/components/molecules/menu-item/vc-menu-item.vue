@@ -46,8 +46,8 @@
 
 <script setup lang="ts">
 import { ref, computed, provide, onMounted } from "vue";
-import { getLinkAttr } from "@/core/utilities/common";
 import { useComponentId } from "@/ui-kit/composables";
+import { getLinkAttr } from "@/ui-kit/utilities";
 import { INTERACTIVE_PARENT_KEY } from "./vc-menu-item-context";
 import type { RouteLocationRaw } from "vue-router";
 
@@ -186,11 +186,6 @@ onMounted(() => {
   --props-max-lines: v-bind(maxLines);
   --max-lines: var(--props-max-lines, 2);
 
-  // The row's own side inset. Public, because a shell that already pays for the inset has to be
-  // able to take it back by name — a chromeless widget, for one, whose rows must line up with its
-  // own heading rather than sit a step inside it. The hover plate still spans the full width.
-  --p-x: var(--vc-menu-item-padding-x, theme("padding.3"));
-
   $colors: primary, secondary, success, info, warning, danger, neutral;
 
   $active: "";
@@ -202,15 +197,12 @@ onMounted(() => {
   &__inner {
     --vc-icon-size: var(--content-height);
 
-    @apply flex items-center w-full px-[--p-x] text-left font-normal;
+    @apply flex items-center w-full text-left font-normal;
 
-    // The plate's corners. Public, so a list can round its rows without a radius on the root; unset,
-    // the plate keeps following the root's. `inherit` must sit in the property itself: routed through
-    // a private custom property it no longer acts as the keyword and computes to 0.
+    padding-inline: var(--vc-menu-item-padding-x, theme("padding.3"));
+    // `inherit` sits in the property itself: routed through a private variable it is no longer the keyword.
     border-radius: var(--vc-menu-item-radius, inherit);
-
-    // The row's rest fill, public so a theme can put its rows on its own surface.
-    background-color: var(--vc-menu-item-bg, var(--color-additional-50));
+    background-color: var(--vc-menu-item-bg-color, theme("colors.additional.50"));
 
     &:not(:disabled) {
       @apply text-neutral-950;
@@ -260,18 +252,16 @@ onMounted(() => {
       }
     }
 
-    // Hover and the active mark are separately overridable, so a list can break the
-    // "one colour, two shades" pairing.
     @each $color in $colors {
       &--color--#{$color} {
         --vc-icon-color: var(--color-#{$color}-600);
 
         &:hover {
-          background-color: var(--vc-menu-item-hover-bg, var(--color-#{$color}-50));
+          background-color: var(--vc-menu-item-hover-bg-color, var(--color-#{$color}-50));
         }
 
         &#{$active} {
-          background-color: var(--vc-menu-item-active-bg, var(--color-#{$color}-100));
+          background-color: var(--vc-menu-item-active-bg-color, var(--color-#{$color}-100));
         }
       }
     }

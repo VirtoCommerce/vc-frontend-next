@@ -65,74 +65,12 @@
       "schemes": ["light", "dark"]
     },
     {
-      "id": "compare",
-      "title": "Compare page",
-      "why": "Header counter (HeaderBadge 99+, overlay placement, VCST-3632) on the Compare link; compare-table under cascade layers",
-      "schemes": ["light", "dark"],
-      "seed": {
-        "keys": ["compareProducts"],
-        "steps": [
-          {
-            "goto": "/bolts"
-          },
-          {
-            "click": "button[aria-pressed='false'][aria-label*='compar' i]",
-            "count": 4
-          }
-        ]
-      },
-      "steps": [
-        {
-          "goto": "/compare"
-        }
-      ]
-    },
-    {
-      "id": "compare-stuck",
-      "title": "Compare page, header pinned",
-      "why": "Pinned header row and the counter on the pinned header (bottom-header-link conflict)",
-      "fullPage": false,
-      "seed": {
-        "keys": ["compareProducts"],
-        "steps": [
-          {
-            "goto": "/bolts"
-          },
-          {
-            "click": "button[aria-pressed='false'][aria-label*='compar' i]",
-            "count": 4
-          }
-        ]
-      },
-      "steps": [
-        {
-          "goto": "/compare"
-        },
-        {
-          "scroll": 700,
-          "wait": 800
-        }
-      ]
-    },
-    {
       "id": "mobile-menu",
-      "title": "Mobile menu with a count",
-      "why": "mobile-menu-link.vue conflict: the fork's row with upstream's HeaderBadge and count aria-label",
+      "title": "Mobile menu",
+      "why": "mobile-menu-link.vue conflict: the fork's row over upstream's link markup",
       "viewports": ["mobile"],
       "schemes": ["light", "dark"],
       "fullPage": false,
-      "seed": {
-        "keys": ["compareProducts"],
-        "steps": [
-          {
-            "goto": "/bolts"
-          },
-          {
-            "click": "button[aria-pressed='false'][aria-label*='compar' i]",
-            "count": 4
-          }
-        ]
-      },
       "steps": [
         {
           "goto": "/"

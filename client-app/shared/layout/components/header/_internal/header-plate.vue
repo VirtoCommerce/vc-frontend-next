@@ -1,9 +1,14 @@
 <template>
-  <div :class="['header-plate', { 'header-plate--stuck': stuck }]">
+  <div :class="['header-plate', { 'header-plate--stuck': stuck }]" v-bind="getPreviewSectionAttrs(siteHeader?.id)">
     <div ref="plate" class="header-plate__surface">
       <nav class="header-plate__row" :aria-label="$t('shared.layout.header.bottom_header.main_menu')">
-        <router-link class="header-plate__brand" :to="$context.settings.default_return_url ?? '/'">
-          <VcImage :src="themeLogoUrl" :alt="$context.storeName" class="header-plate__logo" lazy />
+        <router-link class="header-plate__brand" :to="$context.settings.default_return_url ?? '/'" :style="logoStyle">
+          <VcImage
+            :src="themeLogoUrl"
+            :alt="$context.storeName"
+            :class="['header-plate__logo', { 'header-plate__logo--sized': logoWidth }]"
+            lazy
+          />
         </router-link>
 
         <a
@@ -26,9 +31,11 @@
         <SearchBar class="header-plate__search" />
 
         <ul class="header-plate__links">
-          <li v-for="item in desktopMainMenuItems" :key="item.id" :data-test-id="item.dataTestId">
+          <li v-for="item in linkItems" :key="item.id" :data-test-id="item.dataTestId">
             <ExtensionPoint category="headerMenu" :name="item.id" :item="item">
-              <LinkDefault :item="item" />
+              <template #default="{ extensionProps }">
+                <LinkDefault :item="item" :count="toValue(extensionProps?.count)" />
+              </template>
             </ExtensionPoint>
           </li>
         </ul>
@@ -43,7 +50,7 @@
           <template v-if="isAuthenticated">
             <HeaderAccountMenu />
 
-            <HeaderOrganizationsMenu v-if="isMultiOrganization" />
+            <HeaderOrganizationsMenu v-if="isMultiOrganization && organizationsItem" :item="organizationsItem" />
           </template>
 
           <VcButton v-else :to="ROUTES.SIGN_IN.PATH" size="sm" data-test-id="sign-in-link">
@@ -76,12 +83,14 @@
 
 <script setup lang="ts">
 import { onClickOutside, syncRefs, useElementBounding, useScrollLock } from "@vueuse/core";
-import { computed, nextTick, ref, shallowRef, watch } from "vue";
+import { computed, nextTick, onDeactivated, ref, shallowRef, toValue, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNavigations, useWhiteLabeling } from "@/core/composables";
 import { ROUTES } from "@/router/routes/constants";
 import { useUser } from "@/shared/account/composables/useUser";
 import { useStuckPlate } from "@/shared/layout/composables/useStuckPlate";
+import { useThemeChrome } from "@/shared/layout/composables/useThemeChrome";
+import { getPreviewSectionAttrs } from "@/shared/static-content/sections";
 import CatalogMenu from "./catalog-menu.vue";
 import HeaderAccountMenu from "./header-account-menu.vue";
 import HeaderOrganizationsMenu from "./header-organizations-menu.vue";
@@ -89,6 +98,7 @@ import HeaderPreferencesMenu from "./header-preferences-menu.vue";
 import LinkDefault from "./link-components/link-default.vue";
 import MegaMenu from "./mega-menu.vue";
 import SearchBar from "./search-bar/search-bar.vue";
+import type { ExtendedMenuLinkType } from "@/core/types";
 import type { StyleValue } from "vue";
 
 interface IProps {
@@ -102,7 +112,26 @@ const router = useRouter();
 const route = useRoute();
 const { isAuthenticated, isMultiOrganization } = useUser();
 const { themeLogoUrl } = useWhiteLabeling();
+const { logoWidth, logoStyle, iconsMenuLinks, siteHeader } = useThemeChrome();
 const { catalogMenuItems, desktopMainMenuItems } = useNavigations();
+
+const iconsMenuItems = computed<ExtendedMenuLinkType[]>(() =>
+  iconsMenuLinks.value
+    ? iconsMenuLinks.value.map((link) => {
+        const routeName = typeof link.route === "string" ? router.resolve(link.route).name : undefined;
+        const builtIn = desktopMainMenuItems.value.find(
+          (item) => typeof item.route === "object" && "name" in item.route && item.route.name === routeName,
+        );
+        return builtIn
+          ? { ...builtIn, title: link.title }
+          : { ...link, id: typeof link.route === "string" ? link.route : link.title };
+      })
+    : desktopMainMenuItems.value,
+);
+
+// The organizations item is the pod at the account end, not a link of this row.
+const organizationsItem = computed(() => iconsMenuItems.value.find((item) => item.id === "organizations"));
+const linkItems = computed(() => iconsMenuItems.value.filter((item) => item.id !== "organizations"));
 
 const plate = ref<HTMLElement | null>(null);
 const catalogMenuElement = shallowRef<HTMLElement | null>(null);
@@ -164,6 +193,11 @@ function focusoutDropdown(payload: FocusEvent) {
 }
 
 watch(route, () => {
+  catalogMenuVisible.value = false;
+});
+
+// A header kept alive under a page without it must not leave its menu open or the page unable to scroll.
+onDeactivated(() => {
   catalogMenuVisible.value = false;
 });
 
@@ -321,6 +355,11 @@ defineExpose({ pinnedHeight });
 
     #{$stuck} & {
       @apply h-[2.125rem];
+    }
+
+    &--sized {
+      @apply h-auto max-h-16 w-[--header-logo-width] [--vc-image-object-fit:contain];
+      @apply [--vc-image-object-position:left_center] rtl:[--vc-image-object-position:right_center];
     }
   }
 

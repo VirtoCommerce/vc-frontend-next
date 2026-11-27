@@ -115,7 +115,7 @@ const sections = computed<RenderSectionType[]>(() => {
 .account-navigation {
   // A nav hover is a neutral tint, so the secondary fill is left to say "you are here" and
   // nothing else. Dark brightens instead: see dark/shared/account/account-navigation.
-  --vc-menu-item-hover-bg: theme("colors.neutral.100");
+  --vc-menu-item-hover-bg-color: theme("colors.neutral.100");
 
   // One construction for every side rail in the theme: this is the catalog's facet card, built from
   // the widget's own knobs rather than from a second pile of `.vc-widget` overrides. The numbers are
