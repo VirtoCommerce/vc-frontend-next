@@ -1,7 +1,9 @@
 <template>
+  <AnnouncementBar />
+
   <header :class="['mobile-header', { 'mobile-header--stuck': stuck }]">
     <div class="mobile-header__shell">
-      <div ref="plate" class="mobile-header__plate">
+      <div ref="plate" class="mobile-header__plate" v-bind="getPreviewSectionAttrs(siteHeader?.id)">
         <!-- region Default slot -->
         <transition :name="isAnimated ? 'slide-fade-top' : ''" mode="out-in">
           <div v-if="customSlots.default" class="mobile-header__bar mobile-header__bar--custom">
@@ -23,8 +25,17 @@
                 <VcIcon name="menu" :size="26" />
               </button>
 
-              <router-link class="mobile-header__brand" :to="$context.settings.default_return_url ?? '/'">
-                <VcImage :src="themeLogoUrl" :alt="$context.storeName" class="mobile-header__logo" lazy />
+              <router-link
+                class="mobile-header__brand"
+                :to="$context.settings.default_return_url ?? '/'"
+                :style="logoStyle"
+              >
+                <VcImage
+                  :src="themeLogoUrl"
+                  :alt="$context.storeName"
+                  :class="['mobile-header__logo', { 'mobile-header__logo--sized': logoWidth }]"
+                  lazy
+                />
               </router-link>
             </div>
             <!-- endregion Left slot -->
@@ -76,7 +87,7 @@
 
 <script setup lang="ts">
 import { syncRefs, useCssVar, useElementSize, useScrollLock } from "@vueuse/core";
-import { computed, nextTick, ref, watch } from "vue";
+import { computed, nextTick, onActivated, onDeactivated, ref, watch } from "vue";
 import { useWhiteLabeling } from "@/core/composables";
 import { ROUTES } from "@/router/routes/constants";
 import { useShortCart } from "@/shared/cart";
@@ -84,6 +95,9 @@ import { useNestedMobileHeader } from "@/shared/layout";
 import { useHeaderCountLabel } from "@/shared/layout/composables/useHeaderCountLabel";
 import { useSearchBar } from "@/shared/layout/composables/useSearchBar";
 import { useStuckPlate } from "@/shared/layout/composables/useStuckPlate";
+import { useThemeChrome } from "@/shared/layout/composables/useThemeChrome";
+import { getPreviewSectionAttrs } from "@/shared/static-content/sections";
+import AnnouncementBar from "../../announcement-bar/announcement-bar.vue";
 import MobileMenu from "./mobile-menu/mobile-menu.vue";
 import MobileSearchBar from "./mobile-search-bar.vue";
 import HeaderBadge from "@/shared/layout/components/header-badge/header-badge.vue";
@@ -100,15 +114,19 @@ const { getCountLabel } = useHeaderCountLabel();
 const { height } = useElementSize(plate);
 const { cart } = useShortCart();
 const { themeLogoUrl } = useWhiteLabeling();
+// The theme's logo width is the desktop header's; in the phone's bar the logo shrinks to fit, keeping its proportions.
+const { logoWidth, logoStyle, siteHeader } = useThemeChrome();
 
 // The PLATE, not the header: the shell's air scrolls away and only what the plate paints stays
-// on screen. VcHeader owns this var on desktop.
+// on screen. AppHeader owns this var on desktop.
 const appHeaderHeightVar = useCssVar("--vc-app-header-height");
 
+const isShown = ref(true);
+
 watch(
-  height,
-  (value) => {
-    appHeaderHeightVar.value = `${value}px`;
+  [height, isShown],
+  ([value, shown]) => {
+    appHeaderHeightVar.value = shown ? `${value}px` : undefined;
   },
   { immediate: true },
 );
@@ -120,6 +138,20 @@ async function closeMenu() {
   await nextTick();
   burger.value?.focus();
 }
+
+onActivated(() => {
+  isShown.value = true;
+});
+
+// Nothing of a header that is not shown may stay open or keep the page from scrolling.
+onDeactivated(() => {
+  isShown.value = false;
+  mobileMenuVisible.value = false;
+
+  if (searchBarVisible.value) {
+    toggleSearchBar();
+  }
+});
 
 const isScrollLocked = computed(() => mobileMenuVisible.value || searchBarVisible.value);
 const scrollLock = useScrollLock(document.body);
@@ -133,7 +165,9 @@ syncRefs(isScrollLocked, scrollLock);
 
   --glass: var(--header-plate-glass, var(--header-bottom-bg-color));
 
-  @apply sticky z-40;
+  @apply sticky z-40 mx-auto;
+
+  inline-size: var(--vc-frame-header-width, 100%);
 
   // The gutters and the step above the plate are air; an element there would swallow taps meant
   // for the page under it. The plate takes the events back.
@@ -243,6 +277,11 @@ syncRefs(isScrollLocked, scrollLock);
 
   &__logo {
     @apply h-8;
+
+    &--sized {
+      @apply h-auto max-h-10 w-[--header-logo-width] max-w-[40vw] [--vc-image-object-fit:contain];
+      @apply [--vc-image-object-position:left_center] rtl:[--vc-image-object-position:right_center];
+    }
   }
 
   &__cart {

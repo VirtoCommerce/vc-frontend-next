@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { useLocaleSwitch } from "@/shared/layout/composables";
+import { useLocaleSwitch } from "@/shared/layout/composables/useLocaleSwitch";
 import { getFlagIconUrl } from "@/ui-kit/utilities";
 
 const { supportedLanguages, currentLanguage, selectLanguage: select, getCountryCode } = useLocaleSwitch();

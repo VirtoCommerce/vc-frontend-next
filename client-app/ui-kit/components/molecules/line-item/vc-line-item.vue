@@ -75,7 +75,7 @@
             <VcProperty
               v-for="property in properties"
               :key="property.name"
-              :label="property.label!"
+              :label="property.label"
               :disabled="disabled || deleted"
             >
               {{ property.value }}
@@ -148,7 +148,6 @@
 
 <script setup lang="ts">
 import { computed, ref, useSlots, watchEffect } from "vue";
-import type { CommonVendor, MoneyType, Property } from "@/core/api/graphql/types";
 import type { RouteLocationRaw } from "vue-router";
 
 interface IEmits {
@@ -161,11 +160,11 @@ interface IProps {
   imageUrl?: string;
   name: string;
   route?: RouteLocationRaw;
-  properties?: Property[];
-  listPrice?: MoneyType;
-  actualPrice?: MoneyType;
-  total?: MoneyType;
-  listTotal?: MoneyType;
+  properties?: VcPropertyType[];
+  listPrice?: VcMoneyType;
+  actualPrice?: VcMoneyType;
+  total?: VcMoneyType;
+  listTotal?: VcMoneyType;
   selectable?: boolean;
   selected?: boolean;
   removable?: boolean;
@@ -175,7 +174,7 @@ interface IProps {
   withProperties?: boolean;
   withPrice?: boolean;
   withTotal?: boolean;
-  vendor?: CommonVendor;
+  vendor?: VcVendorType;
   browserTarget?: BrowserTargetType;
   showPlacedPrice?: boolean;
 }
@@ -228,6 +227,7 @@ watchEffect(() => {
   $disabled: "";
 
   --bg-color: var(--color-additional-50);
+  --selected-edge-color: var(--vc-line-item-selected-edge-color, var(--color-primary-500));
 
   @apply relative flex flex-col gap-2 p-3 rounded-[--vc-radius] border shadow-md bg-[--bg-color];
 
@@ -237,7 +237,10 @@ watchEffect(() => {
 
   &--selected {
     $selected: &;
-    --bg-color: var(--color-secondary-50);
+
+    &::before {
+      @apply content-[''] absolute inset-0 z-[2] rounded-[inherit] border-s-4 border-s-[--selected-edge-color] pointer-events-none;
+    }
   }
 
   &--removable {

@@ -1,10 +1,17 @@
 @use "../client-app/assets/styles/layers";
 @use "sass:meta";
 
+@include meta.load-css("../client-app/ui-kit/styles");
+
+// This Storybook hosts the app's stories too, so it maps the app colours like the app's main.scss.
 @layer theme {
-  @include meta.load-css("../client-app/assets/styles/ui-kit-tokens");
+  @include meta.load-css("../client-app/assets/styles/colors");
 }
 
-@layer vc.kit {
-  @include meta.load-css("../client-app/assets/styles/dark-kit");
+// The fork's paprika look, loaded as the app's main.scss loads it: component rules in vc.app, tokens unlayered.
+@layer vc.app {
+  @include meta.load-css("../client-app/assets/styles/paprika-components");
 }
+
+@include meta.load-css("../client-app/assets/styles/color-mode-switch");
+@include meta.load-css("../client-app/assets/styles/paprika");

@@ -14,7 +14,7 @@
       :id="componentId"
       type="radio"
       class="vc-tab-switch__input"
-      :name="name"
+      :name="groupContext?.name ?? name"
       :value="value"
       :checked="checked"
       :disabled="disabled"
@@ -23,14 +23,17 @@
     />
 
     <!-- The radio is display:none, so its `aria-checked` never reaches the a11y tree — the visible
-         button has to carry the state itself. Toggle semantics, not `role="tab"`: the tablist parent
-         lives in consumer markup. -->
+         button has to carry the state itself. Alone it is a toggle; inside VcTabSwitchGroup it is a radio
+         of the group's radiogroup, with one tab stop once an item is checked. -->
     <button
       class="vc-tab-switch__button"
       type="button"
-      tabindex="0"
+      :tabindex="tabindex"
+      :role="groupContext ? 'radio' : undefined"
       :aria-label="ariaLabel || label"
-      :aria-pressed="checked"
+      :aria-pressed="groupContext ? undefined : checked"
+      :aria-checked="groupContext ? checked : undefined"
+      :aria-disabled="groupContext && disabled ? true : undefined"
       @click="onChange"
     >
       <slot name="icon" v-bind="{ checked, value, label }">
@@ -47,9 +50,10 @@
 </template>
 
 <script setup lang="ts" generic="T extends string | number | boolean">
-import { computed } from "vue";
+import { computed, inject, onBeforeUnmount } from "vue";
 import { useComponentId } from "@/ui-kit/composables";
 import { getColorValue } from "@/ui-kit/utilities";
+import { vcTabSwitchGroupKey } from "../tab-switch-group/vc-tab-switch-group-context";
 
 const emit = defineEmits<{
   (event: "input", value: T): void;
@@ -77,18 +81,43 @@ const props = withDefaults(
 const model = defineModel<T>();
 
 const componentId = useComponentId("input");
+const groupContext = inject(vcTabSwitchGroupKey, null);
+const unregister = groupContext?.register({ value: () => props.value, disabled: () => props.disabled });
 
-const checked = computed(() => model.value === props.value);
+const checked = computed(() => (groupContext ? groupContext.modelValue.value : model.value) === props.value);
+const tabindex = computed(() => {
+  if (!groupContext) {
+    return 0;
+  }
+
+  // One tab stop per group: the checked item, or every enabled item while none is checked.
+  if (props.disabled) {
+    return -1;
+  }
+
+  return checked.value || !groupContext.hasCheckedItem.value ? 0 : -1;
+});
 const _color = computed(() => getColorValue(props.color));
 const _hoverColor = computed(() => getColorValue(props.hoverColor));
 
 function onChange() {
+  // In a group the button stays focusable for screen readers, so Space and Enter still land here.
+  if (groupContext) {
+    if (props.disabled) {
+      return;
+    }
+
+    groupContext.select(props.value);
+  }
+
   emit("change", props.value);
 }
 
 function onInput() {
   emit("input", props.value);
 }
+
+onBeforeUnmount(() => unregister?.());
 </script>
 
 <style lang="scss">
@@ -104,21 +133,15 @@ function onInput() {
   --hover-color: var(--vc-props-hover-color, var(--vc-tab-switch-hover-color, theme("colors.accent.500")));
   --radius: var(--vc-tab-switch-radius, var(--vc-radius, 0.5rem));
   --border-color: var(--vc-tab-switch-border-color, theme("colors.neutral.200"));
-
-  // Everything a track wrapper needs to repaint a segment. A group cannot reach into
-  // this block's elements from its own file, so the seams it pulls on are declared here,
-  // each falling back to what the switch rendered before they existed.
+  --text-color: var(--vc-tab-switch-text-color, theme("colors.neutral.DEFAULT"));
   --px: var(--vc-tab-switch-padding-x, var(--p));
   --weight: var(--vc-tab-switch-font-weight, theme("fontWeight.bold"));
   --checked-weight: var(--vc-tab-switch-checked-font-weight, var(--weight));
+  --checked-text-color: var(--vc-tab-switch-checked-text-color, theme("colors.neutral.950"));
   --checked-bg-color: var(--vc-tab-switch-checked-bg-color, theme("colors.additional.50"));
   --checked-shadow: var(--vc-tab-switch-checked-shadow, theme("boxShadow.md"));
 
-  // Positioned, so that a track wrapper's sliding indicator — which precedes the switches in
-  // the DOM — paints under them and the label never blinks with the fill behind it.
-  @apply relative inline-block;
-
-  color: var(--vc-tab-switch-text-color, theme("colors.neutral.DEFAULT"));
+  @apply inline-block text-[--text-color];
 
   &--size {
     &--sm {
@@ -157,17 +180,17 @@ function onInput() {
   }
 
   &__button {
-    @apply flex w-full cursor-pointer select-none items-center justify-center gap-1.5 rounded-[--radius] border border-[--border-color];
+    @apply flex items-center justify-center gap-1.5 w-full rounded-[--radius] border border-[--border-color] py-[--p] px-[--px] cursor-pointer select-none;
 
-    padding: var(--p) var(--px);
     font-weight: var(--weight);
 
     input:checked ~ & {
-      @apply text-neutral-950;
+      @apply shadow-md text-[--checked-text-color] bg-[--checked-bg-color];
+
+      // shadow-md keeps `--tw-shadow-colored`, so a `shadow-<colour>` class still tints; only the value is ours.
+      --tw-shadow: var(--checked-shadow);
 
       border-color: var(--vc-tab-switch-checked-border-color, var(--border-color));
-      background: var(--checked-bg-color);
-      box-shadow: var(--checked-shadow);
       font-weight: var(--checked-weight);
     }
 
@@ -180,15 +203,14 @@ function onInput() {
     }
   }
 
+  // A hidden copy of the `label` prop in the checked weight keeps the width when the weight changes;
+  // a default-slot label gets no copy.
+  // The label stays a block, so a consumer's `truncate` still gets its ellipsis.
   &__label {
-    // The box is reserved at the CHECKED weight and the label is centred in it. Heavier text is
-    // wider, so without the reservation a rail of equal columns grows by a pixel or two whenever
-    // the longest option is picked, and everything beside it twitches — measured 217.33 -> 218.75
-    // on the header's three appearance modes, enough to nudge the panel's column.
-    @apply grid justify-items-center;
+    @apply block;
 
     &::after {
-      @apply invisible h-0 overflow-hidden;
+      @apply block invisible h-0 overflow-hidden;
 
       content: attr(data-label);
       font-weight: var(--checked-weight);

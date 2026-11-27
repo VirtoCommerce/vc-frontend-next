@@ -103,7 +103,7 @@ watchEffect(async () => {
 <style scoped lang="scss">
 .products-block {
   &.bg-neutral-800 {
-    color: white;
+    @apply text-additional-50;
   }
 }
 </style>

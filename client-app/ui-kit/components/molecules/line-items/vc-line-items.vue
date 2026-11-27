@@ -143,22 +143,21 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends VcLineItemType">
 import { intersection, map, sumBy } from "lodash-es";
 import { computed, ref, watchEffect } from "vue";
-import type { PreparedLineItemType } from "@/core/types";
 
-interface IEmits {
+export interface IEmits<T extends VcLineItemType> {
   (event: "remove:items", value: string[]): void;
   (event: "select:items", value: { itemIds: string[]; selected: boolean }): void;
-  (event: "linkClick", value: PreparedLineItemType): void;
+  (event: "linkClick", value: T): void;
 }
 
-interface IProps {
+export interface IProps<T extends VcLineItemType> {
   disabled?: boolean;
   readonly?: boolean;
   removable?: boolean;
-  items?: PreparedLineItemType[];
+  items?: T[];
   sharedSelectedItemIds?: string[];
   selectable?: boolean;
   withImage?: boolean;
@@ -172,9 +171,9 @@ interface IProps {
   subtotalCurrencyCode?: string;
 }
 
-const emit = defineEmits<IEmits>();
+const emit = defineEmits<IEmits<T>>();
 
-const props = withDefaults(defineProps<IProps>(), {
+const props = withDefaults(defineProps<IProps<T>>(), {
   items: () => [],
   withHeader: true,
   browserTarget: "_blank",
@@ -235,6 +234,8 @@ watchEffect(() => {
 
 <style lang="scss">
 .vc-line-items {
+  --subtotal-color: var(--vc-line-items-subtotal-color, theme("colors.neutral.900"));
+
   @apply @container;
 
   &__container {
@@ -328,13 +329,13 @@ watchEffect(() => {
   &__button {
     @apply me-1;
 
-    &--mobile.vc-button {
+    &--mobile {
       @container (width > theme("containers.2xl")) {
         @apply hidden;
       }
     }
 
-    &--desktop.vc-button {
+    &--desktop {
       @apply hidden;
 
       @container (width > theme("containers.2xl")) {
@@ -344,7 +345,7 @@ watchEffect(() => {
   }
 
   &__subtotal {
-    @apply ms-auto justify-self-end flex items-center gap-2 text-[--price-color];
+    @apply ms-auto justify-self-end flex items-center gap-2 text-[--subtotal-color];
   }
 
   &__subtotal-label {

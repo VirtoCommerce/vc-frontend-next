@@ -27,7 +27,9 @@ function _useDarkMode() {
   }
 
   const systemPrefersDark = useMediaQuery("(prefers-color-scheme: dark)");
-  const activePresetName = ref<string>();
+  const colorModeOverride = ref<"light" | "dark">();
+  const isPresetKnown = ref(false);
+  const hasDarkPreset = ref(false);
 
   let lastPointer: { x: number; y: number; at: number } | null = null;
 
@@ -39,18 +41,17 @@ function _useDarkMode() {
     { passive: true, capture: true },
   );
 
-  const isDarkModeAvailable = computed(() => {
-    return !!activePresetName.value && activePresetName.value in darkPresets;
-  });
+  const isDarkModeAvailable = computed(() => hasDarkPreset.value);
 
   const isDark = computed(() => {
     if (!isDarkModeAvailable.value) {
       return false;
     }
-    if (storedMode.value === "system") {
+    const mode = colorModeOverride.value ?? storedMode.value;
+    if (mode === "system") {
       return systemPrefersDark.value;
     }
-    return storedMode.value === "dark";
+    return mode === "dark";
   });
 
   // Sync html.dark class with isDark state, but only after preset is known.
@@ -60,7 +61,7 @@ function _useDarkMode() {
     (value) => {
       // Reading the class back is what separates a real switch from the run that only catches
       // up with what setActivePreset already wrote — and the catch-up must not be animated.
-      if (activePresetName.value === undefined || document.documentElement.classList.contains("dark") === value) {
+      if (!isPresetKnown.value || document.documentElement.classList.contains("dark") === value) {
         return;
       }
 
@@ -73,12 +74,20 @@ function _useDarkMode() {
     return lastPointer && Date.now() - lastPointer.at <= ORIGIN_MAX_AGE ? lastPointer : null;
   }
 
-  function setActivePreset(presetName: string) {
-    activePresetName.value = presetName;
+  function setActivePreset(withDarkPreset: boolean): void;
+  /** @deprecated Pass whether the active preset has a dark variant. */
+  function setActivePreset(presetName: string): void;
+  function setActivePreset(value: boolean | string): void {
+    isPresetKnown.value = true;
+    hasDarkPreset.value = typeof value === "string" ? value in darkPresets : value;
     // Force DOM sync now that the preset is known
     document.documentElement.classList.toggle("dark", isDark.value);
     // Persist availability flag so the FOUC script in index.html can check it
     localStorage.setItem(DARK_AVAILABLE_KEY, JSON.stringify(isDarkModeAvailable.value));
+  }
+
+  function setColorModeOverride(mode: "light" | "dark"): void {
+    colorModeOverride.value = mode;
   }
 
   function toggle() {
@@ -107,6 +116,7 @@ function _useDarkMode() {
     colorMode: storedMode,
     colorModeIcon,
     setActivePreset,
+    setColorModeOverride,
     toggle,
   };
 }

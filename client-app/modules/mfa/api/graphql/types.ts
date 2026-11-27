@@ -18,6 +18,8 @@ export type Scalars = {
 };
 
 export type InputRequestMfaChangeCodeType = {
+  /** The organization whose mode is changed. Omit it to change the mode of the current user. */
+  organizationId?: InputMaybe<Scalars['String']['input']>;
   storeId: Scalars['String']['input'];
 };
 
@@ -63,7 +65,9 @@ export type MfaSettings = {
   canChangeOrganizationMode: Scalars['Boolean']['output'];
   canChangeUserMode: Scalars['Boolean']['output'];
   destination?: Maybe<Scalars['String']['output']>;
-  /** Whether a code can be delivered to the user, for example the email is confirmed. */
+  /** Whether the account has lockout enabled. Without it the user can't pass the second factor, and neither mode can be changed. */
+  isLockoutEnabled: Scalars['Boolean']['output'];
+  /** Whether a code can be delivered to the user, for example the user has an email. */
   isProviderAvailable: Scalars['Boolean']['output'];
   /** Whether the password sign-in to the store requires the code. */
   isRequired: Scalars['Boolean']['output'];

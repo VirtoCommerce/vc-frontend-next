@@ -1,5 +1,5 @@
 import { createGlobalState } from "@vueuse/core";
-import { computed, ref, readonly } from "vue";
+import { computed, ref, readonly, onMounted } from "vue";
 import { getOrganizations } from "@/core/api/graphql/account";
 import { Logger, escapeFilterSyntaxValue } from "@/core/utilities";
 import { ContactStatus } from "@/shared/company/types";
@@ -28,70 +28,83 @@ function _useUserOrganizations() {
     searchPhrase.value ? `"${escapeFilterSyntaxValue(searchPhrase.value)}"` : "",
   );
 
-  // Bumped by every search/reset: a page that lands after a newer search must not append to its list.
-  let requestId = 0;
-
-  async function fetchPage(): Promise<void> {
-    const id = ++requestId;
-    loading.value = true;
-
-    try {
-      const result = await getOrganizations({
-        after: endCursor.value,
-        first: ORGANIZATIONS_PER_PAGE,
-        sort: "name:asc",
-        searchPhrase: formattedSearchPhrase.value,
-        statuses: [ContactStatus.Approved],
-      });
-
-      if (id !== requestId) {
-        return;
-      }
-
-      organizations.value.push(...result.items);
-
-      hasNextPage.value = result.pageInfo.hasNextPage;
-      endCursor.value = result.pageInfo.endCursor;
-      totalCount.value = result.totalCount;
-
-      if (!searchPhrase.value) {
-        totalOrganizations.value = result.totalCount;
-      }
-
-      initialized.value = true;
-    } catch (error) {
-      if (id !== requestId) {
-        return;
-      }
-      Logger.error(`${_useUserOrganizations.name}.${fetchPage.name}`, error);
-      throw error;
-    } finally {
-      if (id === requestId) {
-        loading.value = false;
-      }
-    }
-  }
+  // The phrase the latest first page asked for; reset() clears it.
+  let searchedPhrase = "";
+  // The request sent last; reset() lets a new one start while an older one is still on its way.
+  let lastRequestId = 0;
 
   async function loadOrganizations(): Promise<void> {
     if (loading.value || !hasNextPage.value) {
       return;
     }
 
-    await fetchPage();
+    loading.value = true;
+    const requestId = ++lastRequestId;
+    const after = endCursor.value;
+    if (after === undefined) {
+      searchedPhrase = formattedSearchPhrase.value;
+    }
+    const phrase = searchedPhrase;
+    // Dropped if a newer request was sent, or if search() or reset() has asked for another phrase or page since.
+    const isOutdated = () => requestId !== lastRequestId || phrase !== searchedPhrase || after !== endCursor.value;
+    let isStale = false;
+
+    try {
+      const result = await getOrganizations({
+        after,
+        first: ORGANIZATIONS_PER_PAGE,
+        sort: "name:asc",
+        searchPhrase: phrase,
+        statuses: [ContactStatus.Approved],
+      });
+
+      isStale = isOutdated();
+
+      if (!isStale) {
+        organizations.value.push(...result.items);
+
+        hasNextPage.value = result.pageInfo.hasNextPage;
+        endCursor.value = result.pageInfo.endCursor;
+        totalCount.value = result.totalCount;
+
+        if (!phrase) {
+          totalOrganizations.value = result.totalCount;
+        }
+
+        initialized.value = true;
+      }
+    } catch (error) {
+      Logger.error(`${_useUserOrganizations.name}.${loadOrganizations.name}`, error);
+      isStale = isOutdated();
+
+      // A failed answer nobody waits for is dropped like a late one.
+      if (!isStale) {
+        throw error;
+      }
+    } finally {
+      if (requestId === lastRequestId) {
+        loading.value = false;
+      }
+    }
+
+    // Nothing newer is on its way: search the field's phrase again, so a search() for it made
+    // before this answer lands keeps it instead of asking again.
+    if (isStale && requestId === lastRequestId) {
+      await search();
+    }
   }
 
-  // Starts its own request rather than waiting on one in flight, which belongs to the old list.
   async function search(): Promise<void> {
+    searchedPhrase = formattedSearchPhrase.value;
     organizations.value = [];
     endCursor.value = undefined;
     hasNextPage.value = true;
     totalCount.value = 0;
 
-    await fetchPage();
+    await loadOrganizations();
   }
 
   function reset(): void {
-    requestId++;
     organizations.value = [];
     endCursor.value = undefined;
     hasNextPage.value = true;
@@ -100,7 +113,14 @@ function _useUserOrganizations() {
     initialized.value = false;
     loading.value = false;
     searchPhrase.value = "";
+    searchedPhrase = "";
   }
+
+  onMounted(() => {
+    if (!initialized.value) {
+      void search();
+    }
+  });
 
   return {
     searchPhrase,

@@ -29,7 +29,7 @@
   // The plate's own cream (#fffdf9), not the kit's white: a widget is one of the page's plates.
   --vc-widget-bg-color: var(--plate-bg);
   // A menu row rests on the same cream, so a list inside a widget does not paint white stripes.
-  --vc-menu-item-bg: var(--plate-bg);
+  --vc-menu-item-bg-color: var(--plate-bg);
 
   // The rest of the design's page rhythm, read off its own :root. One knob per measure so
   // the header plate, the footer plates and the gaps between them cannot drift apart:
@@ -78,7 +78,7 @@
 
   // Every heading in the display face is set one step lighter than the kit's: at Geologica's
   // weights 700 is a display weight, and at a page title's size it reads as a shout. One knob,
-  // read by the typography block's h1-h6 and by a widget's title, so the two cannot drift.
+  // read by the theme's VcTypography heading rule (_paprika-components.scss) and by a widget's title, so the two cannot drift.
   --vc-typography-heading-font-weight: 600;
 
   // A widget's title is one of those headings: the same weight, sentence case, and the display face's
@@ -92,6 +92,23 @@
   // selected row rather than as the pointer passing over one. 100 is the surface step above the
   // zebra's 50 and stays a hover.
   --vc-table-row-hover-bg-color: theme("colors.neutral.100");
+
+  // The body sits a shade below the header, which keeps its neutral-950, and the column that
+  // identifies the row (`row-header`) takes the darkest ink back: the two weights give a row its
+  // hierarchy when every cell is otherwise the same size.
+  --vc-table-body-color: theme("colors.neutral.800");
+  --vc-table-row-header-color: theme("colors.neutral.950");
+
+  // The pager's numbers are round controls, not a strip: 8 apart, so two circles never meet and read
+  // as one capsule, with the same full radius as the arrow buttons beside them. Every page carries a
+  // ring, because white on a white plate read as a bare digit. The current page's ring is clear and
+  // its fill shows through.
+  --vc-pagination-pages-gap: 0.5rem;
+  --vc-pagination-page-radius: 9999px;
+  --vc-pagination-page-border-width: 1px;
+  --vc-pagination-page-border-color: theme("colors.neutral.200");
+  --vc-pagination-page-hover-border-color: theme("colors.primary.200");
+  --vc-pagination-page-active-border-color: transparent;
 
   --vc-button-radius: 9999px;
   --vc-badge-radius: 9999px;
@@ -130,7 +147,9 @@ html.dark {
   --vc-widget-shadow: none;
   // Dark keeps the widget's solid surface: the dark plate is translucent glass, meant for a blur.
   --vc-widget-bg-color: theme("colors.additional.50");
-  --vc-menu-item-bg: theme("colors.additional.50");
+  // A menu row has no fill of its own in dark: it shows whatever panel holds it. The kit's dark rule
+  // reads this token now, so a solid step here would paint every header and organization row.
+  --vc-menu-item-bg-color: transparent;
 
   // The rules between a widget's head, body and footer step up a rung: 200 on the plate vanishes.
   // The account rail made this swap first; every widget takes it now.
@@ -188,11 +207,6 @@ html.dark {
     --plate-pad-y: 1.75rem;
     --plate-pad-x: 1.5rem;
     --page-gutter: 1.5rem;
-
-    // A widget reaches 18px past the container's inset below md — 6px off the screen once the
-    // phone halves that inset, and 18px out of line with the header above it before then. Below
-    // the desktop every plate stands on the page's gutter.
-    --vc-widget-container-margin-x: 0px;
   }
 }
 

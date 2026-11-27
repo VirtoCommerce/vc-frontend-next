@@ -1,6 +1,7 @@
 import { mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, ref } from "vue";
+import { VcTabSwitch, VcTabSwitchGroup } from "@/ui-kit/components/molecules";
 import HeaderPreferencesMenu from "./header-preferences-menu.vue";
 import VcImage from "@/ui-kit/components/atoms/image/vc-image.vue";
 
@@ -8,12 +9,17 @@ const en = { cultureName: "en-US", twoLetterLanguageName: "en", nativeName: "Eng
 const de = { cultureName: "de-DE", twoLetterLanguageName: "de", nativeName: "Deutsch (Deutschland)" };
 const pl = { cultureName: "pl-PL", twoLetterLanguageName: "pl", nativeName: "polski (Polska)" };
 
+const { darkMode } = await vi.hoisted(async () => {
+  const vue = await import("vue");
+  return { darkMode: { isDarkModeAvailable: vue.ref(false), colorMode: vue.ref("light") } };
+});
+
 vi.mock("vue-router", () => ({
   useRoute: () => ({ path: "/" }),
 }));
 
 vi.mock("@/core/composables", () => ({
-  useDarkMode: () => ({ isDarkModeAvailable: ref(false), colorMode: ref("light") }),
+  useDarkMode: () => darkMode,
   useThemeContext: () => ({ themeContext: ref(undefined) }),
 }));
 
@@ -62,5 +68,42 @@ describe("HeaderPreferencesMenu language options", () => {
 
     expect(german.text()).toBe("Deutsch (Deutschland)");
     expect(german.find("img").attributes("alt")).not.toContain("Deutsch");
+  });
+});
+
+describe("HeaderPreferencesMenu appearance", () => {
+  const CHECKED = "vc-tab-switch--checked";
+
+  beforeEach(() => {
+    darkMode.isDarkModeAvailable.value = true;
+    darkMode.colorMode.value = "dark";
+  });
+
+  function mountWithSwitches() {
+    return mount(HeaderPreferencesMenu, {
+      global: {
+        components: { VcImage, VcTabSwitchGroup, VcTabSwitch },
+        stubs: { VcPopover: VcPopoverStub, VcIcon: true },
+        mocks: { $t: (key: string) => key },
+      },
+    });
+  }
+
+  const modeTab = (wrapper: ReturnType<typeof mountWithSwitches>, mode: string) =>
+    wrapper.findAllComponents(VcTabSwitch).find((item) => (item.props() as Record<string, unknown>).value === mode)!;
+
+  it("marks the visitor's colour mode as chosen", () => {
+    const wrapper = mountWithSwitches();
+
+    expect(modeTab(wrapper, "dark").classes()).toContain(CHECKED);
+    expect(modeTab(wrapper, "light").classes()).not.toContain(CHECKED);
+  });
+
+  it("saves the pressed colour mode", async () => {
+    const wrapper = mountWithSwitches();
+
+    await modeTab(wrapper, "system").find("button").trigger("click");
+
+    expect(darkMode.colorMode.value).toBe("system");
   });
 });

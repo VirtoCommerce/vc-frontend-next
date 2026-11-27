@@ -1,5 +1,8 @@
+import { productImageMocks } from "@/ui-kit/mocks";
 import { VcProductImage } from "..";
 import type { Meta, StoryObj } from "@storybook/vue3-vite";
+
+const [image1, image2, image3, image4, image5] = productImageMocks;
 
 const meta: Meta<typeof VcProductImage> = {
   title: "Components/Organisms/VcProductImage",
@@ -15,7 +18,7 @@ type StoryType = StoryObj<typeof meta>;
 
 export const Basic: StoryType = {
   args: {
-    imgSrc: "product-example-1.webp",
+    imgSrc: image1,
     alt: "Product",
   },
 };
@@ -36,12 +39,6 @@ export const NoImage: StoryType = {
 export const Carousel: StoryType = {
   args: {
     ...Basic.args,
-    images: [
-      { id: "1", url: "product-example-1.webp", sortOrder: 1 },
-      { id: "2", url: "product-example-2.webp", sortOrder: 2 },
-      { id: "3", url: "product-example-3.webp", sortOrder: 3 },
-      { id: "4", url: "product-example-4.webp", sortOrder: 4 },
-      { id: "5", url: "product-example-5.webp", sortOrder: 5 },
-    ],
+    images: [{ url: image1 }, { url: image2 }, { url: image3 }, { url: image4 }, { url: image5 }],
   },
 };

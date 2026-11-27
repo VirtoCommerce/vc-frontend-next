@@ -11,16 +11,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import { useThemeContext } from "@/core/composables";
-import { NO_IMAGE_URL } from "@/core/constants";
-import { appendSuffixToFilename } from "@/core/utilities";
-import { getImageUrl, isFilenameOnly } from "../../../utilities";
+import { computed, ref, toValue, watch } from "vue";
+import { useUiKitOptions } from "../../../composables/useUiKitOptions";
+import { NO_IMAGE_URL } from "../../../constants";
+import { appendSuffixToFilename, isFilenameOnly } from "../../../utilities";
 
 export interface IProps {
   lazy?: boolean;
   src?: string;
   alt?: string;
+  /** Shown when `src` is empty or fails to load. Default: the `uiKit` plugin's `image.fallbackSrc`, then ui-kit's `no-image.svg`. */
   fallbackSrc?: string;
   /**
    * First you need to generate thumbnails in admin panel, section "Thumbnails" (vc-module-image-tools).
@@ -32,34 +32,36 @@ export interface IProps {
 
 const props = withDefaults(defineProps<IProps>(), {
   src: "",
-  fallbackSrc: NO_IMAGE_URL,
 });
 
-const { themeContext } = useThemeContext();
+const { image } = useUiKitOptions();
+const thumbnails = computed(() => toValue(image?.thumbnails));
+const fallbackSrc = computed(() => props.fallbackSrc || toValue(image?.fallbackSrc) || NO_IMAGE_URL);
 
 const fallbackEnabled = ref(false);
 const originalEnabled = ref(false);
 
 const preparedSrc = computed<string>(() => {
   if (fallbackEnabled.value || !props.src) {
-    return isFilenameOnly(props.fallbackSrc) ? getImageUrl(props.fallbackSrc) : props.fallbackSrc;
+    return resolveFileName(fallbackSrc.value);
   }
 
   if (isFilenameOnly(props.src)) {
-    return getImageUrl(props.src);
+    return resolveFileName(props.src);
   }
 
-  const sizeSuffix =
-    props.sizeSuffix && !!themeContext.value
-      ? themeContext.value?.settings?.image_thumbnails_suffixes?.[props.sizeSuffix]
-      : "";
+  const sizeSuffix = props.sizeSuffix ? thumbnails.value?.suffixes?.[props.sizeSuffix] : "";
 
-  if (originalEnabled.value || !themeContext.value?.settings?.image_thumbnails_enabled || !sizeSuffix) {
+  if (originalEnabled.value || !thumbnails.value?.enabled || !sizeSuffix) {
     return props.src;
   }
 
   return appendSuffixToFilename(props.src, `_${sizeSuffix}`);
 });
+
+function resolveFileName(value: string): string {
+  return isFilenameOnly(value) ? (image?.resolveFileName?.(value) ?? value) : value;
+}
 
 /**
  * Set fallback source when image loading error occurs.
@@ -68,8 +70,8 @@ function setFallback(): void {
   if (
     !originalEnabled.value &&
     props.sizeSuffix &&
-    themeContext.value?.settings?.image_thumbnails_enabled &&
-    themeContext.value?.settings?.image_thumbnails_original_fallback_enabled
+    thumbnails.value?.enabled &&
+    thumbnails.value.originalFallbackEnabled
   ) {
     originalEnabled.value = true;
   } else if (!fallbackEnabled.value) {
@@ -79,7 +81,7 @@ function setFallback(): void {
 }
 
 watch(
-  () => props.src + props.sizeSuffix + props.fallbackSrc,
+  () => props.src + props.sizeSuffix + fallbackSrc.value,
   () => {
     fallbackEnabled.value = false;
     originalEnabled.value = false;

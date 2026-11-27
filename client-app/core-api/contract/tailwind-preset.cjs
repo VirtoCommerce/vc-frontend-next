@@ -1118,20 +1118,6 @@ const preset = {
         "Lato",
         "sans-serif"
       ],
-      "geologica": [
-        "Geologica",
-        "Noto Sans JP",
-        "Noto Sans SC",
-        "system-ui",
-        "sans-serif"
-      ],
-      "inter": [
-        "Inter",
-        "Noto Sans JP",
-        "Noto Sans SC",
-        "system-ui",
-        "sans-serif"
-      ],
       "base": "var(--vc-base-font-family, Lato, sans-serif)",
       "heading": "var(--vc-heading-font-family, inherit)"
     },
@@ -2375,6 +2361,22 @@ const preset = {
       "maxHeight": {
         "screen-60": "60vh",
         "screen-75": "75vh"
+      },
+      "fontFamily": {
+        "geologica": [
+          "Geologica",
+          "Noto Sans JP",
+          "Noto Sans SC",
+          "system-ui",
+          "sans-serif"
+        ],
+        "inter": [
+          "Inter",
+          "Noto Sans JP",
+          "Noto Sans SC",
+          "system-ui",
+          "sans-serif"
+        ]
       }
     }
   }

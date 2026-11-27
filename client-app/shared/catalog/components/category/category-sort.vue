@@ -1,9 +1,8 @@
 <template>
-  <VcTabSwitchGroup variant="seg" class="category-sort" :aria-label="$t('shared.sorting.aria_label')">
+  <VcTabSwitchGroup :model-value="pressed" class="category-sort" :aria-label="$t('shared.sorting.aria_label')">
     <VcTabSwitch
       v-for="option in visibleOptions"
       :key="option.id"
-      :model-value="pressed"
       :value="option.id"
       :label="option.shortName"
       :aria-label="option.name"
@@ -32,7 +31,7 @@ const emit = defineEmits<IEmits>();
 
 const props = defineProps<IProps>();
 
-// VcTabSwitch never writes its own model — it reports the pressed value and the owner commits it.
+// The rail only reports the pressed value; the owner commits it.
 const modelValue = defineModel<string | undefined>();
 
 // What the pointer chose, held only until the search that the choice started comes back. The model

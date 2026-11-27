@@ -51,7 +51,7 @@ jobs:
           esac
 
       - name: Set up Node 22
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '22'
 
@@ -103,7 +103,7 @@ jobs:
       # environment, whatever blobSAS says. Set here only, so install never sees it.
       - name: Publish to Blob
         id: blobRelease
-        uses: VirtoCommerce/.github/actions/publish-blob-release@v3.1000.10
+        uses: VirtoCommerce/.github/actions/publish-blob-release@v3.1000.11
         env:
           BLOB_SAS: ${{ secrets.BLOB_TOKEN }}
         with:

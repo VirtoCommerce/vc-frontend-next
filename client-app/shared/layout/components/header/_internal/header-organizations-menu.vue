@@ -11,6 +11,7 @@
   >
     <template #trigger="{ opened, triggerProps }">
       <HeaderPod
+        ref="trigger"
         :opened="opened"
         :aria-label="triggerLabel"
         :title="organization?.name"
@@ -23,22 +24,26 @@
 
     <template #content="{ close }">
       <div class="header-organizations-menu__panel">
-        <TopHeaderOrganizations
-          :key="openCount"
-          class="header-organizations-menu__list"
-          @organization-selected="close"
-        />
+        <OrganizationList :key="openCount" class="header-organizations-menu__list" @organization-selected="close" />
       </div>
     </template>
   </VcPopover>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { onKeyStroke } from "@vueuse/core";
+import { computed, ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useUser } from "@/shared/account";
 import HeaderPod from "./header-pod.vue";
-import TopHeaderOrganizations from "./top-header-organizations.vue";
+import OrganizationList from "./organization-list.vue";
+import type { ExtendedMenuLinkType } from "@/core/types";
+
+interface IProps {
+  item: ExtendedMenuLinkType;
+}
+
+const props = defineProps<IProps>();
 
 const { t } = useI18n();
 const { organization } = useUser();
@@ -46,8 +51,12 @@ const { organization } = useUser();
 // The popover only hides its content when closed, so re-mount the list on each open: it refetches
 // and drops a previous switch error instead of showing a stale state.
 const openCount = ref(0);
+const isOpen = ref(false);
+const trigger = useTemplateRef<InstanceType<typeof HeaderPod>>("trigger");
 
-function onToggle(opened: boolean) {
+function onToggle(opened: boolean): void {
+  isOpen.value = opened;
+
   if (opened) {
     openCount.value++;
   }
@@ -56,9 +65,21 @@ function onToggle(opened: boolean) {
 // Icon-only, so the name says what the button opens before whose organization is current.
 const triggerLabel = computed(() =>
   organization.value?.name
-    ? t("shared.layout.header.organizations_menu.trigger_label", { name: organization.value.name })
-    : t("common.labels.organizations"),
+    ? t("shared.layout.header.organization_switcher.trigger_label", {
+        title: props.item.title,
+        name: organization.value.name,
+      })
+    : props.item.title,
 );
+
+// VcPopover takes Escape only in its panel and on its trigger: from anywhere else, close it through the trigger.
+onKeyStroke("Escape", (event: KeyboardEvent) => {
+  if (!isOpen.value || event.defaultPrevented) {
+    return;
+  }
+
+  (trigger.value?.$el as HTMLElement | undefined)?.click();
+});
 </script>
 
 <style lang="scss">

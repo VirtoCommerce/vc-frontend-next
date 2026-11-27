@@ -75,7 +75,7 @@
                   @change="toggleSelectAll"
                 />
 
-                <span v-else class="sr-only">{{ $t("ui_kit.table.selection_column") }}</span>
+                <span v-else class="vc-table__selection-label">{{ $t("ui_kit.table.selection_column") }}</span>
               </th>
 
               <th
@@ -198,7 +198,10 @@
             :ref="(el) => setRowRef(el as Element | null, rowIndex)"
             :class="[
               'vc-table__row',
-              { 'vc-table__row--selected': selectionEnabled && isRowSelected(item, rowIndex) },
+              {
+                'vc-table__row--selected': selectionEnabled && isRowSelected(item, rowIndex),
+                'vc-table__row--clickable': hasRowClickListener,
+              },
               resolvedRowClass(item, rowIndex),
             ]"
             :style="resolvedRowStyle(item, rowIndex)"
@@ -255,7 +258,7 @@
               :class="[
                 'vc-table__cell',
                 `vc-table__cell--align--${column.align ?? 'left'}`,
-                { 'vc-table__cell--strong': column.strong },
+                { 'vc-table__cell--row-header': column.rowHeader },
                 getColumnFixedClasses(column, 'vc-table__cell'),
                 column.classes,
               ]"
@@ -632,7 +635,7 @@ function getColumnFixedClasses(column: VcTableColumnType, baseClass: string): Re
   };
 }
 
-// Detect if @row-click listener is bound (for auto cursor-pointer).
+// Detect if @row-click listener is bound.
 // instance.vnode is non-reactive, so we manually refresh on mount/update to track parent re-renders
 // (covers the case where parent dynamically adds/removes the listener).
 const instance = getCurrentInstance();
@@ -712,9 +715,35 @@ function warnOnCustomHeaderIssues(): void {
   );
 }
 
+let rowHeaderWarned = false;
+
+// `rowHeader` styles only the cells VcTable renders itself, from VcTableColumn slots.
+function warnOnUnrenderedRowHeader(): void {
+  if (rowHeaderWarned || !mergedColumns.value.some((column) => column.rowHeader)) {
+    return;
+  }
+
+  // `#desktop-body` wins over column slots, and without a column slot `#desktop-item` renders the rows.
+  if (!slots["desktop-body"] && hasColumnSlots.value) {
+    return;
+  }
+
+  rowHeaderWarned = true;
+
+  // eslint-disable-next-line no-console
+  console.warn(
+    "VcTable: a column is marked `rowHeader`, but VcTable does not render its cells: `#desktop-body` and `#desktop-item` render their own, so the column is not emphasised. `rowHeader` applies only to VcTableColumn slots.",
+  );
+}
+
 onMounted(() => {
   syncRowClickListener();
   syncRetryListener();
+
+  if (import.meta.env.DEV) {
+    // columns register on child mount, so they are known a tick later
+    void nextTick(warnOnUnrenderedRowHeader);
+  }
 
   if (import.meta.env.DEV && selectionEnabled.value && slots["desktop-body"]) {
     // eslint-disable-next-line no-console
@@ -737,21 +766,19 @@ onUpdated(() => {
   if (import.meta.env.DEV && slots.header) {
     warnOnCustomHeaderIssues();
   }
+
+  if (import.meta.env.DEV) {
+    warnOnUnrenderedRowHeader();
+  }
 });
 
 // Resolve row class from VcTable prop
-function resolvedRowClass(item: T, index: number): unknown[] | undefined {
-  let rowClassValue: unknown;
-  if (props.rowClass) {
-    rowClassValue = typeof props.rowClass === "function" ? props.rowClass(item, index) : props.rowClass;
-  }
-  const clickClass = hasRowClickListener.value ? "cursor-pointer" : undefined;
-
-  if (!rowClassValue && !clickClass) {
-    return undefined;
+function resolvedRowClass(item: T, index: number): string | Record<string, boolean> | undefined {
+  if (typeof props.rowClass === "function") {
+    return props.rowClass(item, index);
   }
 
-  return [rowClassValue, clickClass];
+  return props.rowClass;
 }
 
 // Resolve row style from VcTable prop
@@ -827,8 +854,8 @@ const scrollbarStyle = computed(() => {
   return undefined;
 });
 
-const desktopBorderWidth = computed(() => (props.bordered ? "1px" : "0"));
-const mobileBorderWidth = computed(() => (props.mobileBordered ? "1px" : "0"));
+const desktopBorderWidth = computed(() => (props.bordered ? "var(--vc-table-border-width, 1px)" : "0"));
+const mobileBorderWidth = computed(() => (props.mobileBordered ? "var(--vc-table-border-width, 1px)" : "0"));
 
 // A bordered table draws its own box, so it rounds to its own radius. An UNBORDERED one is flush
 // with whatever surface holds it, and the corner it stands on is that surface's — a widget hands it
@@ -1198,6 +1225,10 @@ watch(
     @apply sr-only;
   }
 
+  &__selection-label {
+    @apply sr-only;
+  }
+
   &__head {
     @apply border-b border-neutral-200;
 
@@ -1217,7 +1248,9 @@ watch(
   }
 
   &__title {
-    @apply px-4 py-1 h-10 font-bold;
+    --font-size: var(--vc-table-title-font-size, theme("fontSize.sm[0]"));
+
+    @apply px-4 py-1 h-10 font-bold text-[length:var(--font-size)] text-[color:var(--vc-table-title-color,currentColor)];
 
     @include column-align;
 
@@ -1234,6 +1267,9 @@ watch(
 
   &__body {
     word-break: break-word;
+    // On the body rather than the cells, so rows rendered by `#desktop-item` / `#desktop-body` take it too and a
+    // colour set on a row still reaches its cells.
+    @apply text-[color:var(--vc-table-body-color,currentColor)];
 
     &:first-child {
       tr:first-child {
@@ -1280,6 +1316,10 @@ watch(
         background-color: var(--selected-bg-color);
       }
     }
+
+    &--clickable {
+      @apply cursor-pointer;
+    }
   }
 
   &__skeleton {
@@ -1307,14 +1347,13 @@ watch(
   }
 
   &__cell {
-    // A shade below the header, which keeps its neutral-950: the two weights are what give a
-    // row its hierarchy when every cell is otherwise the same size.
-    @apply px-4 py-3 text-neutral-800;
+    @apply px-4 py-3;
 
     @include column-align;
 
-    &--strong {
-      @apply font-bold text-neutral-950;
+    &--row-header {
+      // Keeps the row's colour by default; a design that mutes the body lifts the identifying cell back with this token.
+      @apply font-bold text-[color:var(--vc-table-row-header-color,currentColor)];
     }
 
     &--fixed {

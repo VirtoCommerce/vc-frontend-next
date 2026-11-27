@@ -16,9 +16,9 @@ How the rest of the app uses the kit is in `ui-kit.md`.
    `Vc<Name><Prop>Type`), `vc-<name>.stories.ts` (Storybook story — required for a new component), optional
    `vc-<name>.test.ts`. Registration: export in `<layer>/index.ts` **and** `GlobalComponents` entry in
    `<layer>/types.d.ts`. Missing the export → not registered; missing the `GlobalComponents` entry → untyped in templates.
-3. Boundaries: the kit must not import `@/shared`, `@/modules`, `@/pages`; new imports from `@/core` are also
-   avoided (the kit is being made independent — `VcTable` moved to local types/constants). Use kit-local types,
-   string-literal unions instead of enums, constants in `ui-kit/constants`.
+3. Boundaries: the kit must not import anything else in `client-app`, `@/core` included (`no-ui-kit-to-host` in
+   dependency-cruiser). Use kit-local types, string-literal unions instead of enums, constants in
+   `ui-kit/constants`, and theme services through the `uiKit` plugin options.
 4. Kit text (labels, aria-labels) uses keys from `client-app/ui-kit/locales/*.json` (`ui_kit.*`), all 13 locales.
 5. Styling inside the kit:
    - block `vc-<name>`; modifiers `vc-x--flag`, `vc-x--size--md`, `vc-x--color--primary`, `vc-x--{variant}--{color}`;
@@ -29,9 +29,9 @@ How the rest of the app uses the kit is in `ui-kit.md`.
      `--max-width: var(--props-max-width, var(--vc-badge-max-width, 100%));`. Token-first chains are legacy;
    - states captured with `$disabled: ""; &--disabled { $disabled: &; }` and reused (`&:hover:not(#{$disabled})`);
    - variant × colour matrices generated with `@each` over `$colors` / `$variants`, not copy-pasted;
-   - colour tokens for variants live in `assets/styles/_ui-kit-tokens.scss` as
+   - colour tokens for variants live in `ui-kit/styles/_ui-kit-tokens.scss` as
      `--vc-<comp>-<variant>-<color>-<part>: var(--color-vc-<part>-<variant>-<color>, <palette fallback>)`;
-   - dark remaps in `assets/styles/dark/<layer>/vc-<name>.scss`, print in `assets/styles/print/<layer>/...`;
+   - dark remaps in `ui-kit/styles/dark/<layer>/vc-<name>.scss`, print in `ui-kit/styles/print/<layer>/...`;
    - focus ring via the `focus-ring` mixin, small targets via `hit-area`, motion under `prefers-reduced-motion`.
 6. **Public tokens are API.** A new `--vc-*` variable must be consumed (a token nothing reads is dead) and must not
    pin a related value (a font-size token next to a literal line-height desyncs). Renaming or removing one follows
@@ -60,6 +60,7 @@ How the rest of the app uses the kit is in `ui-kit.md`.
 
 ## Legacy — don't flag, don't copy
 
-- Existing `@/core` imports inside the kit and one `@/shared` import.
+- Enums in `ui-kit/enums` (`AddToCartModeType`, `ContentType`): `ContentType` moved from core and stays an enum because
+  `@/core/enums` and the `@vc-frontend/core` facade re-export it as a runtime value.
 - Existing cross-component selectors (`@at-root .vc-product-card`, `@at-root .vc-button` in `vc-icon`,
   `.vc-popover__body:has(...)`, `vc-line-item`'s `:has(.vc-*)`) — don't add new ones.
