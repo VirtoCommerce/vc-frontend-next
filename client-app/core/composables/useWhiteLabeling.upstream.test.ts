@@ -33,10 +33,20 @@ describe("useWhiteLabeling themeLogoUrl", () => {
     expect(useWhiteLabeling().themeLogoUrl.value).toBe("acme-white.svg");
   });
 
-  it("shows white-labeling's light logo in the dark theme when white-labeling has no logo for dark backgrounds", () => {
+  it("falls back to the store's inverted logo in the dark theme when white-labeling has no logo for dark backgrounds", () => {
     useWhiteLabeling().setWhiteLabelingSettings({ logoUrl: "store.svg" });
 
-    expect(useWhiteLabeling().themeLogoUrl.value).toBe("store.svg");
+    expect(useWhiteLabeling().themeLogoUrl.value).toBe("logo-white.svg");
+  });
+
+  it("keeps white-labeling's logo for dark backgrounds in the dark theme when the organization uploaded its logo", () => {
+    useWhiteLabeling().setWhiteLabelingSettings({
+      logoUrl: "org.svg",
+      secondaryLogoUrl: "store-white.svg",
+      isOrganizationLogoUploaded: true,
+    });
+
+    expect(useWhiteLabeling().themeLogoUrl.value).toBe("store-white.svg");
   });
 
   it("shows white-labeling's logo for dark backgrounds with white-labeling's logo", () => {

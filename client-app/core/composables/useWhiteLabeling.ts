@@ -88,15 +88,22 @@ function _useWhiteLabeling() {
     ),
   );
   const darkLogoUrl = computed(pickDarkLogo);
+  const secondaryLogoUrl = computed(
+    () => whiteLabelingSettings.value?.secondaryLogoUrl ?? themeContext.value?.settings?.logo_inverted_image,
+  );
 
   return {
     logoUrl,
-    secondaryLogoUrl: computed(
-      () => whiteLabelingSettings.value?.secondaryLogoUrl ?? themeContext.value?.settings?.logo_inverted_image,
-    ),
+    secondaryLogoUrl,
     darkLogoUrl,
-    /** The one logo for the current colour mode: the light logo, or in dark mode the dark logo when its source has one. */
-    themeLogoUrl: computed(() => (isDark.value ? (darkLogoUrl.value ?? logoUrl.value) : logoUrl.value)),
+    /**
+     * The one logo for the current colour mode, for the header and the footer alike (both take the page's colour):
+     * the light logo, or in dark mode an inverted one — the dark logo of the light logo's source, else
+     * white-labeling's secondary logo, else the store's inverted logo.
+     */
+    themeLogoUrl: computed(() =>
+      isDark.value ? (darkLogoUrl.value ?? secondaryLogoUrl.value ?? logoUrl.value) : logoUrl.value,
+    ),
     footerLinks: computed(() =>
       whiteLabelingSettings.value?.footerLinks?.map((item) => convertToExtendedMenuLink(item)),
     ),
